@@ -53,7 +53,6 @@ const CartaoFilme = ({
           </div>
         )}
 
-        {/* Adjusted positioning and size of the favorite button */}
         <div className="absolute top-2 right-2 z-20">
           <FavoritoButton
             itemId={id}
@@ -79,7 +78,6 @@ const CartaoFilme = ({
           </div>
         </div>
         
-        {/* Improved hover overlay with better proportions */}
         <div className={`absolute inset-0 bg-black/80 flex flex-col justify-between p-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
           <div className="w-full">
             <Button 
@@ -87,7 +85,8 @@ const CartaoFilme = ({
               size="sm" 
               className="w-full mb-3 bg-movieRed hover:bg-movieRed/90 text-white font-medium flex items-center justify-center gap-1.5 rounded-sm"
             >
-              <Play className="h-4 w-4 fill-white" /> Assistir
+              <Play className="h-4 w-4" strokeWidth={2} /> 
+              <span className="ml-1">Assistir</span>
             </Button>
             
             <div className="flex justify-between w-full gap-2">
@@ -95,9 +94,10 @@ const CartaoFilme = ({
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="w-full rounded-sm bg-white/10 hover:bg-white/20 text-white"
+                  className="w-full rounded-sm bg-white/10 hover:bg-white/20 text-white flex items-center justify-center"
                 >
-                  <Info className="h-4 w-4" />
+                  <Info className="h-4 w-4" strokeWidth={2} />
+                  <span className="ml-1">Info</span>
                 </Button>
               </Link>
             </div>
