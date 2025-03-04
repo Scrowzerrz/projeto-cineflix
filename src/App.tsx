@@ -1,9 +1,13 @@
+
 import React from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
 import './App.css';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 
 import Index from "./pages/Index";
 import Movies from "./pages/Movies";
@@ -13,10 +17,24 @@ import DetalhesFilme from "./pages/DetalhesFilme";
 import DetalhesSerie from "./pages/DetalhesSerie";
 import Search from "./pages/Search";
 
+// Criar uma instância do QueryClient
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutos
+    },
+  },
+});
+
 function App() {
   return (
     <React.StrictMode>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <Toaster position="top-right" richColors />
+      </QueryClientProvider>
     </React.StrictMode>
   );
 }
