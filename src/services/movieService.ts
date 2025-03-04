@@ -1,86 +1,81 @@
 
 import { MovieCardProps } from '@/components/MovieCard';
+import { supabase } from "@/integrations/supabase/client";
 
 // API interfaces
 export interface MovieResponse {
   id: string;
-  title: string;
-  poster_path: string;
-  release_date: string;
-  runtime?: number;
-  vote_average: number;
-  media_type: 'movie' | 'tv';
-  first_air_date?: string;
-  episode_run_time?: number[];
+  titulo: string;
+  poster_url: string;
+  ano: string;
+  duracao?: string;
+  avaliacao: string;
+  tipo: 'movie' | 'series';
+  qualidade?: string;
+  descricao?: string;
+  categoria?: string;
+  destaque?: boolean;
 }
 
 // Helper function to map API response to our MovieCardProps format
 const mapToMovieCard = (movie: MovieResponse): MovieCardProps => {
-  const isMovie = movie.media_type === 'movie';
-  
   return {
     id: movie.id,
-    title: movie.title,
-    posterUrl: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
-    year: isMovie 
-      ? new Date(movie.release_date).getFullYear().toString() 
-      : new Date(movie.first_air_date || '').getFullYear().toString(),
-    duration: isMovie 
-      ? `${movie.runtime}min` 
-      : movie.episode_run_time ? `${movie.episode_run_time[0]}min` : undefined,
-    type: isMovie ? 'movie' : 'series',
-    quality: Math.random() > 0.5 ? 'HD' : 'DUB', // Simulating quality for now
-    rating: (movie.vote_average / 2).toFixed(1)
+    title: movie.titulo,
+    posterUrl: movie.poster_url,
+    year: movie.ano,
+    duration: movie.duracao,
+    type: movie.tipo === 'movie' ? 'movie' : 'series',
+    quality: movie.qualidade as 'HD' | 'CAM' | 'DUB' | 'LEG',
+    rating: movie.avaliacao
   };
 };
 
-// Simulated fetch functions that would normally call a real API
-export const fetchMovies = async (category: string): Promise<MovieCardProps[]> => {
-  console.log(`Fetching ${category} movies...`);
+// Função para buscar filmes do Supabase
+export const fetchMovies = async (categoria: string): Promise<MovieCardProps[]> => {
+  console.log(`Buscando filmes da categoria: ${categoria}`);
   
-  // This is a placeholder for actual API calls
-  // In a real implementation, you would call your backend or a movie API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Generate some sample data
-      const movies: MovieCardProps[] = Array.from({ length: 8 }).map((_, index) => ({
-        id: `movie-${category}-${index}`,
-        title: `Filme ${index + 1}`,
-        posterUrl: `https://picsum.photos/500/750?random=${index + 1}`,
-        year: '2024',
-        duration: '120min',
-        quality: Math.random() > 0.5 ? 'HD' : 'DUB',
-        rating: (Math.random() * 5).toFixed(1)
-      }));
-      
-      resolve(movies);
-    }, 500); // Simulate network delay
-  });
+  try {
+    const { data, error } = await supabase
+      .from('filmes')
+      .select('*')
+      .eq('categoria', categoria);
+    
+    if (error) {
+      console.error('Erro ao buscar filmes:', error);
+      throw error;
+    }
+    
+    return data.map(mapToMovieCard);
+  } catch (error) {
+    console.error('Erro ao buscar filmes:', error);
+    return [];
+  }
 };
 
-export const fetchSeries = async (category: string): Promise<MovieCardProps[]> => {
-  console.log(`Fetching ${category} series...`);
+// Função para buscar séries do Supabase
+export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> => {
+  console.log(`Buscando séries da categoria: ${categoria}`);
   
-  // This is a placeholder for actual API calls
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // Generate some sample data
-      const series: MovieCardProps[] = Array.from({ length: 8 }).map((_, index) => ({
-        id: `series-${category}-${index}`,
-        title: `Série ${index + 1}`,
-        posterUrl: `https://picsum.photos/500/750?random=${index + 10 + 1}`,
-        year: '2024',
-        duration: '45min',
-        type: 'series',
-        quality: Math.random() > 0.5 ? 'HD' : 'LEG',
-        rating: (Math.random() * 5).toFixed(1)
-      }));
-      
-      resolve(series);
-    }, 500); // Simulate network delay
-  });
+  try {
+    const { data, error } = await supabase
+      .from('series')
+      .select('*')
+      .eq('categoria', categoria);
+    
+    if (error) {
+      console.error('Erro ao buscar séries:', error);
+      throw error;
+    }
+    
+    return data.map(mapToMovieCard);
+  } catch (error) {
+    console.error('Erro ao buscar séries:', error);
+    return [];
+  }
 };
 
+// Função para buscar filme em destaque do Supabase
 export const fetchHeroMovie = async (): Promise<{
   title: string;
   description: string;
@@ -90,18 +85,139 @@ export const fetchHeroMovie = async (): Promise<{
   year: string;
   duration: string;
 }> => {
-  // This is a placeholder for actual API calls
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        title: "REACHER",
-        description: "Quando o investigador militar Jack Reacher é preso por um crime que não cometeu, ele se vê no meio de uma conspiração mortal cheia de policiais corruptos, empresários obscuros e políticos conspiradores.",
-        imageUrl: "https://picsum.photos/1920/1080?random=1",
-        type: 'series',
-        rating: "8.7",
-        year: "2023",
-        duration: "55min"
-      });
-    }, 300);
-  });
+  try {
+    // Primeiro tentamos buscar um filme em destaque
+    let { data, error } = await supabase
+      .from('filmes')
+      .select('*')
+      .eq('destaque', true)
+      .single();
+    
+    // Se não encontrarmos um filme em destaque, tentamos uma série em destaque
+    if (error || !data) {
+      const seriesResult = await supabase
+        .from('series')
+        .select('*')
+        .eq('destaque', true)
+        .single();
+      
+      if (seriesResult.error) {
+        console.error('Erro ao buscar filme/série em destaque:', seriesResult.error);
+        throw seriesResult.error;
+      }
+      
+      data = seriesResult.data;
+    }
+    
+    if (!data) {
+      throw new Error('Nenhum filme ou série em destaque encontrado');
+    }
+    
+    return {
+      title: data.titulo,
+      description: data.descricao || 'Sem descrição disponível',
+      imageUrl: data.poster_url,
+      type: data.tipo === 'movie' ? 'movie' : 'series',
+      rating: data.avaliacao,
+      year: data.ano,
+      duration: data.duracao || '0min'
+    };
+  } catch (error) {
+    console.error('Erro ao buscar filme/série em destaque:', error);
+    // Retornamos dados padrão em caso de erro
+    return {
+      title: "Filme em Destaque",
+      description: "Descrição do filme em destaque não disponível.",
+      imageUrl: "https://picsum.photos/1920/1080?random=1",
+      type: 'movie',
+      rating: "0.0",
+      year: "2023",
+      duration: "0min"
+    };
+  }
+};
+
+// Função para buscar todos os filmes (para a página de filmes)
+export const fetchAllMovies = async (filtroCategoria?: string): Promise<MovieCardProps[]> => {
+  try {
+    let query = supabase
+      .from('filmes')
+      .select('*');
+    
+    if (filtroCategoria && filtroCategoria !== 'Todos') {
+      query = query.eq('categoria', filtroCategoria);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Erro ao buscar todos os filmes:', error);
+      throw error;
+    }
+    
+    return data.map(mapToMovieCard);
+  } catch (error) {
+    console.error('Erro ao buscar todos os filmes:', error);
+    return [];
+  }
+};
+
+// Função para buscar todas as séries (para a página de séries)
+export const fetchAllSeries = async (filtroCategoria?: string): Promise<MovieCardProps[]> => {
+  try {
+    let query = supabase
+      .from('series')
+      .select('*');
+    
+    if (filtroCategoria && filtroCategoria !== 'Todos') {
+      query = query.eq('categoria', filtroCategoria);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Erro ao buscar todas as séries:', error);
+      throw error;
+    }
+    
+    return data.map(mapToMovieCard);
+  } catch (error) {
+    console.error('Erro ao buscar todas as séries:', error);
+    return [];
+  }
+};
+
+// Função para buscar por termo (para a página de pesquisa)
+export const searchContent = async (searchTerm: string): Promise<MovieCardProps[]> => {
+  try {
+    // Buscar filmes que correspondem ao termo de pesquisa
+    const { data: filmes, error: filmesError } = await supabase
+      .from('filmes')
+      .select('*')
+      .ilike('titulo', `%${searchTerm}%`);
+    
+    if (filmesError) {
+      console.error('Erro ao pesquisar filmes:', filmesError);
+      throw filmesError;
+    }
+    
+    // Buscar séries que correspondem ao termo de pesquisa
+    const { data: series, error: seriesError } = await supabase
+      .from('series')
+      .select('*')
+      .ilike('titulo', `%${searchTerm}%`);
+    
+    if (seriesError) {
+      console.error('Erro ao pesquisar séries:', seriesError);
+      throw seriesError;
+    }
+    
+    // Combinar resultados de filmes e séries
+    const combinedResults = [...filmes, ...series];
+    
+    return combinedResults.map(mapToMovieCard);
+  } catch (error) {
+    console.error('Erro ao realizar pesquisa:', error);
+    return [];
+  }
 };

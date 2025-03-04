@@ -9,7 +9,102 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      filmes: {
+        Row: {
+          ano: string
+          avaliacao: string | null
+          categoria: string | null
+          created_at: string | null
+          descricao: string | null
+          destaque: boolean | null
+          duracao: string | null
+          id: string
+          poster_url: string
+          qualidade: string | null
+          tipo: string | null
+          titulo: string
+          updated_at: string | null
+        }
+        Insert: {
+          ano: string
+          avaliacao?: string | null
+          categoria?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          destaque?: boolean | null
+          duracao?: string | null
+          id?: string
+          poster_url: string
+          qualidade?: string | null
+          tipo?: string | null
+          titulo: string
+          updated_at?: string | null
+        }
+        Update: {
+          ano?: string
+          avaliacao?: string | null
+          categoria?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          destaque?: boolean | null
+          duracao?: string | null
+          id?: string
+          poster_url?: string
+          qualidade?: string | null
+          tipo?: string | null
+          titulo?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      series: {
+        Row: {
+          ano: string
+          avaliacao: string | null
+          categoria: string | null
+          created_at: string | null
+          descricao: string | null
+          destaque: boolean | null
+          duracao: string | null
+          id: string
+          poster_url: string
+          qualidade: string | null
+          tipo: string | null
+          titulo: string
+          updated_at: string | null
+        }
+        Insert: {
+          ano: string
+          avaliacao?: string | null
+          categoria?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          destaque?: boolean | null
+          duracao?: string | null
+          id?: string
+          poster_url: string
+          qualidade?: string | null
+          tipo?: string | null
+          titulo: string
+          updated_at?: string | null
+        }
+        Update: {
+          ano?: string
+          avaliacao?: string | null
+          categoria?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          destaque?: boolean | null
+          duracao?: string | null
+          id?: string
+          poster_url?: string
+          qualidade?: string | null
+          tipo?: string | null
+          titulo?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

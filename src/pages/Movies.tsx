@@ -7,37 +7,37 @@ import MovieCard, { MovieCardProps } from '@/components/MovieCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
-import { fetchMovies } from '@/services/movieService';
+import { fetchAllMovies } from '@/services/movieService';
 
-const genres = [
+const generos = [
   'Todos', 'Ação', 'Aventura', 'Animação', 'Comédia', 'Crime', 'Documentário', 
   'Drama', 'Família', 'Fantasia', 'História', 'Horror', 'Música', 'Mistério', 
   'Romance', 'Ficção Científica', 'Thriller', 'Guerra', 'Faroeste'
 ];
 
 const Movies = () => {
-  const [selectedGenre, setSelectedGenre] = useState('Todos');
-  const [selectedYear, setSelectedYear] = useState('Todos');
-  const [activeTab, setActiveTab] = useState('populares');
+  const [generoSelecionado, setGeneroSelecionado] = useState('Todos');
+  const [anoSelecionado, setAnoSelecionado] = useState('Todos');
+  const [abaPrincipal, setAbaPrincipal] = useState('populares');
   
-  // Fetch movies based on active tab
+  // Buscar filmes usando React Query
   const { 
-    data: movies, 
+    data: filmes, 
     isLoading, 
     error,
     refetch
   } = useQuery({
-    queryKey: ['movies', activeTab, selectedGenre, selectedYear],
-    queryFn: () => fetchMovies(activeTab)
+    queryKey: ['filmes', abaPrincipal, generoSelecionado, anoSelecionado],
+    queryFn: () => fetchAllMovies(generoSelecionado)
   });
 
-  // Refetch when filters change
+  // Atualizar quando os filtros mudarem
   useEffect(() => {
     refetch();
-  }, [activeTab, selectedGenre, selectedYear, refetch]);
+  }, [abaPrincipal, generoSelecionado, anoSelecionado, refetch]);
 
-  // Render content based on loading/error state
-  const renderContent = () => {
+  // Renderizar conteúdo baseado no estado de carregamento/erro
+  const renderConteudo = () => {
     if (isLoading) {
       return (
         <div className="flex items-center justify-center h-96">
@@ -57,10 +57,21 @@ const Movies = () => {
       );
     }
 
+    if (!filmes || filmes.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <p className="text-white text-2xl">Nenhum filme encontrado</p>
+            <p className="text-movieGray">Tente mudar os filtros de busca</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        {movies?.map((movie) => (
-          <MovieCard key={movie.id} {...movie} />
+        {filmes.map((filme) => (
+          <MovieCard key={filme.id} {...filme} />
         ))}
       </div>
     );
@@ -74,7 +85,7 @@ const Movies = () => {
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-white mb-8 pt-4">Filmes</h1>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-8">
+          <Tabs value={abaPrincipal} onValueChange={setAbaPrincipal} className="w-full mb-8">
             <TabsList className="bg-movieDark/60 backdrop-blur-sm">
               <TabsTrigger value="populares" className="text-white data-[state=active]:bg-movieRed">Populares</TabsTrigger>
               <TabsTrigger value="lancamentos" className="text-white data-[state=active]:bg-movieRed">Lançamentos</TabsTrigger>
@@ -87,11 +98,11 @@ const Movies = () => {
                 <label className="block text-movieGray text-sm mb-2">Gênero</label>
                 <select 
                   className="w-full bg-movieDark text-white border border-movieGray/20 rounded-md p-2.5"
-                  value={selectedGenre}
-                  onChange={(e) => setSelectedGenre(e.target.value)}
+                  value={generoSelecionado}
+                  onChange={(e) => setGeneroSelecionado(e.target.value)}
                 >
-                  {genres.map((genre) => (
-                    <option key={genre} value={genre}>{genre}</option>
+                  {generos.map((genero) => (
+                    <option key={genero} value={genero}>{genero}</option>
                   ))}
                 </select>
               </div>
@@ -100,8 +111,8 @@ const Movies = () => {
                 <label className="block text-movieGray text-sm mb-2">Ano</label>
                 <select 
                   className="w-full bg-movieDark text-white border border-movieGray/20 rounded-md p-2.5"
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
+                  value={anoSelecionado}
+                  onChange={(e) => setAnoSelecionado(e.target.value)}
                 >
                   <option value="Todos">Todos</option>
                   {[...Array(10)].map((_, i) => {
@@ -113,19 +124,19 @@ const Movies = () => {
             </div>
             
             <TabsContent value="populares" className="mt-6">
-              {renderContent()}
+              {renderConteudo()}
             </TabsContent>
             
             <TabsContent value="lancamentos" className="mt-6">
-              {renderContent()}
+              {renderConteudo()}
             </TabsContent>
             
             <TabsContent value="top-rated" className="mt-6">
-              {renderContent()}
+              {renderConteudo()}
             </TabsContent>
             
             <TabsContent value="proximos" className="mt-6">
-              {renderContent()}
+              {renderConteudo()}
             </TabsContent>
           </Tabs>
           
