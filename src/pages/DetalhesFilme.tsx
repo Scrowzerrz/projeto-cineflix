@@ -6,10 +6,11 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { fetchMovieDetails } from '@/services/movieService';
 import { Button } from '@/components/ui/button';
-import { Play, Plus, Download, Share2, ThumbsUp, Star, Award, Calendar, Clock, Film, Users } from 'lucide-react';
+import { Play, Plus, Download, Share2, Star, Award, Calendar, Clock, Film, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
+import FavoritoButton from '@/components/FavoritoButton';
 
 const DetalhesFilme = () => {
   const { id } = useParams<{ id: string }>();
@@ -53,11 +54,6 @@ const DetalhesFilme = () => {
   // Baixar filme
   const baixarFilme = () => {
     toast.info('Iniciando download...');
-  };
-
-  // Curtir filme
-  const curtirFilme = () => {
-    toast.success('Você curtiu este filme!');
   };
 
   useEffect(() => {
@@ -260,13 +256,11 @@ const DetalhesFilme = () => {
                   <Share2 className="h-5 w-5" />
                 </Button>
                 
-                <Button 
-                  variant="outline"
-                  className="border-white/30 text-white bg-white/10 hover:bg-white/20"
-                  onClick={curtirFilme}
-                >
-                  <ThumbsUp className="h-5 w-5" />
-                </Button>
+                <FavoritoButton
+                  itemId={id || ''}
+                  tipo="filme"
+                  className="border-white/30 bg-white/10 hover:bg-white/20 w-10 h-10 p-0 flex items-center justify-center"
+                />
               </div>
             </div>
           </div>

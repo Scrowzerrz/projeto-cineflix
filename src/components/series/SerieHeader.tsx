@@ -1,9 +1,10 @@
 
 import { Button } from '@/components/ui/button';
-import { Play, Plus, Share2, ThumbsUp } from 'lucide-react';
+import { Play, Plus, Share2 } from 'lucide-react';
 import { Star, Award, Calendar, Clock, Tv } from 'lucide-react';
 import { SerieDetalhes } from '@/services/types/movieTypes';
 import { toast } from 'sonner';
+import FavoritoButton from '@/components/FavoritoButton';
 
 interface SerieHeaderProps {
   serie: SerieDetalhes;
@@ -41,11 +42,6 @@ const SerieHeader = ({
   // Adicionar à lista
   const adicionarLista = () => {
     toast.success('Série adicionada à sua lista!');
-  };
-
-  // Curtir série
-  const curtirSerie = () => {
-    toast.success('Você curtiu esta série!');
   };
 
   return (
@@ -221,13 +217,11 @@ const SerieHeader = ({
                 <Share2 className="h-5 w-5" />
               </Button>
               
-              <Button 
-                variant="outline"
-                className="border-white/30 text-white bg-white/10 hover:bg-white/20"
-                onClick={curtirSerie}
-              >
-                <ThumbsUp className="h-5 w-5" />
-              </Button>
+              <FavoritoButton
+                itemId={serie.id}
+                tipo="serie"
+                className="border-white/30 bg-white/10 hover:bg-white/20 w-10 h-10 p-0 flex items-center justify-center"
+              />
             </div>
           </div>
         </div>
