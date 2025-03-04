@@ -3,8 +3,8 @@ import React from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
+  Routes,
   Route,
-  createRoutesFromElements,
 } from "react-router-dom";
 import './App.css';
 
@@ -33,36 +33,58 @@ const queryClient = new QueryClient({
   },
 });
 
-const AppRoutes = () => (
-  <AuthProvider>
-    {/* Rotas públicas */}
-    <Route path="/" element={<Index />} />
-    <Route path="/movies" element={<Movies />} />
-    <Route path="/series" element={<Series />} />
-    <Route path="/movie/:id" element={<DetalhesFilme />} />
-    <Route path="/serie/:id" element={<DetalhesSerie />} />
-    <Route path="/search" element={<Search />} />
-    <Route path="/auth" element={<Autenticacao />} />
-
-    {/* Rotas protegidas */}
-    <Route element={<RotaProtegida />}>
-      <Route path="/perfil" element={<Index />} />
-      <Route path="/configuracoes" element={<Index />} />
-    </Route>
-  </AuthProvider>
-);
-
 function App() {
-  const router = createBrowserRouter(
-    createRoutesFromElements(<AppRoutes />)
-  );
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <Index />,
+    },
+    {
+      path: "/movies",
+      element: <Movies />,
+    },
+    {
+      path: "/series",
+      element: <Series />,
+    },
+    {
+      path: "/movie/:id",
+      element: <DetalhesFilme />,
+    },
+    {
+      path: "/serie/:id",
+      element: <DetalhesSerie />,
+    },
+    {
+      path: "/search",
+      element: <Search />,
+    },
+    {
+      path: "/auth",
+      element: <Autenticacao />,
+    },
+    {
+      path: "/perfil",
+      element: <RotaProtegida><Index /></RotaProtegida>,
+    },
+    {
+      path: "/configuracoes",
+      element: <RotaProtegida><Index /></RotaProtegida>,
+    },
+    {
+      path: "*",
+      element: <NotFound />,
+    },
+  ]);
 
   return (
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        <Toaster position="top-right" richColors />
-      </QueryClientProvider>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+          <Toaster position="top-right" richColors />
+        </QueryClientProvider>
+      </AuthProvider>
     </React.StrictMode>
   );
 }
