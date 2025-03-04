@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Play, Plus, Info, Star, Heart } from 'lucide-react';
+import { Play, Plus, Info, Star, Heart, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export interface MovieCardProps {
@@ -14,7 +14,7 @@ export interface MovieCardProps {
   rating?: string;
 }
 
-const MovieCard = ({ 
+const CartaoFilme = ({ 
   title, 
   posterUrl, 
   year, 
@@ -83,12 +83,12 @@ const MovieCard = ({
         </div>
       </div>
       
-      {/* Hover Overlay */}
-      <div className={`absolute inset-0 bg-black/75 flex flex-col justify-center items-center p-3 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Hover Overlay - Corrigindo o problema do botão saindo para fora */}
+      <div className={`absolute inset-0 bg-black/75 flex flex-col justify-center items-center p-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
         <Button 
           variant="default" 
           size="sm" 
-          className="w-full mb-2 bg-movieRed hover:bg-movieRed/90 text-white flex items-center justify-center gap-1 rounded-sm transition-transform duration-200 hover:scale-105"
+          className="w-full mb-2 bg-movieRed hover:bg-movieRed/90 text-white flex items-center justify-center gap-1 rounded-sm transition-transform duration-200 transform-gpu"
         >
           <Play className="h-3 w-3 fill-white" /> Assistir
         </Button>
@@ -97,7 +97,7 @@ const MovieCard = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            className="flex-1 rounded-sm bg-white/10 hover:bg-white/20 text-white transition-transform duration-200 hover:scale-105"
+            className="flex-1 rounded-sm bg-white/10 hover:bg-white/20 text-white transition-transform duration-200 transform-gpu"
             onClick={(e) => {
               e.stopPropagation();
               // Lógica para adicionar à lista
@@ -108,14 +108,14 @@ const MovieCard = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            className="flex-1 rounded-sm bg-white/10 hover:bg-white/20 text-white ml-2 transition-transform duration-200 hover:scale-105"
+            className="flex-1 rounded-sm bg-white/10 hover:bg-white/20 text-white ml-2 transition-transform duration-200 transform-gpu"
           >
             <Info className="h-4 w-4" />
           </Button>
         </div>
         
         <div className="mt-auto">
-          <h3 className="text-white font-semibold text-center mt-2">{title}</h3>
+          <h3 className="text-white font-semibold text-center mt-2 text-sm">{title}</h3>
           <div className="flex items-center justify-center text-xs text-white/70 mt-1 mb-1">
             <span>{year}</span>
             {duration && (
@@ -135,4 +135,4 @@ const MovieCard = ({
   );
 };
 
-export default MovieCard;
+export default CartaoFilme;

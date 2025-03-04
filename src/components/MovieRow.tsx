@@ -1,6 +1,6 @@
 
 import { useState, useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, Clock, Star, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MovieCard, { MovieCardProps } from './MovieCard';
 
@@ -12,7 +12,7 @@ interface MovieRowProps {
   onCategoryChange?: (category: string) => void;
 }
 
-const MovieRow = ({ 
+const LinhaFilmes = ({ 
   title, 
   movies, 
   categories, 
@@ -45,6 +45,23 @@ const MovieRow = ({
     }
   };
 
+  // Função para renderizar o ícone correto para cada categoria
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'EM ALTA':
+        return <TrendingUp className="h-4 w-4 mr-1" />;
+      case 'RECENTES':
+        return <Clock className="h-4 w-4 mr-1" />;
+      case 'MAIS VISTOS':
+        return <Star className="h-4 w-4 mr-1" />;
+      case 'LANÇAMENTOS':
+      case 'NOVOS EPISÓDIOS':
+        return <Award className="h-4 w-4 mr-1" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="w-full py-6 relative animate-fade-in">
       <div className="container mx-auto px-4">
@@ -58,9 +75,10 @@ const MovieRow = ({
               {categories.map((category) => (
                 <button
                   key={category}
-                  className={`category-tab ${category === activeCategory ? 'active' : ''}`}
+                  className={`category-tab flex items-center ${category === activeCategory ? 'active' : ''}`}
                   onClick={() => onCategoryChange && onCategoryChange(category)}
                 >
+                  {getCategoryIcon(category)}
                   {category}
                 </button>
               ))}
@@ -109,4 +127,4 @@ const MovieRow = ({
   );
 };
 
-export default MovieRow;
+export default LinhaFilmes;

@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
-import MovieRow from '@/components/MovieRow';
+import LinhaFilmes from '@/components/MovieRow';
 import Footer from '@/components/Footer';
 import { MovieCardProps } from '@/components/MovieCard';
 
@@ -177,7 +178,7 @@ const Index = () => {
         />
         
         <div className="py-4">
-          <MovieRow 
+          <LinhaFilmes 
             title="Filmes" 
             movies={moviesData}
             categories={categories}
@@ -185,7 +186,7 @@ const Index = () => {
             onCategoryChange={setActiveCategory}
           />
           
-          <MovieRow 
+          <LinhaFilmes 
             title="Séries" 
             movies={seriesData}
             categories={seriesCategories}
