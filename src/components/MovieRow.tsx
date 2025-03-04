@@ -49,7 +49,9 @@ const MovieRow = ({
     <div className="w-full py-6 relative animate-fade-in">
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-between items-center mb-4">
-          <h2 className="section-heading">{title}</h2>
+          <h2 className="section-heading flex items-center text-gradient">
+            {title}
+          </h2>
           
           {categories && (
             <div className="flex overflow-x-auto hide-scrollbar">
