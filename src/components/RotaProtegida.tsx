@@ -2,7 +2,7 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface RotaProtegidaProps {
   children: React.ReactNode;
@@ -11,6 +11,7 @@ interface RotaProtegidaProps {
 
 const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) => {
   const { session, loading } = useAuth();
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   // Adicionando logs para depuração
   useEffect(() => {
@@ -26,9 +27,11 @@ const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) =
     let timeout: number | undefined;
     
     if (loading) {
+      // Definir um estado local para indicar que passou tempo demais no loading
       timeout = window.setTimeout(() => {
         console.warn('RotaProtegida - Tempo limite de carregamento atingido');
-      }, 5000);
+        setLoadingTimeout(true);
+      }, 3000); // Reduzido para 3 segundos para melhor experiência do usuário
     }
     
     return () => {
@@ -38,7 +41,8 @@ const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) =
     };
   }, [loading]);
 
-  if (loading) {
+  // Se estiver carregando por muito tempo, mostre uma mensagem ou continue
+  if (loading && !loadingTimeout) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-movieDarkBlue z-50">
         <div className="text-center">
@@ -49,6 +53,7 @@ const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) =
     );
   }
 
+  // Se não tiver sessão ou o timeout foi atingido sem sessão
   if (!session) {
     console.log('RotaProtegida - Redirecionando para:', redirectTo);
     return <Navigate to={redirectTo} replace />;

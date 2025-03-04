@@ -1,11 +1,9 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
-  createBrowserRouter,
-  RouterProvider,
+  BrowserRouter,
   Routes,
-  Route,
-  BrowserRouter
+  Route
 } from "react-router-dom";
 import './App.css';
 
@@ -35,6 +33,14 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  // Adicionar listener para debug de renderização
+  useEffect(() => {
+    console.log("App componente montado");
+    return () => {
+      console.log("App componente desmontado");
+    };
+  }, []);
+
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
@@ -50,12 +56,18 @@ function App() {
               <Route path="/auth" element={<Autenticacao />} />
               <Route path="/perfil" element={
                 <RotaProtegida>
-                  <Index />
+                  <div className="pt-20 min-h-screen bg-movieDarkBlue text-white p-8">
+                    <h1 className="text-2xl font-bold mb-4">Perfil do Usuário</h1>
+                    <p>Página em construção</p>
+                  </div>
                 </RotaProtegida>
               } />
               <Route path="/configuracoes" element={
                 <RotaProtegida>
-                  <Index />
+                  <div className="pt-20 min-h-screen bg-movieDarkBlue text-white p-8">
+                    <h1 className="text-2xl font-bold mb-4">Configurações</h1>
+                    <p>Página em construção</p>
+                  </div>
                 </RotaProtegida>
               } />
               <Route path="*" element={<NotFound />} />
