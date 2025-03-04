@@ -100,6 +100,7 @@ export interface MovieResponse {
 
 // Interface para o filme em destaque
 export interface HeroMovie {
+  id?: string;
   title: string;
   description: string;
   imageUrl: string;
