@@ -27,11 +27,13 @@ const Index = () => {
     queryKey: ['heroMovie'],
     queryFn: fetchHeroMovie,
     retry: 1,
-    onError: (error) => {
-      console.error('Erro ao carregar destaque:', error);
-      toast.error('Erro ao carregar destaque. Tentando novamente...');
-      // Podemos tentar novamente após um tempo
-      setTimeout(() => refetchHero(), 3000);
+    onSettled: (data, error) => {
+      if (error) {
+        console.error('Erro ao carregar destaque:', error);
+        toast.error('Erro ao carregar destaque. Tentando novamente...');
+        // Podemos tentar novamente após um tempo
+        setTimeout(() => refetchHero(), 3000);
+      }
     }
   });
 
