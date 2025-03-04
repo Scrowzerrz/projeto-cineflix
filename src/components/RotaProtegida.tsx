@@ -12,6 +12,10 @@ interface RotaProtegidaProps {
 const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) => {
   const { session, loading } = useAuth();
 
+  // Adicionando logs para depuração
+  console.log('RotaProtegida - Estado de carregamento:', loading);
+  console.log('RotaProtegida - Sessão:', session ? 'Autenticado' : 'Não autenticado');
+
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-movieDarkBlue">
@@ -21,9 +25,11 @@ const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) =
   }
 
   if (!session) {
+    console.log('RotaProtegida - Redirecionando para:', redirectTo);
     return <Navigate to={redirectTo} replace />;
   }
 
+  console.log('RotaProtegida - Renderizando conteúdo protegido');
   return <>{children}</>;
 };
 

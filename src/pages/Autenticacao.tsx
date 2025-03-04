@@ -1,14 +1,15 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 const Autenticacao = () => {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const [form, setForm] = useState<'login' | 'cadastro'>('login');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -17,6 +18,12 @@ const Autenticacao = () => {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session) {
+      navigate('/');
+    }
+  }, [session, navigate]);
 
   const alternarForm = () => {
     setForm(form === 'login' ? 'cadastro' : 'login');
@@ -64,7 +71,18 @@ const Autenticacao = () => {
         password: senha
       });
       
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          setErro('Email não confirmado. Por favor, verifique sua caixa de entrada.');
+          toast.error('Email não confirmado!');
+        } else if (error.message.includes('Invalid login credentials')) {
+          setErro('Email ou senha incorretos');
+          toast.error('Credenciais inválidas!');
+        } else {
+          throw error;
+        }
+        return;
+      }
       
       toast.success('Login realizado com sucesso!');
       navigate('/');
@@ -72,11 +90,8 @@ const Autenticacao = () => {
     } catch (error: any) {
       console.error('Erro ao fazer login:', error);
       
-      if (error.message.includes('Invalid login credentials')) {
-        setErro('E-mail ou senha incorretos');
-      } else {
-        setErro('Ocorreu um erro ao fazer login. Tente novamente.');
-      }
+      setErro('Ocorreu um erro ao fazer login. Tente novamente.');
+      toast.error('Erro ao fazer login');
       
     } finally {
       setCarregando(false);
@@ -101,7 +116,15 @@ const Autenticacao = () => {
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('already registered')) {
+          setErro('Este email já está cadastrado');
+          toast.error('Email já cadastrado!');
+        } else {
+          throw error;
+        }
+        return;
+      }
       
       toast.success('Cadastro realizado com sucesso!');
       toast.info('Verifique seu email para confirmar seu cadastro');
@@ -110,11 +133,8 @@ const Autenticacao = () => {
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
       
-      if (error.message.includes('already registered')) {
-        setErro('Este e-mail já está cadastrado');
-      } else {
-        setErro('Ocorreu um erro ao realizar o cadastro. Tente novamente.');
-      }
+      setErro('Ocorreu um erro ao realizar o cadastro. Tente novamente.');
+      toast.error('Erro ao cadastrar');
       
     } finally {
       setCarregando(false);

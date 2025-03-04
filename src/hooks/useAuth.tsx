@@ -29,6 +29,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchPerfil = async (userId: string) => {
     try {
+      // Verificamos se já temos o perfil para evitar consultas desnecessárias
+      if (perfil && perfil.id === userId) {
+        return perfil;
+      }
+
       const { data, error } = await supabase
         .from('perfis')
         .select('*')
@@ -57,36 +62,53 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    let isMounted = true;
+    
     const getInitialSession = async () => {
       try {
         const { data } = await supabase.auth.getSession();
-        setSession(data.session);
         
-        if (data.session?.user) {
-          const userProfile = await fetchPerfil(data.session.user.id);
-          setPerfil(userProfile);
+        if (isMounted) {
+          setSession(data.session);
+          
+          if (data.session?.user) {
+            const userProfile = await fetchPerfil(data.session.user.id);
+            if (isMounted) {
+              setPerfil(userProfile);
+            }
+          }
         }
       } catch (error) {
         console.error('Erro ao obter sessão:', error);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     getInitialSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      setSession(newSession);
-      
-      if (event === 'SIGNED_IN' && newSession?.user) {
-        const userProfile = await fetchPerfil(newSession.user.id);
-        setPerfil(userProfile);
-      } else if (event === 'SIGNED_OUT') {
-        setPerfil(null);
+      if (isMounted) {
+        console.log('Estado de autenticação alterado:', event);
+        setSession(newSession);
+        
+        if (event === 'SIGNED_IN' && newSession?.user) {
+          const userProfile = await fetchPerfil(newSession.user.id);
+          if (isMounted) {
+            setPerfil(userProfile);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          if (isMounted) {
+            setPerfil(null);
+          }
+        }
       }
     });
 
     return () => {
+      isMounted = false;
       authListener.subscription.unsubscribe();
     };
   }, []);
