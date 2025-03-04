@@ -61,7 +61,32 @@ function App() {
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <Toaster position="top-right" richColors />
+          <Toaster 
+            position="top-right" 
+            richColors 
+            theme="dark"
+            toastOptions={{
+              style: {
+                background: '#0A0A0A',
+                color: '#fff',
+                border: '1px solid rgba(138, 143, 152, 0.2)',
+              },
+              success: {
+                style: {
+                  background: '#0A0A0A',
+                  border: '1px solid rgba(138, 143, 152, 0.2)',
+                },
+                icon: '🎬',
+              },
+              error: {
+                style: {
+                  background: '#0A0A0A',
+                  border: '1px solid rgba(138, 143, 152, 0.2)',
+                },
+                icon: '❌',
+              },
+            }}
+          />
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

@@ -55,18 +55,37 @@ const Perfil = () => {
     try {
       setCarregandoImagem(true);
       
-      // Verificar tipo de arquivo e tamanho
       if (!file.type.startsWith('image/')) {
-        toast.error('Por favor, selecione uma imagem válida');
+        toast.error('Por favor, selecione uma imagem válida', {
+          className: "bg-movieDark border-movieGray/20 text-white",
+        });
         return;
       }
       
       if (file.size > 2 * 1024 * 1024) {
-        toast.error('Imagem muito grande. Máximo de 2MB.');
+        toast.error('Imagem muito grande. Máximo de 2MB.', {
+          className: "bg-movieDark border-movieGray/20 text-white",
+        });
         return;
       }
       
       console.log('Iniciando upload de imagem:', file.name);
+      
+      // Se existe um avatar antigo, vamos extrair o nome do arquivo da URL
+      if (perfil.avatar_url) {
+        const oldFilePath = perfil.avatar_url.split('/').pop();
+        if (oldFilePath) {
+          // Tentar remover o arquivo antigo
+          const { error: deleteError } = await supabase
+            .storage
+            .from('perfis')
+            .remove([oldFilePath]);
+          
+          if (deleteError) {
+            console.error('Erro ao deletar avatar antigo:', deleteError);
+          }
+        }
+      }
       
       // Gerar nome de arquivo único
       const fileExt = file.name.split('.').pop();
@@ -110,10 +129,14 @@ const Perfil = () => {
       }
       
       await refreshPerfil();
-      toast.success('Imagem de perfil atualizada!');
+      toast.success('Imagem de perfil atualizada!', {
+        className: "bg-movieDark border-movieGray/20 text-white",
+      });
     } catch (error) {
       console.error('Erro ao fazer upload da imagem:', error);
-      toast.error('Erro ao atualizar imagem de perfil');
+      toast.error('Erro ao atualizar imagem de perfil', {
+        className: "bg-movieDark border-movieGray/20 text-white",
+      });
     } finally {
       setCarregandoImagem(false);
     }
