@@ -1,4 +1,3 @@
-
 import { MovieCardProps } from '@/components/MovieCard';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -162,25 +161,58 @@ export const fetchHeroMovie = async (): Promise<{
         .single();
       
       if (seriesResult.error) {
-        console.error('Erro ao buscar filme/série em destaque:', seriesResult.error);
-        throw seriesResult.error;
+        // Se não houver destaque em séries, buscamos qualquer filme
+        const fallbackFilmes = await supabase
+          .from('filmes')
+          .select('*')
+          .limit(1)
+          .single();
+          
+        if (fallbackFilmes.error || !fallbackFilmes.data) {
+          // Se não houver nenhum filme, buscamos qualquer série
+          const fallbackSeries = await supabase
+            .from('series')
+            .select('*')
+            .limit(1)
+            .single();
+            
+          if (fallbackSeries.error || !fallbackSeries.data) {
+            // Se não houver NADA no banco, aí sim mostramos um erro
+            throw new Error('Nenhum filme ou série encontrado no banco de dados');
+          }
+          
+          // Usamos uma série qualquer como destaque
+          data = {
+            ...fallbackSeries.data,
+            diretor: '',
+            elenco: '',
+            produtor: '',
+            generos: [],
+            trailer_url: '',
+            player_url: '',
+            idioma: ''
+          };
+        } else {
+          // Usamos um filme qualquer como destaque
+          data = fallbackFilmes.data;
+        }
+      } else {
+        // Usamos a série em destaque
+        data = {
+          ...seriesResult.data,
+          diretor: '',
+          elenco: '',
+          produtor: '',
+          generos: [],
+          trailer_url: '',
+          player_url: '',
+          idioma: ''
+        };
       }
-      
-      // A tabela series pode não ter todos os campos que FilmeDB tem
-      data = {
-        ...seriesResult.data,
-        diretor: '',
-        elenco: '',
-        produtor: '',
-        generos: [],
-        trailer_url: '',
-        player_url: '',
-        idioma: ''
-      };
     }
     
     if (!data) {
-      throw new Error('Nenhum filme ou série em destaque encontrado');
+      throw new Error('Nenhum filme ou série encontrado');
     }
     
     return {
@@ -195,16 +227,8 @@ export const fetchHeroMovie = async (): Promise<{
     };
   } catch (error) {
     console.error('Erro ao buscar filme/série em destaque:', error);
-    // Retornamos dados padrão em caso de erro
-    return {
-      title: "Filme em Destaque",
-      description: "Descrição do filme em destaque não disponível.",
-      imageUrl: "https://picsum.photos/1920/1080?random=1",
-      type: 'movie',
-      rating: "0.0",
-      year: "2023",
-      duration: "0min"
-    };
+    // Lançar o erro para tratamento na interface
+    throw new Error('Não foi possível carregar conteúdo em destaque');
   }
 };
 

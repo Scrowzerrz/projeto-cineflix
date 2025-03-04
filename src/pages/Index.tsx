@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 import { MovieCardProps } from '@/components/MovieCard';
 import { fetchMovies, fetchSeries, fetchHeroMovie } from '@/services/movieService';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const categories = ['LANÇAMENTOS', 'RECENTES', 'MAIS VISTOS', 'EM ALTA'];
 const seriesCategories = ['NOVOS EPISÓDIOS', 'RECENTES', 'MAIS VISTOS', 'EM ALTA'];
@@ -20,10 +21,18 @@ const Index = () => {
   const { 
     data: heroMovie, 
     isLoading: heroLoading, 
-    error: heroError 
+    error: heroError,
+    refetch: refetchHero
   } = useQuery({
     queryKey: ['heroMovie'],
-    queryFn: fetchHeroMovie
+    queryFn: fetchHeroMovie,
+    retry: 1,
+    onError: (error) => {
+      console.error('Erro ao carregar destaque:', error);
+      toast.error('Erro ao carregar destaque. Tentando novamente...');
+      // Podemos tentar novamente após um tempo
+      setTimeout(() => refetchHero(), 3000);
+    }
   });
 
   // Fetch movies based on active category
@@ -72,7 +81,12 @@ const Index = () => {
         <div className="flex items-center justify-center w-full h-[90vh] bg-movieDarkBlue">
           <div className="text-center">
             <p className="text-white text-2xl">Erro ao carregar filme em destaque</p>
-            <p className="text-movieGray">Por favor, tente novamente mais tarde</p>
+            <button 
+              onClick={() => refetchHero()} 
+              className="mt-4 px-6 py-2 bg-movieRed text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Tentar Novamente
+            </button>
           </div>
         </div>
       );
