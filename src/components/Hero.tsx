@@ -25,10 +25,11 @@ const Hero = ({
     <div className="relative w-full h-[90vh] overflow-hidden">
       {/* Background Image with Overlay */}
       <div 
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
           backgroundImage: `url(${imageUrl})`,
-          backgroundPosition: '50% 20%'
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
         }}
       >
         {/* Enhanced gradient overlay com mais profundidade */}
@@ -61,7 +62,7 @@ const Hero = ({
           </div>
           
           {/* Title with text shadow */}
-          <h1 className="text-7xl md:text-8xl font-bold text-white mb-6 tracking-tight leading-none" 
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-none" 
               style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
             {title}
           </h1>
@@ -88,7 +89,7 @@ const Hero = ({
             </Button>
             <Button
               variant="outline"
-              className="border-white/30 text-white bg-black/30 backdrop-blur-sm hover:bg-black/50 flex gap-2 items-center rounded-sm px-4 py-6 text-base font-semibold transition-all duration-300 hover:scale-105"
+              className="border-white/30 text-white bg-black/30 backdrop-blur-sm hover:bg-black/50 flex gap-2 items-center rounded-sm px-4 py-6 text-base font-semibold transition-transform duration-300 hover:scale-105"
             >
               <Plus className="h-5 w-5" />
             </Button>

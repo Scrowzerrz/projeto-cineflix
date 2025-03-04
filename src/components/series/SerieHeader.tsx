@@ -52,10 +52,11 @@ const SerieHeader = ({
     <div className="relative pt-16">
       {/* Background Image com Gradient */}
       <div 
-        className="absolute inset-0 bg-cover bg-center h-[70vh] z-0"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat h-[70vh] z-0"
         style={{ 
           backgroundImage: `url(${serie.poster_url})`,
-          backgroundPosition: '50% 25%'
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-t from-movieDarkBlue via-movieDarkBlue/95 to-black/30"></div>
