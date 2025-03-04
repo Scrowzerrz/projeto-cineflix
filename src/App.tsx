@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   BrowserRouter,
@@ -23,7 +22,6 @@ import Configuracoes from "./pages/Configuracoes";
 import RotaProtegida from "./components/RotaProtegida";
 import { AuthProvider } from "./hooks/useAuth";
 
-// Criar uma instância do QueryClient com retry reduzido
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -70,20 +68,6 @@ function App() {
                 background: '#0A0A0A',
                 color: '#fff',
                 border: '1px solid rgba(138, 143, 152, 0.2)',
-              },
-              success: {
-                style: {
-                  background: '#0A0A0A',
-                  border: '1px solid rgba(138, 143, 152, 0.2)',
-                },
-                icon: '🎬',
-              },
-              error: {
-                style: {
-                  background: '#0A0A0A',
-                  border: '1px solid rgba(138, 143, 152, 0.2)',
-                },
-                icon: '❌',
               },
             }}
           />
