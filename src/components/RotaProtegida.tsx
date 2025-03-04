@@ -11,27 +11,30 @@ interface RotaProtegidaProps {
 
 const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) => {
   const { session, loading } = useAuth();
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [timeoutAtingido, setTimeoutAtingido] = useState(false);
 
-  // Adicionando logs para depuração
+  // Adicionar logs para depuração
   useEffect(() => {
     console.log('RotaProtegida - Estado atual:', { 
       autenticado: !!session, 
       carregando: loading,
+      tempoLimiteAtingido: timeoutAtingido,
       usuarioId: session?.user?.id 
     });
-  }, [session, loading]);
+  }, [session, loading, timeoutAtingido]);
 
   // Timeout para evitar loading infinito
   useEffect(() => {
     let timeout: number | undefined;
     
     if (loading) {
-      // Definir um estado local para indicar que passou tempo demais no loading
       timeout = window.setTimeout(() => {
-        console.warn('RotaProtegida - Tempo limite de carregamento atingido');
-        setLoadingTimeout(true);
-      }, 2000); // Reduzido para 2 segundos para melhor experiência do usuário
+        console.log('RotaProtegida - Tempo limite atingido após 1.5 segundos');
+        setTimeoutAtingido(true);
+      }, 1500);
+    } else {
+      // Resetar timeout quando loading muda para false
+      setTimeoutAtingido(false);
     }
     
     return () => {
@@ -41,20 +44,18 @@ const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) =
     };
   }, [loading]);
 
-  // Se o timeout foi atingido, tentamos seguir em frente
-  if (loadingTimeout) {
-    // Se não temos uma sessão mesmo após o timeout, redirecionamos
+  // Se o tempo limite foi atingido, decidir o que fazer
+  if (timeoutAtingido) {
     if (!session) {
-      console.log('RotaProtegida - Timeout atingido sem sessão, redirecionando para:', redirectTo);
+      console.log('RotaProtegida - Sem sessão após timeout, redirecionando');
       return <Navigate to={redirectTo} replace />;
     } 
-    // Se temos uma sessão, mostramos o conteúdo protegido
-    console.log('RotaProtegida - Timeout atingido com sessão, mostrando conteúdo');
+    console.log('RotaProtegida - Sessão presente após timeout, mostrando conteúdo');
     return <>{children}</>;
   }
 
-  // Se estiver carregando e ainda não atingiu o timeout
-  if (loading && !loadingTimeout) {
+  // Se ainda está carregando e não atingiu timeout
+  if (loading && !timeoutAtingido) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-movieDarkBlue z-50">
         <div className="text-center">

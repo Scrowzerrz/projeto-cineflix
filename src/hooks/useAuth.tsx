@@ -27,16 +27,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [loading, setLoading] = useState(true);
   const isMounted = useRef(true);
-  const authCheckComplete = useRef(false);
+  const inicializacaoConcluida = useRef(false);
+  const perfilBuscado = useRef(false);
 
-  console.log("AuthProvider renderizado. Estado atual:", { 
-    sessionExists: !!session, 
-    perfilExists: !!perfil, 
-    loading,
-    authCheckComplete: authCheckComplete.current
+  console.log("AuthProvider renderizado com estado:", { 
+    temSessao: !!session, 
+    temPerfil: !!perfil, 
+    carregando: loading,
+    inicializacaoConcluida: inicializacaoConcluida.current,
+    perfilJaBuscado: perfilBuscado.current
   });
 
-  const fetchPerfil = async (userId: string) => {
+  const fetchPerfil = async (userId: string): Promise<PerfilUsuario | null> => {
+    if (!userId || perfilBuscado.current) return null;
+    
     try {
       console.log("Buscando perfil para usuário:", userId);
       
@@ -51,10 +55,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return null;
       }
 
-      console.log("Perfil obtido com sucesso:", data);
+      if (!data) {
+        console.log("Nenhum perfil encontrado para:", userId);
+        return null;
+      }
+
+      console.log("Perfil obtido:", data);
+      perfilBuscado.current = true;
       return data as PerfilUsuario;
     } catch (error) {
-      console.error('Erro ao buscar perfil:', error);
+      console.error('Exceção ao buscar perfil:', error);
       return null;
     }
   };
@@ -66,19 +76,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
     
     console.log("Atualizando perfil para usuário:", session.user.id);
+    perfilBuscado.current = false; // Resetar para permitir nova busca
     const userProfile = await fetchPerfil(session.user.id);
+    
     if (userProfile && isMounted.current) {
       console.log("Perfil atualizado com sucesso");
       setPerfil(userProfile);
     }
   };
 
-  // Função para buscar sessão inicial de forma mais confiável
-  const initializeAuth = async () => {
-    if (authCheckComplete.current) return;
-    
+  const inicializarAutenticacao = async () => {
+    if (inicializacaoConcluida.current) {
+      console.log("Inicialização já concluída, ignorando...");
+      return;
+    }
+
     try {
-      console.log("Inicializando autenticação");
+      console.log("Iniciando verificação de autenticação...");
       setLoading(true);
       
       const { data, error } = await supabase.auth.getSession();
@@ -86,74 +100,89 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) {
         console.error("Erro ao obter sessão:", error);
         setLoading(false);
-        authCheckComplete.current = true;
+        inicializacaoConcluida.current = true;
         return;
       }
       
       if (!isMounted.current) return;
       
-      console.log("Sessão inicial obtida:", data.session ? "Autenticado" : "Não autenticado");
+      console.log("Sessão obtida:", data.session ? "Autenticado" : "Não autenticado");
       setSession(data.session);
       
       if (data.session?.user) {
-        console.log("Usuário autenticado, buscando perfil para", data.session.user.id);
+        console.log("Buscando perfil inicial para:", data.session.user.id);
         const userProfile = await fetchPerfil(data.session.user.id);
-        if (isMounted.current) {
+        
+        if (isMounted.current && userProfile) {
+          console.log("Definindo perfil inicial");
           setPerfil(userProfile);
         }
       }
     } catch (error) {
-      console.error('Erro ao obter sessão inicial:', error);
+      console.error('Erro durante inicialização:', error);
     } finally {
       if (isMounted.current) {
-        console.log("Finalizando inicialização da autenticação");
+        console.log("Concluindo inicialização de autenticação");
         setLoading(false);
-        authCheckComplete.current = true;
+        inicializacaoConcluida.current = true;
       }
     }
   };
 
+  // Efeito para inicialização única
   useEffect(() => {
+    console.log("Configurando ambiente de autenticação");
     isMounted.current = true;
     
-    // Inicializa a autenticação imediatamente
-    initializeAuth();
+    // Inicializa autenticação apenas uma vez
+    inicializarAutenticacao();
 
-    // Configura o listener para mudanças de estado de autenticação
+    return () => {
+      console.log("Limpando efeito principal");
+      isMounted.current = false;
+    };
+  }, []);
+
+  // Efeito separado para listener de eventos de autenticação
+  useEffect(() => {
+    console.log("Configurando listener de autenticação");
+    
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       if (!isMounted.current) return;
       
       console.log('Estado de autenticação alterado:', event, newSession?.user?.email);
-      authCheckComplete.current = true;
       
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        console.log('Evento de login ou atualização de token');
         setSession(newSession);
         
         if (newSession?.user) {
-          console.log('Usuário autenticado, buscando perfil');
+          perfilBuscado.current = false; // Resetar para permitir busca após sign-in
+          console.log('Buscando perfil após evento de autenticação');
           const userProfile = await fetchPerfil(newSession.user.id);
-          if (isMounted.current) {
+          
+          if (isMounted.current && userProfile) {
+            console.log('Atualizando perfil após autenticação');
             setPerfil(userProfile);
           }
         }
       } else if (event === 'SIGNED_OUT') {
-        console.log('Usuário deslogado, limpando perfil');
+        console.log('Usuário deslogado, limpando dados');
         setSession(null);
         setPerfil(null);
+        perfilBuscado.current = false;
       }
       
-      // Garantir que loading seja desativado após eventos de autenticação
-      if (isMounted.current && loading) {
-        console.log("Desativando loading após mudança de estado de autenticação");
+      if (isMounted.current) {
+        console.log("Finalizando carregamento após evento auth");
         setLoading(false);
+        inicializacaoConcluida.current = true;
       }
     });
 
     return () => {
-      console.log("Limpando efeito de autenticação");
-      isMounted.current = false;
+      console.log("Removendo listener de autenticação");
       if (authListener && authListener.subscription) {
-        console.log("Cancelando inscrição de autenticação");
         authListener.subscription.unsubscribe();
       }
     };
@@ -165,6 +194,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(true);
       await supabase.auth.signOut();
       console.log("Logout realizado com sucesso");
+      setSession(null);
+      setPerfil(null);
+      perfilBuscado.current = false;
       navigate('/auth');
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
