@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Loader2, Monitor } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const Configuracoes = () => {
@@ -15,22 +15,16 @@ const Configuracoes = () => {
 
   const [salvando, setSalvando] = useState(false);
 
-  // Estados para as configurações essenciais
+  // Estados para as configurações
   const [configuracoes, setConfiguracoes] = useState({
-    tema: 'escuro',
     autoPlay: true
   });
 
-  const handleChange = (name: string, value: string | boolean) => {
+  const handleChange = (name: string, value: boolean) => {
     setConfiguracoes(prev => ({
       ...prev,
       [name]: value
     }));
-    
-    // Feedback imediato para o usuário
-    if (name === 'tema') {
-      toast.info(`Tema ${value === 'escuro' ? 'escuro' : 'claro'} selecionado`);
-    }
   };
 
   const handleSalvar = async (e: React.FormEvent) => {
@@ -68,34 +62,6 @@ const Configuracoes = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="tema" className="text-white">Tema</Label>
-                <div className="flex items-center space-x-4">
-                  <Button
-                    type="button"
-                    onClick={() => handleChange('tema', 'escuro')}
-                    className={`${
-                      configuracoes.tema === 'escuro' 
-                        ? 'bg-movieRed' 
-                        : 'bg-movieDarkBlue'
-                    } text-white border border-gray-700`}
-                  >
-                    Escuro
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={() => handleChange('tema', 'claro')}
-                    className={`${
-                      configuracoes.tema === 'claro' 
-                        ? 'bg-movieRed' 
-                        : 'bg-movieDarkBlue'
-                    } text-white border border-gray-700`}
-                  >
-                    Claro
-                  </Button>
-                </div>
-              </div>
-              
               <div className="flex items-center justify-between space-x-2">
                 <div className="space-y-0.5">
                   <Label htmlFor="autoplay" className="text-white">Reprodução Automática</Label>

@@ -66,26 +66,55 @@ const Perfil = () => {
         return;
       }
       
+      // Verificar se o bucket existe
+      const { data: buckets } = await supabase
+        .storage
+        .listBuckets();
+      
+      const perfisBucketExists = buckets?.some(bucket => bucket.name === 'perfis');
+      
+      if (!perfisBucketExists) {
+        // Criar o bucket se não existir
+        const { error: bucketError } = await supabase
+          .storage
+          .createBucket('perfis', {
+            public: true
+          });
+        
+        if (bucketError) {
+          console.error('Erro ao criar bucket:', bucketError);
+          toast.error('Erro ao criar armazenamento para imagens');
+          return;
+        }
+      }
+      
       // Gerar nome de arquivo único
       const fileExt = file.name.split('.').pop();
       const fileName = `${perfil.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatares/${fileName}`;
+      const filePath = `${fileName}`;
       
       // Fazer upload para o Storage
-      const { error: uploadError } = await supabase
+      const { error: uploadError, data: uploadData } = await supabase
         .storage
         .from('perfis')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          upsert: true
+        });
       
       if (uploadError) {
+        console.error('Erro ao fazer upload:', uploadError);
         throw uploadError;
       }
+      
+      console.log('Upload bem sucedido:', uploadData);
       
       // Obter URL pública do arquivo
       const { data } = supabase
         .storage
         .from('perfis')
         .getPublicUrl(filePath);
+      
+      console.log('URL pública obtida:', data.publicUrl);
       
       // Atualizar perfil do usuário com a nova URL
       const { error: updateError } = await supabase
@@ -94,6 +123,7 @@ const Perfil = () => {
         .eq('id', perfil.id);
       
       if (updateError) {
+        console.error('Erro ao atualizar URL do avatar:', updateError);
         throw updateError;
       }
       
