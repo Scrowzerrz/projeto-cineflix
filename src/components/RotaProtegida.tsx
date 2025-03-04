@@ -1,13 +1,15 @@
 
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
+import React from 'react';
 
 interface RotaProtegidaProps {
+  children: React.ReactNode;
   redirectTo?: string;
 }
 
-const RotaProtegida = ({ redirectTo = '/auth' }: RotaProtegidaProps) => {
+const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) => {
   const { session, loading } = useAuth();
 
   if (loading) {
@@ -22,7 +24,7 @@ const RotaProtegida = ({ redirectTo = '/auth' }: RotaProtegidaProps) => {
     return <Navigate to={redirectTo} replace />;
   }
 
-  return <Outlet />;
+  return <>{children}</>;
 };
 
 export default RotaProtegida;
