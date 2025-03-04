@@ -1,3 +1,4 @@
+
 import { MovieCardProps } from '@/components/MovieCard';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -78,7 +79,7 @@ export const fetchMovies = async (categoria: string): Promise<MovieCardProps[]> 
       throw error;
     }
     
-    return (data || []).map(filme => mapToMovieCard(filme));
+    return (data || []).map(filme => mapToMovieCard(filme as FilmeDB));
   } catch (error) {
     console.error('Erro ao buscar filmes:', error);
     return [];
@@ -100,7 +101,7 @@ export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> 
       throw error;
     }
     
-    return (data || []).map(serie => mapToMovieCard(serie));
+    return (data || []).map(serie => mapToMovieCard(serie as FilmeDB));
   } catch (error) {
     console.error('Erro ao buscar séries:', error);
     return [];
@@ -188,7 +189,7 @@ export const fetchAllMovies = async (filtroCategoria?: string): Promise<MovieCar
       throw error;
     }
     
-    return (data || []).map(filme => mapToMovieCard(filme));
+    return (data || []).map(filme => mapToMovieCard(filme as FilmeDB));
   } catch (error) {
     console.error('Erro ao buscar todos os filmes:', error);
     return [];
@@ -213,7 +214,7 @@ export const fetchAllSeries = async (filtroCategoria?: string): Promise<MovieCar
       throw error;
     }
     
-    return (data || []).map(serie => mapToMovieCard(serie));
+    return (data || []).map(serie => mapToMovieCard(serie as FilmeDB));
   } catch (error) {
     console.error('Erro ao buscar todas as séries:', error);
     return [];
@@ -248,7 +249,7 @@ export const searchContent = async (searchTerm: string): Promise<MovieCardProps[
     // Combinar resultados de filmes e séries
     const combinedResults = [...(filmes || []), ...(series || [])];
     
-    return combinedResults.map(item => mapToMovieCard(item));
+    return combinedResults.map(item => mapToMovieCard(item as FilmeDB));
   } catch (error) {
     console.error('Erro ao realizar pesquisa:', error);
     return [];
@@ -273,25 +274,27 @@ export const fetchMovieDetails = async (movieId: string): Promise<MovieResponse 
       return null;
     }
 
+    const filme = data as FilmeDB;
+    
     return {
-      id: data.id,
-      titulo: data.titulo,
-      poster_url: data.poster_url,
-      ano: data.ano,
-      duracao: data.duracao,
-      avaliacao: data.avaliacao || '0.0',
-      tipo: data.tipo === 'series' ? 'series' : 'movie',
-      qualidade: data.qualidade,
-      descricao: data.descricao,
-      categoria: data.categoria,
-      destaque: data.destaque,
-      diretor: data.diretor,
-      elenco: data.elenco,
-      produtor: data.produtor,
-      generos: data.generos,
-      trailer_url: data.trailer_url,
-      player_url: data.player_url,
-      idioma: data.idioma
+      id: filme.id,
+      titulo: filme.titulo,
+      poster_url: filme.poster_url,
+      ano: filme.ano,
+      duracao: filme.duracao,
+      avaliacao: filme.avaliacao || '0.0',
+      tipo: filme.tipo === 'series' ? 'series' : 'movie',
+      qualidade: filme.qualidade,
+      descricao: filme.descricao,
+      categoria: filme.categoria,
+      destaque: filme.destaque,
+      diretor: filme.diretor,
+      elenco: filme.elenco,
+      produtor: filme.produtor,
+      generos: filme.generos,
+      trailer_url: filme.trailer_url,
+      player_url: filme.player_url,
+      idioma: filme.idioma
     };
   } catch (error) {
     console.error('Erro ao buscar detalhes do filme:', error);
