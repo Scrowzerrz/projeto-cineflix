@@ -2,6 +2,23 @@
 import { MovieCardProps } from '@/components/MovieCard';
 import { supabase } from "@/integrations/supabase/client";
 
+// Interface para os dados brutos do banco de dados
+interface FilmeDB {
+  id: string;
+  titulo: string;
+  poster_url: string;
+  ano: string;
+  duracao?: string;
+  tipo?: string;
+  qualidade?: string;
+  avaliacao?: string;
+  destaque?: boolean;
+  descricao?: string;
+  categoria?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // API interfaces
 export interface MovieResponse {
   id: string;
@@ -18,16 +35,18 @@ export interface MovieResponse {
 }
 
 // Helper function to map API response to our MovieCardProps format
-const mapToMovieCard = (movie: MovieResponse): MovieCardProps => {
+const mapToMovieCard = (movie: FilmeDB): MovieCardProps => {
   return {
     id: movie.id,
     title: movie.titulo,
     posterUrl: movie.poster_url,
     year: movie.ano,
     duration: movie.duracao,
-    type: movie.tipo === 'movie' ? 'movie' : 'series',
-    quality: movie.qualidade as 'HD' | 'CAM' | 'DUB' | 'LEG',
-    rating: movie.avaliacao
+    // Garante que 'tipo' seja 'movie' ou 'series'
+    type: movie.tipo === 'series' ? 'series' : 'movie',
+    // Tipo seguro para qualidade
+    quality: (movie.qualidade || 'HD') as 'HD' | 'CAM' | 'DUB' | 'LEG',
+    rating: movie.avaliacao || '0.0'
   };
 };
 
@@ -46,7 +65,7 @@ export const fetchMovies = async (categoria: string): Promise<MovieCardProps[]> 
       throw error;
     }
     
-    return data.map(mapToMovieCard);
+    return (data || []).map(filme => mapToMovieCard(filme));
   } catch (error) {
     console.error('Erro ao buscar filmes:', error);
     return [];
@@ -68,7 +87,7 @@ export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> 
       throw error;
     }
     
-    return data.map(mapToMovieCard);
+    return (data || []).map(serie => mapToMovieCard(serie));
   } catch (error) {
     console.error('Erro ao buscar séries:', error);
     return [];
@@ -117,8 +136,9 @@ export const fetchHeroMovie = async (): Promise<{
       title: data.titulo,
       description: data.descricao || 'Sem descrição disponível',
       imageUrl: data.poster_url,
-      type: data.tipo === 'movie' ? 'movie' : 'series',
-      rating: data.avaliacao,
+      // Garante que 'tipo' seja 'movie' ou 'series'
+      type: data.tipo === 'series' ? 'series' : 'movie',
+      rating: data.avaliacao || '0.0',
       year: data.ano,
       duration: data.duracao || '0min'
     };
@@ -155,7 +175,7 @@ export const fetchAllMovies = async (filtroCategoria?: string): Promise<MovieCar
       throw error;
     }
     
-    return data.map(mapToMovieCard);
+    return (data || []).map(filme => mapToMovieCard(filme));
   } catch (error) {
     console.error('Erro ao buscar todos os filmes:', error);
     return [];
@@ -180,7 +200,7 @@ export const fetchAllSeries = async (filtroCategoria?: string): Promise<MovieCar
       throw error;
     }
     
-    return data.map(mapToMovieCard);
+    return (data || []).map(serie => mapToMovieCard(serie));
   } catch (error) {
     console.error('Erro ao buscar todas as séries:', error);
     return [];
@@ -213,9 +233,9 @@ export const searchContent = async (searchTerm: string): Promise<MovieCardProps[
     }
     
     // Combinar resultados de filmes e séries
-    const combinedResults = [...filmes, ...series];
+    const combinedResults = [...(filmes || []), ...(series || [])];
     
-    return combinedResults.map(mapToMovieCard);
+    return combinedResults.map(item => mapToMovieCard(item));
   } catch (error) {
     console.error('Erro ao realizar pesquisa:', error);
     return [];

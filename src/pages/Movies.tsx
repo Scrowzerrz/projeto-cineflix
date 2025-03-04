@@ -19,6 +19,7 @@ const Movies = () => {
   const [generoSelecionado, setGeneroSelecionado] = useState('Todos');
   const [anoSelecionado, setAnoSelecionado] = useState('Todos');
   const [abaPrincipal, setAbaPrincipal] = useState('populares');
+  const [filmesFiltrados, setFilmesFiltrados] = useState<MovieCardProps[]>([]);
   
   // Buscar filmes usando React Query
   const { 
@@ -27,14 +28,26 @@ const Movies = () => {
     error,
     refetch
   } = useQuery({
-    queryKey: ['filmes', abaPrincipal, generoSelecionado, anoSelecionado],
+    queryKey: ['filmes', abaPrincipal, generoSelecionado],
     queryFn: () => fetchAllMovies(generoSelecionado)
   });
+
+  // Filtrar filmes por ano quando os dados ou o filtro de ano mudar
+  useEffect(() => {
+    if (!filmes) return;
+    
+    if (anoSelecionado === 'Todos') {
+      setFilmesFiltrados(filmes);
+    } else {
+      const filtrados = filmes.filter(filme => filme.year === anoSelecionado);
+      setFilmesFiltrados(filtrados);
+    }
+  }, [filmes, anoSelecionado]);
 
   // Atualizar quando os filtros mudarem
   useEffect(() => {
     refetch();
-  }, [abaPrincipal, generoSelecionado, anoSelecionado, refetch]);
+  }, [abaPrincipal, generoSelecionado, refetch]);
 
   // Renderizar conteúdo baseado no estado de carregamento/erro
   const renderConteudo = () => {
@@ -57,7 +70,7 @@ const Movies = () => {
       );
     }
 
-    if (!filmes || filmes.length === 0) {
+    if (!filmesFiltrados || filmesFiltrados.length === 0) {
       return (
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
@@ -70,7 +83,7 @@ const Movies = () => {
 
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        {filmes.map((filme) => (
+        {filmesFiltrados.map((filme) => (
           <MovieCard key={filme.id} {...filme} />
         ))}
       </div>
