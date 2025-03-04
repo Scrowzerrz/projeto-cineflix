@@ -1,6 +1,6 @@
 
 import { useState, useRef } from 'react';
-import { ChevronLeft, ChevronRight, TrendingUp, Clock, Star, Award } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, Clock, Star, Award, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MovieCard, { MovieCardProps } from './MovieCard';
 
@@ -10,6 +10,8 @@ interface MovieRowProps {
   categories?: string[];
   activeCategory?: string;
   onCategoryChange?: (category: string) => void;
+  isLoading?: boolean;
+  error?: string;
 }
 
 const LinhaFilmes = ({ 
@@ -17,7 +19,9 @@ const LinhaFilmes = ({
   movies, 
   categories, 
   activeCategory, 
-  onCategoryChange 
+  onCategoryChange,
+  isLoading = false,
+  error
 }: MovieRowProps) => {
   const rowRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -61,6 +65,77 @@ const LinhaFilmes = ({
         return null;
     }
   };
+
+  // Render loading state
+  if (isLoading) {
+    return (
+      <div className="w-full py-6 relative animate-fade-in">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-between items-center mb-4">
+            <h2 className="section-heading flex items-center text-gradient">
+              {title}
+            </h2>
+            
+            {categories && (
+              <div className="flex overflow-x-auto hide-scrollbar">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    className={`category-tab flex items-center ${category === activeCategory ? 'active' : ''}`}
+                    onClick={() => onCategoryChange && onCategoryChange(category)}
+                  >
+                    {getCategoryIcon(category)}
+                    {category}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center justify-center h-64 bg-movieDark/20 rounded-lg">
+            <Loader2 className="h-10 w-10 text-movieRed animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render error state
+  if (error) {
+    return (
+      <div className="w-full py-6 relative animate-fade-in">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-between items-center mb-4">
+            <h2 className="section-heading flex items-center text-gradient">
+              {title}
+            </h2>
+            
+            {categories && (
+              <div className="flex overflow-x-auto hide-scrollbar">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    className={`category-tab flex items-center ${category === activeCategory ? 'active' : ''}`}
+                    onClick={() => onCategoryChange && onCategoryChange(category)}
+                  >
+                    {getCategoryIcon(category)}
+                    {category}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center justify-center h-64 bg-movieDark/20 rounded-lg">
+            <div className="text-center">
+              <p className="text-white text-xl">{error}</p>
+              <p className="text-movieGray mt-2">Por favor, tente novamente mais tarde</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full py-6 relative animate-fade-in">
