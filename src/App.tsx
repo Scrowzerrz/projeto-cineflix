@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   BrowserRouter,
@@ -22,6 +23,7 @@ import Configuracoes from "./pages/Configuracoes";
 import RotaProtegida from "./components/RotaProtegida";
 import { AuthProvider } from "./hooks/useAuth";
 
+// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -32,7 +34,8 @@ const queryClient = new QueryClient({
   },
 });
 
-function App() {
+// Create App component
+const App: React.FC = () => {
   console.log("App componente renderizado");
 
   return (
