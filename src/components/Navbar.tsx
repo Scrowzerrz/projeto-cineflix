@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Bell, ChevronDown, Search } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Bell, ChevronDown, Search, LogOut, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,11 +11,14 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { perfil, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,6 +32,17 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const searchInput = form.elements.namedItem('searchInput') as HTMLInputElement;
+    
+    if (searchInput && searchInput.value.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchInput.value.trim())}`);
+      setIsSearchOpen(false);
+    }
+  };
 
   return (
     <div 
@@ -83,16 +97,20 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className={`relative transition-all duration-300 ${isSearchOpen ? 'w-52' : 'w-0'}`}>
+          <form 
+            className={`relative transition-all duration-300 ${isSearchOpen ? 'w-52' : 'w-0'}`}
+            onSubmit={handleSearchSubmit}
+          >
             {isSearchOpen && (
               <Input 
+                name="searchInput"
                 className="bg-movieDark/60 border-movieGray/20 text-white placeholder:text-movieGray/60 backdrop-blur-sm"
                 placeholder="Buscar..." 
                 autoFocus
-                onBlur={() => setIsSearchOpen(false)}
+                onBlur={() => setTimeout(() => setIsSearchOpen(false), 200)}
               />
             )}
-          </div>
+          </form>
           
           <Button 
             variant="ghost" 
@@ -112,27 +130,55 @@ const Navbar = () => {
             <span className="absolute top-1 right-1 w-2 h-2 bg-movieRed rounded-full"></span>
           </Button>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8 border border-white/20">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback className="bg-movieRed text-white">US</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-movieDark border-movieGray/20" align="end" forceMount>
-              <DropdownMenuItem className="text-white hover:bg-movieGray/20">
-                <Link to="/profile" className="w-full">Perfil</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-white hover:bg-movieGray/20">
-                <Link to="/settings" className="w-full">Configurações</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-white hover:bg-movieGray/20">
-                <Link to="/login" className="w-full">Sair</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {perfil ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8 border border-white/20">
+                    <AvatarImage src={perfil.avatar_url || ''} />
+                    <AvatarFallback className="bg-movieRed text-white">
+                      {perfil.nome ? perfil.nome.substring(0, 2).toUpperCase() : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-movieDark border-movieGray/20" align="end" forceMount>
+                <div className="p-2 border-b border-gray-800">
+                  <p className="text-white font-medium truncate">{perfil.nome || 'Usuário'}</p>
+                  <p className="text-gray-400 text-xs truncate">{perfil.email}</p>
+                </div>
+                <DropdownMenuItem className="text-white hover:bg-movieGray/20">
+                  <Link to="/perfil" className="w-full flex items-center">
+                    <User className="mr-2 h-4 w-4" />
+                    Perfil
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-white hover:bg-movieGray/20">
+                  <Link to="/configuracoes" className="w-full flex items-center">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Configurações
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-white hover:bg-movieGray/20"
+                  onClick={() => signOut()}
+                >
+                  <div className="w-full flex items-center">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sair
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button 
+              variant="ghost"
+              className="text-white hover:bg-white/10"
+              onClick={() => navigate('/auth')}
+            >
+              Entrar
+            </Button>
+          )}
         </div>
       </div>
     </div>

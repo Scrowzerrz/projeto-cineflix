@@ -3,6 +3,8 @@ import React from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
+  Route,
+  createRoutesFromElements,
 } from "react-router-dom";
 import './App.css';
 
@@ -16,6 +18,9 @@ import NotFound from "./pages/NotFound";
 import DetalhesFilme from "./pages/DetalhesFilme";
 import DetalhesSerie from "./pages/DetalhesSerie";
 import Search from "./pages/Search";
+import Autenticacao from "./pages/Autenticacao";
+import RotaProtegida from "./components/RotaProtegida";
+import { AuthProvider } from "./hooks/useAuth";
 
 // Criar uma instância do QueryClient
 const queryClient = new QueryClient({
@@ -28,7 +33,30 @@ const queryClient = new QueryClient({
   },
 });
 
+const AppRoutes = () => (
+  <AuthProvider>
+    {/* Rotas públicas */}
+    <Route path="/" element={<Index />} />
+    <Route path="/movies" element={<Movies />} />
+    <Route path="/series" element={<Series />} />
+    <Route path="/movie/:id" element={<DetalhesFilme />} />
+    <Route path="/serie/:id" element={<DetalhesSerie />} />
+    <Route path="/search" element={<Search />} />
+    <Route path="/auth" element={<Autenticacao />} />
+
+    {/* Rotas protegidas */}
+    <Route element={<RotaProtegida />}>
+      <Route path="/perfil" element={<Index />} />
+      <Route path="/configuracoes" element={<Index />} />
+    </Route>
+  </AuthProvider>
+);
+
 function App() {
+  const router = createBrowserRouter(
+    createRoutesFromElements(<AppRoutes />)
+  );
+
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
@@ -38,33 +66,5 @@ function App() {
     </React.StrictMode>
   );
 }
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Index />,
-    errorElement: <NotFound />,
-  },
-  {
-    path: "/movies",
-    element: <Movies />,
-  },
-  {
-    path: "/series",
-    element: <Series />,
-  },
-  {
-    path: "/movie/:id",
-    element: <DetalhesFilme />,
-  },
-  {
-    path: "/serie/:id",
-    element: <DetalhesSerie />,
-  },
-  {
-    path: "/search",
-    element: <Search />,
-  }
-]);
 
 export default App;
