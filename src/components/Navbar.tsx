@@ -29,8 +29,14 @@ const Navbar = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="Cineflix" className="h-8" />
-            <span className="text-2xl font-bold text-white">Cineflix</span>
+            <div className="flex items-center">
+              <span className="text-white text-2xl font-bold">Cineflix</span>
+              <div className="ml-1 w-4 h-4 bg-movieRed rotate-45 relative">
+                <div className="absolute inset-0 flex items-center justify-center -rotate-45">
+                  <span className="text-white text-xs font-bold">+</span>
+                </div>
+              </div>
+            </div>
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <Link to="/movies" className="header-link">
