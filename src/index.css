@@ -43,14 +43,14 @@
   }
   
   body {
-    @apply bg-movieDarkBlue text-foreground overflow-x-hidden;
+    @apply bg-black text-foreground overflow-x-hidden;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   
   ::-webkit-scrollbar-track {
@@ -80,12 +80,8 @@
     @apply absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100;
   }
   
-  .movie-badge {
-    @apply bg-movieDarkBlue/80 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded backdrop-blur-sm;
-  }
-  
   .section-heading {
-    @apply text-white text-xl md:text-2xl font-bold mb-4 flex items-center;
+    @apply text-white text-xl md:text-2xl font-bold mb-6 flex items-center;
   }
   
   .category-tab {
@@ -97,7 +93,7 @@
   }
   
   .hero-button {
-    @apply rounded-md px-5 py-2.5 font-medium text-sm transition-all duration-200 hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-movieRed/50;
+    @apply rounded-sm px-5 py-2.5 font-medium text-base transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-movieRed/50;
   }
   
   .shimmer-effect {
@@ -113,5 +109,32 @@
     100% {
       left: 100%;
     }
+  }
+
+  /* New styles for cinematic feel */
+  .cinematic-container {
+    @apply container mx-auto px-4 py-12;
+  }
+  
+  .section-title {
+    @apply text-white text-2xl sm:text-3xl font-bold mb-8 flex items-center after:content-[''] after:ml-4 after:h-[1px] after:flex-1 after:bg-white/10;
+  }
+  
+  .movie-grid {
+    @apply grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6;
+  }
+  
+  .glass-card {
+    @apply backdrop-blur-lg bg-white/5 border border-white/10 rounded-md;
+  }
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent;
   }
 }

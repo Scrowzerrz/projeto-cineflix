@@ -40,8 +40,8 @@ export default {
 				card: 'hsl(var(--card))',
 				'card-foreground': 'hsl(var(--card-foreground))',
 				movieRed: '#E50914',
-				movieDark: '#141414',
-				movieDarkBlue: '#0F1115',
+				movieDark: '#0A0A0A',
+				movieDarkBlue: '#070B12',
 				movieLightBlue: '#0EA5E9',
 				movieGray: '#8A8F98',
 			},
@@ -91,7 +91,8 @@ export default {
 			},
 			backgroundImage: {
 				'hero-gradient': 'linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0.4) 100%)',
-				'card-gradient': 'linear-gradient(180deg, rgba(20, 20, 20, 0) 0%, rgba(20, 20, 20, 0.9) 80%)',
+				'card-gradient': 'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.9) 80%)',
+        'horizontal-gradient': 'linear-gradient(90deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0) 100%)',
 			},
 			fontFamily: {
 				'sans': ['Inter', 'system-ui', 'sans-serif'],
