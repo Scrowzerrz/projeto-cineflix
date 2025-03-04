@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,25 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Camera } from 'lucide-react';
+import { Loader2, Camera, Heart, Film, Tv } from 'lucide-react';
+import { useFavoritos } from '@/hooks/useFavoritos';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Navbar from '@/components/Navbar';
+import CartaoFilme from '@/components/MovieCard';
+
+interface FavoritoComDetalhes {
+  id: string;
+  item_id: string;
+  tipo: 'filme' | 'serie';
+  detalhes: {
+    id: string;
+    titulo: string;
+    poster_url: string;
+    ano: string;
+    duracao?: string;
+    avaliacao?: string;
+  } | null;
+}
 
 const Perfil = () => {
   const { perfil, refreshPerfil } = useAuth();
@@ -17,6 +35,49 @@ const Perfil = () => {
   const [nome, setNome] = useState(perfil?.nome || '');
   const [carregando, setCarregando] = useState(false);
   const [carregandoImagem, setCarregandoImagem] = useState(false);
+  const { favoritos, isLoading: carregandoFavoritos } = useFavoritos();
+  const [favoritosComDetalhes, setFavoritosComDetalhes] = useState<FavoritoComDetalhes[]>([]);
+  const [tipoFavoritoAtivo, setTipoFavoritoAtivo] = useState<'todos' | 'filmes' | 'series'>('todos');
+
+  useEffect(() => {
+    const buscarDetalhesFavoritos = async () => {
+      if (!favoritos.length) return;
+
+      try {
+        const detalhes = await Promise.all(
+          favoritos.map(async (fav) => {
+            const tabela = fav.tipo === 'filme' ? 'filmes' : 'series';
+            const { data, error } = await supabase
+              .from(tabela)
+              .select('id, titulo, poster_url, ano, duracao, avaliacao')
+              .eq('id', fav.item_id)
+              .maybeSingle();
+
+            if (error) throw error;
+
+            return {
+              ...fav,
+              detalhes: data
+            };
+          })
+        );
+
+        setFavoritosComDetalhes(detalhes);
+      } catch (error) {
+        console.error('Erro ao buscar detalhes dos favoritos:', error);
+        toast.error('Não foi possível carregar os detalhes dos seus favoritos');
+      }
+    };
+
+    buscarDetalhesFavoritos();
+  }, [favoritos]);
+
+  const getFavoritosFiltrados = () => {
+    if (tipoFavoritoAtivo === 'todos') return favoritosComDetalhes;
+    return favoritosComDetalhes.filter(
+      fav => tipoFavoritoAtivo === 'filmes' ? fav.tipo === 'filme' : fav.tipo === 'serie'
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,20 +117,14 @@ const Perfil = () => {
       setCarregandoImagem(true);
       
       if (!file.type.startsWith('image/')) {
-        toast.error('Por favor, selecione uma imagem válida', {
-          className: "bg-movieDark border-movieGray/20 text-white",
-        });
+        toast.error('Por favor, selecione uma imagem válida');
         return;
       }
       
       if (file.size > 2 * 1024 * 1024) {
-        toast.error('Imagem muito grande. Máximo de 2MB.', {
-          className: "bg-movieDark border-movieGray/20 text-white",
-        });
+        toast.error('Imagem muito grande. Máximo de 2MB.');
         return;
       }
-      
-      console.log('Iniciando upload de imagem:', file.name);
       
       // Se existe um avatar antigo, vamos extrair o nome do arquivo da URL
       if (perfil.avatar_url) {
@@ -92,8 +147,6 @@ const Perfil = () => {
       const fileName = `${perfil.id}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
       
-      console.log('Caminho do arquivo:', filePath);
-      
       // Fazer upload para o Storage
       const { error: uploadError, data: uploadData } = await supabase
         .storage
@@ -107,15 +160,11 @@ const Perfil = () => {
         throw uploadError;
       }
       
-      console.log('Upload bem sucedido:', uploadData);
-      
       // Obter URL pública do arquivo
       const { data } = supabase
         .storage
         .from('perfis')
         .getPublicUrl(filePath);
-      
-      console.log('URL pública obtida:', data.publicUrl);
       
       // Atualizar perfil do usuário com a nova URL
       const { error: updateError } = await supabase
@@ -129,14 +178,10 @@ const Perfil = () => {
       }
       
       await refreshPerfil();
-      toast.success('Imagem de perfil atualizada!', {
-        className: "bg-movieDark border-movieGray/20 text-white",
-      });
+      toast.success('Imagem de perfil atualizada!');
     } catch (error) {
       console.error('Erro ao fazer upload da imagem:', error);
-      toast.error('Erro ao atualizar imagem de perfil', {
-        className: "bg-movieDark border-movieGray/20 text-white",
-      });
+      toast.error('Erro ao atualizar imagem de perfil');
     } finally {
       setCarregandoImagem(false);
     }
@@ -148,107 +193,191 @@ const Perfil = () => {
   }
 
   return (
-    <div className="min-h-screen bg-movieDarkBlue pt-24 px-4 pb-10">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-6">Seu Perfil</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Coluna de avatar */}
-          <Card className="bg-movieDark border-movieGray/20">
-            <CardHeader>
-              <CardTitle className="text-white">Foto de Perfil</CardTitle>
-              <CardDescription className="text-gray-400">
-                Sua foto pública no Cineflix
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center">
-              <div className="relative mb-4">
-                <Avatar className="h-32 w-32 border-2 border-white/10">
-                  <AvatarImage src={perfil.avatar_url || ''} />
-                  <AvatarFallback className="bg-movieRed text-white text-3xl">
-                    {perfil.nome ? perfil.nome.substring(0, 2).toUpperCase() : 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <label 
-                  htmlFor="avatar-upload" 
-                  className="absolute -bottom-2 -right-2 p-2 bg-movieRed text-white rounded-full cursor-pointer hover:bg-red-600 transition-colors"
-                >
-                  {carregandoImagem ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <Camera className="h-5 w-5" />
-                  )}
-                  <input 
-                    type="file" 
-                    id="avatar-upload" 
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={handleImagemUpload}
-                    disabled={carregandoImagem}
-                  />
-                </label>
-              </div>
-              <p className="text-center text-sm text-gray-400 max-w-xs">
-                Clique no ícone da câmera para alterar sua foto. Imagens menores que 2MB.
-              </p>
-            </CardContent>
-          </Card>
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-b from-movieDarkBlue to-movieDark pt-24 px-4 pb-10">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-8 border-l-4 border-movieRed pl-4">
+            Meu Perfil
+          </h1>
           
-          {/* Coluna de informações */}
-          <Card className="bg-movieDark border-movieGray/20 md:col-span-2">
-            <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Coluna de avatar */}
+            <Card className="bg-movieDark/80 border-movieGray/20 backdrop-blur shadow-xl">
               <CardHeader>
-                <CardTitle className="text-white">Informações da Conta</CardTitle>
+                <CardTitle className="text-white">Foto de Perfil</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Atualize suas informações pessoais
+                  Sua foto pública no Cineflix
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nome" className="text-white">Nome</Label>
-                  <Input 
-                    id="nome" 
-                    value={nome} 
-                    onChange={(e) => setNome(e.target.value)}
-                    className="bg-movieDarkBlue border-movieGray/20 text-white"
-                  />
+              <CardContent className="flex flex-col items-center">
+                <div className="relative mb-4">
+                  <Avatar className="h-32 w-32 border-2 border-white/10">
+                    <AvatarImage src={perfil.avatar_url || ''} />
+                    <AvatarFallback className="bg-movieRed text-white text-3xl">
+                      {perfil.nome ? perfil.nome.substring(0, 2).toUpperCase() : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <label 
+                    htmlFor="avatar-upload" 
+                    className="absolute -bottom-2 -right-2 p-2 bg-movieRed text-white rounded-full cursor-pointer hover:bg-red-600 transition-colors"
+                  >
+                    {carregandoImagem ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Camera className="h-5 w-5" />
+                    )}
+                    <input 
+                      type="file" 
+                      id="avatar-upload" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={handleImagemUpload}
+                      disabled={carregandoImagem}
+                    />
+                  </label>
                 </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white">Email</Label>
-                  <Input 
-                    id="email" 
-                    value={perfil.email} 
-                    disabled
-                    className="bg-movieDarkBlue/50 border-movieGray/20 text-gray-400"
-                  />
-                  <p className="text-xs text-gray-500">
-                    O email não pode ser alterado
-                  </p>
-                </div>
+                <p className="text-center text-sm text-gray-400 max-w-xs">
+                  Clique no ícone da câmera para alterar sua foto. Imagens menores que 2MB.
+                </p>
               </CardContent>
-              <CardFooter className="flex justify-end">
-                <Button 
-                  type="submit" 
-                  className="bg-movieRed hover:bg-red-700 text-white"
-                  disabled={carregando}
-                >
-                  {carregando ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    'Salvar Alterações'
-                  )}
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
+            </Card>
+            
+            {/* Coluna de informações */}
+            <Card className="bg-movieDark/80 border-movieGray/20 backdrop-blur shadow-xl md:col-span-2">
+              <form onSubmit={handleSubmit}>
+                <CardHeader>
+                  <CardTitle className="text-white">Informações da Conta</CardTitle>
+                  <CardDescription className="text-gray-400">
+                    Atualize suas informações pessoais
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nome" className="text-white">Nome</Label>
+                    <Input 
+                      id="nome" 
+                      value={nome} 
+                      onChange={(e) => setNome(e.target.value)}
+                      className="bg-movieDarkBlue/70 border-movieGray/30 text-white focus-visible:ring-movieRed/50 focus-visible:border-movieRed/50"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-white">Email</Label>
+                    <Input 
+                      id="email" 
+                      value={perfil.email} 
+                      disabled
+                      className="bg-movieDarkBlue/50 border-movieGray/30 text-gray-400"
+                    />
+                    <p className="text-xs text-gray-500">
+                      O email não pode ser alterado
+                    </p>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <Button 
+                    type="submit" 
+                    className="bg-movieRed hover:bg-red-700 text-white shadow-md"
+                    disabled={carregando}
+                  >
+                    {carregando ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      'Salvar Alterações'
+                    )}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </div>
+          
+          {/* Seção de Favoritos */}
+          <div className="mt-12">
+            <div className="flex items-center mb-6">
+              <Heart className="h-6 w-6 text-movieRed mr-3" />
+              <h2 className="text-2xl font-bold text-white">Meus Favoritos</h2>
+            </div>
+            
+            <Card className="bg-movieDark/80 border-movieGray/20 backdrop-blur shadow-xl">
+              <CardContent className="pt-6">
+                <Tabs defaultValue="todos" className="w-full">
+                  <TabsList className="bg-movieDarkBlue/70 mb-6">
+                    <TabsTrigger 
+                      value="todos" 
+                      onClick={() => setTipoFavoritoAtivo('todos')}
+                      className="data-[state=active]:bg-movieRed data-[state=active]:text-white"
+                    >
+                      Todos
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="filmes" 
+                      onClick={() => setTipoFavoritoAtivo('filmes')}
+                      className="data-[state=active]:bg-movieRed data-[state=active]:text-white"
+                    >
+                      <Film className="h-4 w-4 mr-1" /> 
+                      Filmes
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="series" 
+                      onClick={() => setTipoFavoritoAtivo('series')}
+                      className="data-[state=active]:bg-movieRed data-[state=active]:text-white"
+                    >
+                      <Tv className="h-4 w-4 mr-1" /> 
+                      Séries
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="todos" className="mt-0">
+                    {carregandoFavoritos ? (
+                      <div className="flex justify-center py-10">
+                        <Loader2 className="h-10 w-10 text-movieRed animate-spin" />
+                      </div>
+                    ) : getFavoritosFiltrados().length === 0 ? (
+                      <div className="text-center py-10 text-gray-400">
+                        <Heart className="h-16 w-16 mx-auto mb-4 text-movieGray/40" />
+                        <p className="text-xl font-medium mb-2">Nenhum favorito encontrado</p>
+                        <p>Adicione filmes e séries aos seus favoritos para vê-los aqui.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                        {getFavoritosFiltrados().map((fav) => (
+                          fav.detalhes && (
+                            <CartaoFilme
+                              key={fav.id}
+                              id={fav.item_id}
+                              title={fav.detalhes.titulo}
+                              posterUrl={fav.detalhes.poster_url}
+                              year={fav.detalhes.ano}
+                              duration={fav.detalhes.duracao}
+                              rating={fav.detalhes.avaliacao}
+                              type={fav.tipo === 'serie' ? 'series' : 'movie'}
+                            />
+                          )
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="filmes" className="mt-0">
+                    {/* O conteúdo é controlado pelo estado tipoFavoritoAtivo */}
+                  </TabsContent>
+                  
+                  <TabsContent value="series" className="mt-0">
+                    {/* O conteúdo é controlado pelo estado tipoFavoritoAtivo */}
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
