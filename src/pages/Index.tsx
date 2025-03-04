@@ -5,7 +5,6 @@ import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import LinhaFilmes from '@/components/MovieRow';
 import Footer from '@/components/Footer';
-import { MovieCardProps } from '@/components/MovieCard';
 import { fetchMovies, fetchSeries, fetchHeroMovie } from '@/services/movieService';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -103,6 +102,7 @@ const Index = () => {
         rating={heroMovie.rating}
         year={heroMovie.year}
         duration={heroMovie.duration}
+        id={heroMovie.id || ''}
       />
     );
   };

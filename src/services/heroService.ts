@@ -92,6 +92,7 @@ export const fetchHeroMovie = async (): Promise<HeroMovie> => {
     }
     
     return {
+      id: data.id,
       title: data.titulo,
       description: data.descricao || 'Sem descrição disponível',
       imageUrl: data.poster_url,
