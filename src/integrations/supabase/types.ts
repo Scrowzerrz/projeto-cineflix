@@ -17,12 +17,19 @@ export type Database = {
           created_at: string | null
           descricao: string | null
           destaque: boolean | null
+          diretor: string | null
           duracao: string | null
+          elenco: string | null
+          generos: string[] | null
           id: string
+          idioma: string | null
+          player_url: string | null
           poster_url: string
+          produtor: string | null
           qualidade: string | null
           tipo: string | null
           titulo: string
+          trailer_url: string | null
           updated_at: string | null
         }
         Insert: {
@@ -32,12 +39,19 @@ export type Database = {
           created_at?: string | null
           descricao?: string | null
           destaque?: boolean | null
+          diretor?: string | null
           duracao?: string | null
+          elenco?: string | null
+          generos?: string[] | null
           id?: string
+          idioma?: string | null
+          player_url?: string | null
           poster_url: string
+          produtor?: string | null
           qualidade?: string | null
           tipo?: string | null
           titulo: string
+          trailer_url?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -47,12 +61,19 @@ export type Database = {
           created_at?: string | null
           descricao?: string | null
           destaque?: boolean | null
+          diretor?: string | null
           duracao?: string | null
+          elenco?: string | null
+          generos?: string[] | null
           id?: string
+          idioma?: string | null
+          player_url?: string | null
           poster_url?: string
+          produtor?: string | null
           qualidade?: string | null
           tipo?: string | null
           titulo?: string
+          trailer_url?: string | null
           updated_at?: string | null
         }
         Relationships: []

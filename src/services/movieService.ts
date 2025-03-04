@@ -1,4 +1,3 @@
-
 import { MovieCardProps } from '@/components/MovieCard';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,6 +14,13 @@ interface FilmeDB {
   destaque?: boolean;
   descricao?: string;
   categoria?: string;
+  diretor?: string;
+  elenco?: string;
+  produtor?: string;
+  generos?: string[];
+  trailer_url?: string;
+  player_url?: string;
+  idioma?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -32,6 +38,13 @@ export interface MovieResponse {
   descricao?: string;
   categoria?: string;
   destaque?: boolean;
+  diretor?: string;
+  elenco?: string;
+  produtor?: string;
+  generos?: string[];
+  trailer_url?: string;
+  player_url?: string;
+  idioma?: string;
 }
 
 // Helper function to map API response to our MovieCardProps format
@@ -239,5 +252,49 @@ export const searchContent = async (searchTerm: string): Promise<MovieCardProps[
   } catch (error) {
     console.error('Erro ao realizar pesquisa:', error);
     return [];
+  }
+};
+
+// Nova função para buscar detalhes de um filme específico
+export const fetchMovieDetails = async (movieId: string): Promise<MovieResponse | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('filmes')
+      .select('*')
+      .eq('id', movieId)
+      .single();
+    
+    if (error) {
+      console.error('Erro ao buscar detalhes do filme:', error);
+      throw error;
+    }
+    
+    if (!data) {
+      return null;
+    }
+
+    return {
+      id: data.id,
+      titulo: data.titulo,
+      poster_url: data.poster_url,
+      ano: data.ano,
+      duracao: data.duracao,
+      avaliacao: data.avaliacao || '0.0',
+      tipo: data.tipo === 'series' ? 'series' : 'movie',
+      qualidade: data.qualidade,
+      descricao: data.descricao,
+      categoria: data.categoria,
+      destaque: data.destaque,
+      diretor: data.diretor,
+      elenco: data.elenco,
+      produtor: data.produtor,
+      generos: data.generos,
+      trailer_url: data.trailer_url,
+      player_url: data.player_url,
+      idioma: data.idioma
+    };
+  } catch (error) {
+    console.error('Erro ao buscar detalhes do filme:', error);
+    return null;
   }
 };
