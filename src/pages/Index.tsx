@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
@@ -116,7 +117,7 @@ const Index = () => {
         <div className="py-4">
           <LinhaFilmes 
             title="Filmes" 
-            movies={movies || []}
+            movies={movies ? movies.map(movie => ({...movie, type: 'movie'})) : []}
             categories={categories}
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
@@ -126,7 +127,7 @@ const Index = () => {
           
           <LinhaFilmes 
             title="Séries" 
-            movies={series || []}
+            movies={series ? series.map(serie => ({...serie, type: 'series'})) : []}
             categories={seriesCategories}
             activeCategory={activeSeriesCategory}
             onCategoryChange={setActiveSeriesCategory}

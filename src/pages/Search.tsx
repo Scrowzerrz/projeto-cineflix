@@ -104,7 +104,9 @@ const Search = () => {
                 <TabsContent value="todos" className="mt-6">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                     {obterResultadosFiltrados().map((item) => (
-                      <MovieCard key={item.id} {...item} />
+                      <div key={item.id}>
+                        <MovieCard {...item} />
+                      </div>
                     ))}
                   </div>
                 </TabsContent>
@@ -112,7 +114,9 @@ const Search = () => {
                 <TabsContent value="filmes" className="mt-6">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                     {obterResultadosFiltrados().map((item) => (
-                      <MovieCard key={item.id} {...item} />
+                      <div key={item.id}>
+                        <MovieCard {...item} />
+                      </div>
                     ))}
                   </div>
                 </TabsContent>
@@ -120,7 +124,9 @@ const Search = () => {
                 <TabsContent value="series" className="mt-6">
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                     {obterResultadosFiltrados().map((item) => (
-                      <MovieCard key={item.id} {...item} />
+                      <div key={item.id}>
+                        <MovieCard {...item} />
+                      </div>
                     ))}
                   </div>
                 </TabsContent>

@@ -35,8 +35,11 @@ const CartaoFilme = ({
     setIsFavorite(!isFavorite);
   };
 
+  // Determinar o caminho correto com base no tipo
+  const detailsPath = type === 'series' ? `/serie/${id}` : `/movie/${id}`;
+
   return (
-    <Link to={`/filme/${id}`} className="block">
+    <Link to={detailsPath} className="block">
       <div 
         className="group relative w-full aspect-[2/3] rounded-md overflow-hidden transition-transform duration-300 hover:scale-[1.05] hover:z-10 shadow-lg"
         onMouseEnter={() => setIsHovered(true)}
@@ -110,7 +113,8 @@ const CartaoFilme = ({
             >
               <Plus className="h-4 w-4" />
             </Button>
-            <Link to={`/filme/${id}`}>
+            
+            <Link to={detailsPath}>
               <Button 
                 variant="ghost" 
                 size="sm" 

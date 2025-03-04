@@ -72,9 +72,9 @@ const Series = () => {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {series.map((serie) => (
-          <Link to={`/serie/${serie.id}`} key={serie.id}>
-            <MovieCard {...serie} />
-          </Link>
+          <div key={serie.id}>
+            <MovieCard {...serie} type="series" />
+          </div>
         ))}
       </div>
     );
