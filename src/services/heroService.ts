@@ -42,16 +42,49 @@ export const fetchHeroMovie = async (): Promise<HeroMovie> => {
             throw new Error('Nenhum filme ou série encontrado no banco de dados');
           }
           
-          // Usamos uma série qualquer como destaque, convertendo para o formato FilmeDB
+          // Convertemos os dados da série para o formato FilmeDB
           data = serieToFilmeDB(fallbackSeries.data);
         } else {
-          // Usamos um filme qualquer como destaque
-          data = fallbackFilmes.data;
+          // Se encontrarmos um filme, garantimos que todos os campos estejam presentes
+          data = {
+            ...fallbackFilmes.data,
+            avaliacao: fallbackFilmes.data.avaliacao || '0.0',
+            categoria: fallbackFilmes.data.categoria || '',
+            descricao: fallbackFilmes.data.descricao || '',
+            destaque: fallbackFilmes.data.destaque || false,
+            diretor: fallbackFilmes.data.diretor || '',
+            duracao: fallbackFilmes.data.duracao || '',
+            elenco: fallbackFilmes.data.elenco || '',
+            generos: fallbackFilmes.data.generos || [],
+            idioma: fallbackFilmes.data.idioma || '',
+            player_url: fallbackFilmes.data.player_url || '',
+            produtor: fallbackFilmes.data.produtor || '',
+            tipo: fallbackFilmes.data.tipo || 'movie',
+            trailer_url: fallbackFilmes.data.trailer_url || ''
+          } as FilmeDB;
         }
       } else {
         // Usamos a série em destaque, convertendo para o formato FilmeDB
         data = serieToFilmeDB(seriesResult.data);
       }
+    } else {
+      // Se encontrarmos um filme em destaque, garantimos que todos os campos estejam presentes
+      data = {
+        ...data,
+        avaliacao: data.avaliacao || '0.0',
+        categoria: data.categoria || '',
+        descricao: data.descricao || '',
+        destaque: data.destaque || false,
+        diretor: data.diretor || '',
+        duracao: data.duracao || '',
+        elenco: data.elenco || '',
+        generos: data.generos || [],
+        idioma: data.idioma || '',
+        player_url: data.player_url || '',
+        produtor: data.produtor || '',
+        tipo: data.tipo || 'movie',
+        trailer_url: data.trailer_url || ''
+      } as FilmeDB;
     }
     
     if (!data) {

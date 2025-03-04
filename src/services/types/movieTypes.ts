@@ -7,22 +7,22 @@ export interface FilmeDB {
   titulo: string;
   poster_url: string;
   ano: string;
-  duracao?: string;
-  tipo?: string;
-  qualidade?: string;
-  avaliacao?: string;
-  destaque?: boolean;
-  descricao?: string;
-  categoria?: string;
-  diretor?: string;
-  elenco?: string;
-  produtor?: string;
-  generos?: string[];
-  trailer_url?: string;
-  player_url?: string;
-  idioma?: string;
-  created_at?: string;
-  updated_at?: string;
+  duracao: string;
+  tipo: string;
+  qualidade: string;
+  avaliacao: string;
+  destaque: boolean;
+  descricao: string;
+  categoria: string;
+  diretor: string;
+  elenco: string;
+  produtor: string;
+  generos: string[];
+  trailer_url: string;
+  player_url: string;
+  idioma: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // API interfaces
