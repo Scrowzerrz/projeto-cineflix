@@ -201,6 +201,30 @@ export type Database = {
           },
         ]
       }
+      papeis_usuario: {
+        Row: {
+          created_at: string
+          id: string
+          papel: Database["public"]["Enums"]["tipo_papel"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          papel?: Database["public"]["Enums"]["tipo_papel"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          papel?: Database["public"]["Enums"]["tipo_papel"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       perfis: {
         Row: {
           avatar_url: string | null
@@ -343,10 +367,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      tem_papel: {
+        Args: {
+          usuario_id: string
+          tipo_papel_param: Database["public"]["Enums"]["tipo_papel"]
+        }
+        Returns: boolean
+      }
+      usuario_atual_eh_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      tipo_papel: "admin" | "usuario"
     }
     CompositeTypes: {
       [_ in never]: never

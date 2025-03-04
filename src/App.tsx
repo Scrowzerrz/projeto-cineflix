@@ -21,6 +21,8 @@ import Autenticacao from "./pages/Autenticacao";
 import Perfil from "./pages/Perfil";
 import Configuracoes from "./pages/Configuracoes";
 import RotaProtegida from "./components/RotaProtegida";
+import RotaAdmin from "./components/RotaAdmin";
+import PainelAdmin from "./pages/Admin/PainelAdmin";
 import { AuthProvider } from "./hooks/useAuth";
 
 // Create a client
@@ -59,6 +61,11 @@ const App: React.FC = () => {
               <RotaProtegida>
                 <Configuracoes />
               </RotaProtegida>
+            } />
+            <Route path="/admin" element={
+              <RotaAdmin>
+                <PainelAdmin />
+              </RotaAdmin>
             } />
             <Route path="*" element={<NotFound />} />
           </Routes>
