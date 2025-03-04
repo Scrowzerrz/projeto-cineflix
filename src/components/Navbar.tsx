@@ -129,14 +129,17 @@ const Navbar = () => {
             <Search className="h-5 w-5" />
           </Button>
           
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-white hover:bg-white/10 relative"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-movieRed rounded-full"></span>
-          </Button>
+          {/* Mostrar o sino apenas para usuários logados */}
+          {!loading && session && perfil && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="text-white hover:bg-white/10 relative"
+            >
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-movieRed rounded-full"></span>
+            </Button>
+          )}
           
           {!loading && session && perfil ? (
             <DropdownMenu>

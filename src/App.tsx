@@ -18,6 +18,8 @@ import DetalhesFilme from "./pages/DetalhesFilme";
 import DetalhesSerie from "./pages/DetalhesSerie";
 import Search from "./pages/Search";
 import Autenticacao from "./pages/Autenticacao";
+import Perfil from "./pages/Perfil";
+import Configuracoes from "./pages/Configuracoes";
 import RotaProtegida from "./components/RotaProtegida";
 import { AuthProvider } from "./hooks/useAuth";
 
@@ -49,18 +51,12 @@ function App() {
             <Route path="/auth" element={<Autenticacao />} />
             <Route path="/perfil" element={
               <RotaProtegida>
-                <div className="pt-20 min-h-screen bg-movieDarkBlue text-white p-8">
-                  <h1 className="text-2xl font-bold mb-4">Perfil do Usuário</h1>
-                  <p>Página em construção</p>
-                </div>
+                <Perfil />
               </RotaProtegida>
             } />
             <Route path="/configuracoes" element={
               <RotaProtegida>
-                <div className="pt-20 min-h-screen bg-movieDarkBlue text-white p-8">
-                  <h1 className="text-2xl font-bold mb-4">Configurações</h1>
-                  <p>Página em construção</p>
-                </div>
+                <Configuracoes />
               </RotaProtegida>
             } />
             <Route path="*" element={<NotFound />} />
