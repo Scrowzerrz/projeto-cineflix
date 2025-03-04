@@ -66,32 +66,14 @@ const Perfil = () => {
         return;
       }
       
-      // Verificar se o bucket existe
-      const { data: buckets } = await supabase
-        .storage
-        .listBuckets();
-      
-      const perfisBucketExists = buckets?.some(bucket => bucket.name === 'perfis');
-      
-      if (!perfisBucketExists) {
-        // Criar o bucket se não existir
-        const { error: bucketError } = await supabase
-          .storage
-          .createBucket('perfis', {
-            public: true
-          });
-        
-        if (bucketError) {
-          console.error('Erro ao criar bucket:', bucketError);
-          toast.error('Erro ao criar armazenamento para imagens');
-          return;
-        }
-      }
+      console.log('Iniciando upload de imagem:', file.name);
       
       // Gerar nome de arquivo único
       const fileExt = file.name.split('.').pop();
       const fileName = `${perfil.id}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
+      
+      console.log('Caminho do arquivo:', filePath);
       
       // Fazer upload para o Storage
       const { error: uploadError, data: uploadData } = await supabase
