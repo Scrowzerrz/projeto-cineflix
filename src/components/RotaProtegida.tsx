@@ -10,70 +10,63 @@ interface RotaProtegidaProps {
 }
 
 const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) => {
-  const { session, loading } = useAuth();
+  const { session, perfil, loading } = useAuth();
   const [timeoutAtingido, setTimeoutAtingido] = useState(false);
-
-  // Adicionar logs para depuração
-  useEffect(() => {
-    console.log('RotaProtegida - Estado atual:', { 
-      autenticado: !!session, 
-      carregando: loading,
-      tempoLimiteAtingido: timeoutAtingido,
-      usuarioId: session?.user?.id 
-    });
-  }, [session, loading, timeoutAtingido]);
 
   // Timeout para evitar loading infinito
   useEffect(() => {
     let timeout: number | undefined;
     
     if (loading) {
+      console.log('RotaProtegida - Iniciando timer de timeout para loading');
       timeout = window.setTimeout(() => {
-        console.log('RotaProtegida - Tempo limite atingido após 1.5 segundos');
+        console.log('RotaProtegida - Tempo limite atingido após 3 segundos');
         setTimeoutAtingido(true);
-      }, 1500);
+      }, 3000); // Aumentando para 3 segundos para dar mais tempo
     } else {
-      // Resetar timeout quando loading muda para false
+      console.log('RotaProtegida - Loading completado, resetando timeout');
       setTimeoutAtingido(false);
     }
     
     return () => {
       if (timeout) {
+        console.log('RotaProtegida - Limpando timeout anterior');
         window.clearTimeout(timeout);
       }
     };
   }, [loading]);
 
-  // Se o tempo limite foi atingido, decidir o que fazer
-  if (timeoutAtingido) {
+  // Adicionar logs para depuração
+  useEffect(() => {
+    console.log('RotaProtegida - Estado atualizado:', { 
+      autenticado: !!session, 
+      temPerfil: !!perfil,
+      carregando: loading,
+      tempoLimiteAtingido: timeoutAtingido 
+    });
+  }, [session, perfil, loading, timeoutAtingido]);
+
+  // Se o tempo limite foi atingido ou loading completo, tomar decisão
+  if (timeoutAtingido || !loading) {
     if (!session) {
-      console.log('RotaProtegida - Sem sessão após timeout, redirecionando');
+      console.log('RotaProtegida - Sem sessão, redirecionando para', redirectTo);
       return <Navigate to={redirectTo} replace />;
-    } 
-    console.log('RotaProtegida - Sessão presente após timeout, mostrando conteúdo');
+    }
+    
+    console.log('RotaProtegida - Sessão presente, mostrando conteúdo protegido');
     return <>{children}</>;
   }
 
   // Se ainda está carregando e não atingiu timeout
-  if (loading && !timeoutAtingido) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-movieDarkBlue z-50">
-        <div className="text-center">
-          <Loader2 className="h-10 w-10 text-movieRed animate-spin mx-auto mb-4" />
-          <p className="text-white">Verificando autenticação...</p>
-        </div>
+  console.log('RotaProtegida - Mostrando indicador de carregamento');
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-movieDarkBlue z-50">
+      <div className="text-center">
+        <Loader2 className="h-10 w-10 text-movieRed animate-spin mx-auto mb-4" />
+        <p className="text-white">Verificando autenticação...</p>
       </div>
-    );
-  }
-
-  // Se não tiver sessão
-  if (!session) {
-    console.log('RotaProtegida - Redirecionando para:', redirectTo);
-    return <Navigate to={redirectTo} replace />;
-  }
-
-  console.log('RotaProtegida - Renderizando conteúdo protegido');
-  return <>{children}</>;
+    </div>
+  );
 };
 
 export default RotaProtegida;
