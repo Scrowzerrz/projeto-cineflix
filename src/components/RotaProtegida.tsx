@@ -31,7 +31,7 @@ const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) =
       timeout = window.setTimeout(() => {
         console.warn('RotaProtegida - Tempo limite de carregamento atingido');
         setLoadingTimeout(true);
-      }, 3000); // Reduzido para 3 segundos para melhor experiência do usuário
+      }, 2000); // Reduzido para 2 segundos para melhor experiência do usuário
     }
     
     return () => {
@@ -41,7 +41,19 @@ const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) =
     };
   }, [loading]);
 
-  // Se estiver carregando por muito tempo, mostre uma mensagem ou continue
+  // Se o timeout foi atingido, tentamos seguir em frente
+  if (loadingTimeout) {
+    // Se não temos uma sessão mesmo após o timeout, redirecionamos
+    if (!session) {
+      console.log('RotaProtegida - Timeout atingido sem sessão, redirecionando para:', redirectTo);
+      return <Navigate to={redirectTo} replace />;
+    } 
+    // Se temos uma sessão, mostramos o conteúdo protegido
+    console.log('RotaProtegida - Timeout atingido com sessão, mostrando conteúdo');
+    return <>{children}</>;
+  }
+
+  // Se estiver carregando e ainda não atingiu o timeout
   if (loading && !loadingTimeout) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-movieDarkBlue z-50">
@@ -53,7 +65,7 @@ const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) =
     );
   }
 
-  // Se não tiver sessão ou o timeout foi atingido sem sessão
+  // Se não tiver sessão
   if (!session) {
     console.log('RotaProtegida - Redirecionando para:', redirectTo);
     return <Navigate to={redirectTo} replace />;
