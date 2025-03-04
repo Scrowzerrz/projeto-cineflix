@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { HeroMovie } from './types/movieTypes';
+import { HeroMovie, FilmeDB } from './types/movieTypes';
+import { serieToFilmeDB } from "./utils/movieUtils";
 
 // Função para buscar filme em destaque do Supabase
 export const fetchHeroMovie = async (): Promise<HeroMovie> => {
@@ -41,15 +42,15 @@ export const fetchHeroMovie = async (): Promise<HeroMovie> => {
             throw new Error('Nenhum filme ou série encontrado no banco de dados');
           }
           
-          // Usamos uma série qualquer como destaque
-          data = fallbackSeries.data;
+          // Usamos uma série qualquer como destaque, convertendo para o formato FilmeDB
+          data = serieToFilmeDB(fallbackSeries.data);
         } else {
           // Usamos um filme qualquer como destaque
           data = fallbackFilmes.data;
         }
       } else {
-        // Usamos a série em destaque
-        data = seriesResult.data;
+        // Usamos a série em destaque, convertendo para o formato FilmeDB
+        data = serieToFilmeDB(seriesResult.data);
       }
     }
     
