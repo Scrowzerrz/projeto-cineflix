@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 type PerfilUsuario = {
   id: string;
@@ -27,152 +28,208 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [perfil, setPerfil] = useState<PerfilUsuario | null>(null);
   const [loading, setLoading] = useState(true);
   
-  // Simplificando o controle de estado com menos refs
+  const listenerRef = useRef<{ subscription?: { unsubscribe: () => void } } | null>(null);
   const isMounted = useRef(true);
-  const inicializado = useRef(false);
+  const initializationStarted = useRef(false);
+  const sessionChecked = useRef(false);
   
-  console.log("AuthProvider renderizado:", { 
+  console.log("AuthProvider - Renderização:", { 
     temSessao: !!session, 
     temPerfil: !!perfil, 
     carregando: loading,
-    inicializado: inicializado.current
+    inicializacaoIniciada: initializationStarted.current,
+    sessaoVerificada: sessionChecked.current,
+    temListener: !!listenerRef.current
   });
 
   const fetchPerfil = async (userId: string): Promise<PerfilUsuario | null> => {
-    if (!userId) return null;
+    if (!userId) {
+      console.log("AuthProvider - fetchPerfil: Sem userId, retornando null");
+      return null;
+    }
     
     try {
-      console.log("Buscando perfil para usuário:", userId);
+      console.log("AuthProvider - fetchPerfil: Buscando perfil para usuário:", userId);
       
       const { data, error } = await supabase
         .from('perfis')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        console.error('Erro ao buscar perfil:', error);
+        console.error('AuthProvider - fetchPerfil: Erro ao buscar perfil:', error);
+        toast.error('Erro ao buscar perfil do usuário');
         return null;
       }
 
-      console.log("Perfil obtido:", data);
+      if (!data) {
+        console.warn('AuthProvider - fetchPerfil: Nenhum perfil encontrado para o usuário');
+        return null;
+      }
+
+      console.log("AuthProvider - fetchPerfil: Perfil obtido com sucesso:", data);
       return data as PerfilUsuario;
     } catch (error) {
-      console.error('Exceção ao buscar perfil:', error);
+      console.error('AuthProvider - fetchPerfil: Exceção ao buscar perfil:', error);
+      toast.error('Erro ao buscar perfil do usuário');
       return null;
     }
   };
 
   const refreshPerfil = async () => {
     if (!session?.user?.id) {
-      console.log("Não é possível atualizar perfil - nenhuma sessão ativa");
+      console.log("AuthProvider - refreshPerfil: Não é possível atualizar perfil - nenhuma sessão ativa");
       return;
     }
     
-    console.log("Atualizando perfil para usuário:", session.user.id);
+    console.log("AuthProvider - refreshPerfil: Atualizando perfil para usuário:", session.user.id);
     const userProfile = await fetchPerfil(session.user.id);
     
     if (userProfile && isMounted.current) {
-      console.log("Perfil atualizado com sucesso");
+      console.log("AuthProvider - refreshPerfil: Perfil atualizado com sucesso");
       setPerfil(userProfile);
+    } else {
+      console.log("AuthProvider - refreshPerfil: Falha ao atualizar perfil ou componente desmontado");
     }
   };
 
-  // Componente para verificar a sessão inicial e configurar o listener
+  // Verificação inicial da sessão - executada uma única vez
   useEffect(() => {
-    console.log("Inicializando AuthProvider");
-    
-    // Apenas verificar a sessão se não foi inicializado ainda
-    if (!inicializado.current) {
-      const checkSession = async () => {
-        try {
-          console.log("Buscando sessão atual...");
-          const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-          
-          if (error) {
-            console.error("Erro ao obter sessão:", error);
-            if (isMounted.current) {
-              setLoading(false);
-              inicializado.current = true;
-            }
-            return;
-          }
-          
-          console.log("Sessão obtida:", currentSession ? "Autenticado" : "Não autenticado");
-          
-          if (isMounted.current) {
-            setSession(currentSession);
-            
-            if (currentSession?.user) {
-              const userProfile = await fetchPerfil(currentSession.user.id);
-              if (isMounted.current && userProfile) {
-                setPerfil(userProfile);
-              }
-            }
-            
-            // Finaliza o carregamento independentemente do resultado
-            setLoading(false);
-            inicializado.current = true;
-          }
-        } catch (error) {
-          console.error("Erro ao verificar sessão:", error);
+    if (initializationStarted.current) {
+      console.log("AuthProvider - Inicialização já iniciada, ignorando");
+      return;
+    }
+
+    const inicializar = async () => {
+      console.log("AuthProvider - Iniciando inicialização");
+      initializationStarted.current = true;
+      
+      try {
+        console.log("AuthProvider - Obtendo sessão atual do navegador");
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("AuthProvider - Erro ao obter sessão:", error);
           if (isMounted.current) {
             setLoading(false);
-            inicializado.current = true;
+            sessionChecked.current = true;
+          }
+          return;
+        }
+        
+        console.log("AuthProvider - Sessão obtida:", currentSession ? "Autenticado" : "Não autenticado");
+        
+        if (isMounted.current) {
+          setSession(currentSession);
+          sessionChecked.current = true;
+          
+          if (currentSession?.user) {
+            console.log("AuthProvider - Sessão encontrada, buscando perfil");
+            const userProfile = await fetchPerfil(currentSession.user.id);
+            if (isMounted.current && userProfile) {
+              console.log("AuthProvider - Definindo perfil após obtenção de sessão");
+              setPerfil(userProfile);
+            }
+          }
+          
+          // Marcar carregamento como concluído APÓS todas as operações
+          if (isMounted.current) {
+            console.log("AuthProvider - Inicialização completa, definindo loading=false");
+            setLoading(false);
           }
         }
-      };
-      
-      checkSession();
+      } catch (error) {
+        console.error("AuthProvider - Erro durante inicialização:", error);
+        if (isMounted.current) {
+          setLoading(false);
+          sessionChecked.current = true;
+        }
+      }
+    };
+    
+    inicializar();
+  }, []);
+
+  // Configura o listener de alteração de estado de autenticação (após sessionChecked)
+  useEffect(() => {
+    if (!sessionChecked.current) {
+      console.log("AuthProvider - Aguardando verificação de sessão antes de configurar listener");
+      return;
     }
     
-    // Configura listener de autenticação (uma única vez)
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      console.log('Estado de autenticação alterado:', event, newSession?.user?.email);
+    if (listenerRef.current) {
+      console.log("AuthProvider - Listener já configurado, ignorando");
+      return;
+    }
+    
+    console.log("AuthProvider - Configurando listener de autenticação");
+    const { data } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      console.log('AuthProvider - Estado de autenticação alterado:', event, newSession?.user?.email);
       
-      if (!isMounted.current) return;
+      if (!isMounted.current) {
+        console.log('AuthProvider - Componente desmontado, ignorando evento de auth');
+        return;
+      }
+      
+      // Para qualquer evento, atualize a sessão
+      setSession(newSession);
       
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        console.log('Usuário logado ou token atualizado');
-        setSession(newSession);
+        console.log('AuthProvider - Usuário logado ou token atualizado');
         
         if (newSession?.user) {
+          console.log('AuthProvider - Buscando perfil após login');
+          setLoading(true); // Mostrar loading durante busca de perfil
+          
           const userProfile = await fetchPerfil(newSession.user.id);
-          if (isMounted.current && userProfile) {
-            setPerfil(userProfile);
+          if (isMounted.current) {
+            if (userProfile) {
+              console.log('AuthProvider - Perfil obtido após login');
+              setPerfil(userProfile);
+            } else {
+              console.log('AuthProvider - Nenhum perfil encontrado após login');
+            }
+            setLoading(false);
           }
+        } else {
+          setLoading(false);
         }
-        
-        setLoading(false);
       } else if (event === 'SIGNED_OUT') {
-        console.log('Usuário deslogado, limpando dados');
-        setSession(null);
+        console.log('AuthProvider - Usuário deslogado, limpando dados');
         setPerfil(null);
+        setLoading(false);
+      } else {
+        // Para outros eventos, apenas atualize o estado de loading
         setLoading(false);
       }
     });
 
+    listenerRef.current = data;
+    
     return () => {
-      console.log("Limpando efeito principal");
+      console.log("AuthProvider - Limpando efeito de listener");
       isMounted.current = false;
-      if (authListener && authListener.subscription) {
-        console.log("Removendo listener de autenticação");
-        authListener.subscription.unsubscribe();
+      if (listenerRef.current?.subscription) {
+        console.log("AuthProvider - Removendo listener de autenticação");
+        listenerRef.current.subscription.unsubscribe();
+        listenerRef.current = null;
       }
     };
-  }, []);
+  }, [sessionChecked.current]);
 
   const signOut = async () => {
     try {
-      console.log("Iniciando processo de logout");
+      console.log("AuthProvider - Iniciando processo de logout");
       setLoading(true);
       await supabase.auth.signOut();
-      console.log("Logout realizado com sucesso");
+      console.log("AuthProvider - Logout realizado com sucesso");
       setSession(null);
       setPerfil(null);
       navigate('/auth');
     } catch (error) {
-      console.error('Erro ao fazer logout:', error);
+      console.error('AuthProvider - Erro ao fazer logout:', error);
+      toast.error('Erro ao fazer logout');
     } finally {
       if (isMounted.current) {
         setLoading(false);
