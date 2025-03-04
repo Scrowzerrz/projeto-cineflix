@@ -1,5 +1,5 @@
 
-import { FilmeDB } from '../types/movieTypes';
+import { FilmeDB, SerieDB } from '../types/movieTypes';
 import { MovieCardProps } from '@/components/MovieCard';
 
 // Helper function para mapear dados da API para o formato MovieCardProps
@@ -27,18 +27,18 @@ export const serieToFilmeDB = (serie: any): FilmeDB => {
     ano: serie.ano,
     duracao: serie.duracao || '',
     tipo: 'series',
-    qualidade: serie.qualidade || '',
+    qualidade: serie.qualidade || 'HD',
     avaliacao: serie.avaliacao || '0.0',
     destaque: serie.destaque || false,
     descricao: serie.descricao || '',
     categoria: serie.categoria || '',
-    diretor: '',
-    elenco: '',
-    produtor: '',
-    generos: [],
-    trailer_url: '',
-    player_url: '',
-    idioma: '',
+    diretor: serie.diretor || '',
+    elenco: serie.elenco || '',
+    produtor: serie.produtor || '',
+    generos: serie.generos || [],
+    trailer_url: serie.trailer_url || '',
+    player_url: serie.player_url || '',
+    idioma: serie.idioma || 'DUB',
     created_at: serie.created_at || new Date().toISOString(),
     updated_at: serie.updated_at || new Date().toISOString()
   };

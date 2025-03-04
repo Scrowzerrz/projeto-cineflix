@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import MovieCard, { MovieCardProps } from '@/components/MovieCard';
@@ -71,7 +72,9 @@ const Series = () => {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {series.map((serie) => (
-          <MovieCard key={serie.id} {...serie} />
+          <Link to={`/serie/${serie.id}`} key={serie.id}>
+            <MovieCard {...serie} />
+          </Link>
         ))}
       </div>
     );

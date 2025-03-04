@@ -11,7 +11,8 @@ export {
 // Exportações de seriesService
 export { 
   fetchSeries, 
-  fetchAllSeries 
+  fetchAllSeries,
+  fetchSerieDetails
 } from './seriesService';
 
 // Exportações de searchService
@@ -26,5 +27,8 @@ export {
 
 // Exportação de tipos
 export type { 
-  MovieResponse 
+  MovieResponse,
+  SerieDetalhes,
+  TemporadaDB,
+  EpisodioDB
 } from './types/movieTypes';

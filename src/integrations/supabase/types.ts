@@ -9,6 +9,53 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      episodios: {
+        Row: {
+          created_at: string | null
+          descricao: string | null
+          duracao: string | null
+          id: string
+          numero: number
+          player_url: string | null
+          temporada_id: string
+          thumbnail_url: string | null
+          titulo: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          descricao?: string | null
+          duracao?: string | null
+          id?: string
+          numero: number
+          player_url?: string | null
+          temporada_id: string
+          thumbnail_url?: string | null
+          titulo: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          descricao?: string | null
+          duracao?: string | null
+          id?: string
+          numero?: number
+          player_url?: string | null
+          temporada_id?: string
+          thumbnail_url?: string | null
+          titulo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episodios_temporada_id_fkey"
+            columns: ["temporada_id"]
+            isOneToOne: false
+            referencedRelation: "temporadas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       filmes: {
         Row: {
           ano: string
@@ -86,12 +133,19 @@ export type Database = {
           created_at: string | null
           descricao: string | null
           destaque: boolean | null
+          diretor: string | null
           duracao: string | null
+          elenco: string | null
+          generos: string[] | null
           id: string
+          idioma: string | null
           poster_url: string
+          produtor: string | null
           qualidade: string | null
           tipo: string | null
           titulo: string
+          titulo_original: string | null
+          trailer_url: string | null
           updated_at: string | null
         }
         Insert: {
@@ -101,12 +155,19 @@ export type Database = {
           created_at?: string | null
           descricao?: string | null
           destaque?: boolean | null
+          diretor?: string | null
           duracao?: string | null
+          elenco?: string | null
+          generos?: string[] | null
           id?: string
+          idioma?: string | null
           poster_url: string
+          produtor?: string | null
           qualidade?: string | null
           tipo?: string | null
           titulo: string
+          titulo_original?: string | null
+          trailer_url?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -116,15 +177,63 @@ export type Database = {
           created_at?: string | null
           descricao?: string | null
           destaque?: boolean | null
+          diretor?: string | null
           duracao?: string | null
+          elenco?: string | null
+          generos?: string[] | null
           id?: string
+          idioma?: string | null
           poster_url?: string
+          produtor?: string | null
           qualidade?: string | null
           tipo?: string | null
           titulo?: string
+          titulo_original?: string | null
+          trailer_url?: string | null
           updated_at?: string | null
         }
         Relationships: []
+      }
+      temporadas: {
+        Row: {
+          ano: string | null
+          created_at: string | null
+          id: string
+          numero: number
+          poster_url: string | null
+          serie_id: string
+          titulo: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ano?: string | null
+          created_at?: string | null
+          id?: string
+          numero: number
+          poster_url?: string | null
+          serie_id: string
+          titulo?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ano?: string | null
+          created_at?: string | null
+          id?: string
+          numero?: number
+          poster_url?: string | null
+          serie_id?: string
+          titulo?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "temporadas_serie_id_fkey"
+            columns: ["serie_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
