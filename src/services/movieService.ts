@@ -101,7 +101,34 @@ export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> 
       throw error;
     }
     
-    return (data || []).map(serie => mapToMovieCard(serie as FilmeDB));
+    return (data || []).map(serie => {
+      // A tabela series pode não ter todos os campos que FilmeDB tem,
+      // então criamos um objeto que atenda os requisitos mínimos
+      const serieAsFilme: FilmeDB = {
+        id: serie.id,
+        titulo: serie.titulo,
+        poster_url: serie.poster_url,
+        ano: serie.ano,
+        duracao: serie.duracao,
+        tipo: 'series',
+        qualidade: serie.qualidade,
+        avaliacao: serie.avaliacao,
+        destaque: serie.destaque,
+        descricao: serie.descricao,
+        categoria: serie.categoria,
+        // Fornecendo valores padrão para os campos que podem estar faltando
+        diretor: '',
+        elenco: '',
+        produtor: '',
+        generos: [],
+        trailer_url: '',
+        player_url: '',
+        idioma: '',
+        created_at: serie.created_at,
+        updated_at: serie.updated_at
+      };
+      return mapToMovieCard(serieAsFilme);
+    });
   } catch (error) {
     console.error('Erro ao buscar séries:', error);
     return [];
@@ -139,7 +166,17 @@ export const fetchHeroMovie = async (): Promise<{
         throw seriesResult.error;
       }
       
-      data = seriesResult.data;
+      // A tabela series pode não ter todos os campos que FilmeDB tem
+      data = {
+        ...seriesResult.data,
+        diretor: '',
+        elenco: '',
+        produtor: '',
+        generos: [],
+        trailer_url: '',
+        player_url: '',
+        idioma: ''
+      };
     }
     
     if (!data) {
@@ -214,7 +251,33 @@ export const fetchAllSeries = async (filtroCategoria?: string): Promise<MovieCar
       throw error;
     }
     
-    return (data || []).map(serie => mapToMovieCard(serie as FilmeDB));
+    return (data || []).map(serie => {
+      // A tabela series pode não ter todos os campos que FilmeDB tem
+      const serieAsFilme: FilmeDB = {
+        id: serie.id,
+        titulo: serie.titulo,
+        poster_url: serie.poster_url,
+        ano: serie.ano,
+        duracao: serie.duracao,
+        tipo: 'series',
+        qualidade: serie.qualidade,
+        avaliacao: serie.avaliacao,
+        destaque: serie.destaque,
+        descricao: serie.descricao,
+        categoria: serie.categoria,
+        // Fornecendo valores padrão para os campos que podem estar faltando
+        diretor: '',
+        elenco: '',
+        produtor: '',
+        generos: [],
+        trailer_url: '',
+        player_url: '',
+        idioma: '',
+        created_at: serie.created_at,
+        updated_at: serie.updated_at
+      };
+      return mapToMovieCard(serieAsFilme);
+    });
   } catch (error) {
     console.error('Erro ao buscar todas as séries:', error);
     return [];
@@ -249,7 +312,38 @@ export const searchContent = async (searchTerm: string): Promise<MovieCardProps[
     // Combinar resultados de filmes e séries
     const combinedResults = [...(filmes || []), ...(series || [])];
     
-    return combinedResults.map(item => mapToMovieCard(item as FilmeDB));
+    return combinedResults.map(item => {
+      if ('player_url' in item) {
+        // É um filme
+        return mapToMovieCard(item as FilmeDB);
+      } else {
+        // É uma série, precisa adicionar campos faltantes
+        const serieAsFilme: FilmeDB = {
+          id: item.id,
+          titulo: item.titulo,
+          poster_url: item.poster_url,
+          ano: item.ano,
+          duracao: item.duracao,
+          tipo: 'series',
+          qualidade: item.qualidade,
+          avaliacao: item.avaliacao,
+          destaque: item.destaque,
+          descricao: item.descricao,
+          categoria: item.categoria,
+          // Fornecendo valores padrão para os campos que podem estar faltando
+          diretor: '',
+          elenco: '',
+          produtor: '',
+          generos: [],
+          trailer_url: '',
+          player_url: '',
+          idioma: '',
+          created_at: item.created_at,
+          updated_at: item.updated_at
+        };
+        return mapToMovieCard(serieAsFilme);
+      }
+    });
   } catch (error) {
     console.error('Erro ao realizar pesquisa:', error);
     return [];
