@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import NotificacaoBadge from './NotificacaoBadge';
 import AdminLink from './AdminLink';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Navbar = () => {
   const isMobile = useIsMobile();
@@ -14,7 +15,7 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
-  const { session, loading } = useAuth();
+  const { session, perfil, loading } = useAuth();
   
   const links = [
     { name: 'Início', path: '/' },
@@ -89,9 +90,12 @@ const Navbar = () => {
               <div className="flex items-center space-x-3">
                 <NotificacaoBadge />
                 <Link to="/perfil">
-                  <Button size="icon" variant="ghost" className="rounded-full bg-movieDark border border-gray-700 h-9 w-9">
-                    <User className="h-4 w-4 text-white" />
-                  </Button>
+                  <Avatar className="h-9 w-9 bg-movieDark border border-gray-700">
+                    <AvatarImage src={perfil?.avatar_url || ''} alt={perfil?.nome || 'Usuário'} />
+                    <AvatarFallback className="bg-movieDark text-white">
+                      {perfil?.nome ? perfil.nome.charAt(0).toUpperCase() : <User className="h-4 w-4" />}
+                    </AvatarFallback>
+                  </Avatar>
                 </Link>
               </div>
             ) : (
