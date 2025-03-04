@@ -1,6 +1,5 @@
-
 import { SerieDetalhes } from '@/services/types/movieTypes';
-import { Star, Calendar, Clock } from 'lucide-react';
+import { Star, Calendar, Clock, Play } from 'lucide-react';
 
 interface SerieDetailsProps {
   serie: SerieDetalhes;
