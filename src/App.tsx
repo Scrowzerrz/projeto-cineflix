@@ -23,7 +23,7 @@ import Configuracoes from "./pages/Configuracoes";
 import RotaProtegida from "./components/RotaProtegida";
 import RotaAdmin from "./components/RotaAdmin";
 import PainelAdmin from "./pages/Admin/PainelAdmin";
-import { AuthProvider } from "./hooks/useAuth";
+import { AuthProvider } from "./hooks/auth/AuthProvider";
 
 // Create a client
 const queryClient = new QueryClient({
