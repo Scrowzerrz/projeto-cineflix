@@ -1,8 +1,8 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Play, Plus, Info, Star, Heart, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import FavoritoButton from './FavoritoButton';
 
 export interface MovieCardProps {
   id: string;
@@ -35,7 +35,6 @@ const CartaoFilme = ({
     setIsFavorite(!isFavorite);
   };
 
-  // Determinar o caminho correto com base no tipo
   const detailsPath = type === 'series' ? `/serie/${id}` : `/movie/${id}`;
 
   return (
@@ -45,7 +44,6 @@ const CartaoFilme = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Card Image */}
         <div className="absolute inset-0 bg-movieDark/60 animate-pulse rounded-md">
           <img 
             src={posterUrl} 
@@ -55,28 +53,23 @@ const CartaoFilme = ({
           />
         </div>
         
-        {/* Quality Badge */}
         {quality && (
           <div className="absolute top-2 left-2 z-20">
             <span className="bg-movieRed text-white text-xs font-bold px-2 py-0.5 rounded-sm">{quality}</span>
           </div>
         )}
 
-        {/* Favorite Icon no canto superior direito */}
-        <button
-          onClick={toggleFavorite}
-          className="absolute top-2 right-2 z-20 bg-black/40 rounded-full p-1.5 transition-all duration-300 hover:bg-black/60"
-        >
-          <Heart className={`h-4 w-4 ${isFavorite ? 'fill-movieRed stroke-movieRed' : 'text-white'}`} />
-        </button>
+        <FavoritoButton
+          itemId={id}
+          tipo={type === 'series' ? 'serie' : 'filme'}
+          className="absolute top-2 right-2 z-20"
+        />
         
-        {/* Rating Badge */}
         <div className="absolute top-2 right-10 z-20 flex items-center bg-black/40 rounded-sm px-1.5 py-0.5">
           <Star className="h-3 w-3 fill-movieRed stroke-movieRed mr-1" />
           <span className="text-white text-xs font-medium">{rating}</span>
         </div>
         
-        {/* Title with gradient overlay at bottom */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-3 pt-10 opacity-100 transition-opacity duration-300">
           <h3 className="text-white font-semibold line-clamp-1">{title}</h3>
           <div className="flex items-center text-xs text-white/70 mt-1 space-x-1">
@@ -90,7 +83,6 @@ const CartaoFilme = ({
           </div>
         </div>
         
-        {/* Hover Overlay - Corrigindo o problema do botão saindo para fora */}
         <div className={`absolute inset-0 bg-black/75 flex flex-col justify-center items-center p-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
           <Button 
             variant="default" 

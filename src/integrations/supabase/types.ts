@@ -56,6 +56,38 @@ export type Database = {
           },
         ]
       }
+      favoritos: {
+        Row: {
+          created_at: string | null
+          id: string
+          item_id: string
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item_id: string
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favoritos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       filmes: {
         Row: {
           ano: string
@@ -124,6 +156,50 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      notificacoes: {
+        Row: {
+          created_at: string | null
+          id: string
+          item_id: string
+          item_tipo: string
+          lida: boolean | null
+          mensagem: string
+          tipo: string
+          titulo: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item_id: string
+          item_tipo: string
+          lida?: boolean | null
+          mensagem: string
+          tipo: string
+          titulo: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          item_tipo?: string
+          lida?: boolean | null
+          mensagem?: string
+          tipo?: string
+          titulo?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "perfis"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       perfis: {
         Row: {
