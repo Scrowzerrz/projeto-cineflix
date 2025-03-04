@@ -1,3 +1,4 @@
+
 import { MovieCardProps } from '@/components/MovieCard';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -101,8 +102,7 @@ export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> 
     }
     
     return (data || []).map(serie => {
-      // A tabela series pode não ter todos os campos que FilmeDB tem,
-      // então criamos um objeto que atenda os requisitos mínimos
+      // Adicionando todos os campos necessários que faltam no objeto series
       const serieAsFilme: FilmeDB = {
         id: serie.id,
         titulo: serie.titulo,
@@ -115,7 +115,7 @@ export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> 
         destaque: serie.destaque,
         descricao: serie.descricao,
         categoria: serie.categoria,
-        // Fornecendo valores padrão para os campos que podem estar faltando
+        // Campos que não existem na tabela series, mas são necessários para FilmeDB
         diretor: '',
         elenco: '',
         produtor: '',

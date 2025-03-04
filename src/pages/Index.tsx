@@ -27,8 +27,8 @@ const Index = () => {
     queryKey: ['heroMovie'],
     queryFn: fetchHeroMovie,
     retry: 1,
-    onSettled: (data, error) => {
-      if (error) {
+    meta: {
+      onError: (error) => {
         console.error('Erro ao carregar destaque:', error);
         toast.error('Erro ao carregar destaque. Tentando novamente...');
         // Podemos tentar novamente após um tempo
