@@ -5,6 +5,7 @@ import {
   RouterProvider,
   Routes,
   Route,
+  BrowserRouter
 } from "react-router-dom";
 import './App.css';
 
@@ -34,57 +35,35 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Index />,
-    },
-    {
-      path: "/movies",
-      element: <Movies />,
-    },
-    {
-      path: "/series",
-      element: <Series />,
-    },
-    {
-      path: "/movie/:id",
-      element: <DetalhesFilme />,
-    },
-    {
-      path: "/serie/:id",
-      element: <DetalhesSerie />,
-    },
-    {
-      path: "/search",
-      element: <Search />,
-    },
-    {
-      path: "/auth",
-      element: <Autenticacao />,
-    },
-    {
-      path: "/perfil",
-      element: <RotaProtegida><Index /></RotaProtegida>,
-    },
-    {
-      path: "/configuracoes",
-      element: <RotaProtegida><Index /></RotaProtegida>,
-    },
-    {
-      path: "*",
-      element: <NotFound />,
-    },
-  ]);
-
   return (
     <React.StrictMode>
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-          <Toaster position="top-right" richColors />
-        </QueryClientProvider>
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/movies" element={<Movies />} />
+              <Route path="/series" element={<Series />} />
+              <Route path="/movie/:id" element={<DetalhesFilme />} />
+              <Route path="/serie/:id" element={<DetalhesSerie />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/auth" element={<Autenticacao />} />
+              <Route path="/perfil" element={
+                <RotaProtegida>
+                  <Index />
+                </RotaProtegida>
+              } />
+              <Route path="/configuracoes" element={
+                <RotaProtegida>
+                  <Index />
+                </RotaProtegida>
+              } />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster position="top-right" richColors />
+          </AuthProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
     </React.StrictMode>
   );
 }
