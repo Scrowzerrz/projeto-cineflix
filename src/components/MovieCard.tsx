@@ -1,6 +1,7 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Play, Plus, Info, Star, Heart, TrendingUp } from 'lucide-react';
+import { Play, Info, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FavoritoButton from './FavoritoButton';
 
@@ -27,13 +28,6 @@ const CartaoFilme = ({
 }: MovieCardProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  const toggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setIsFavorite(!isFavorite);
-  };
 
   const detailsPath = type === 'series' ? `/serie/${id}` : `/movie/${id}`;
 
@@ -59,11 +53,13 @@ const CartaoFilme = ({
           </div>
         )}
 
-        <FavoritoButton
-          itemId={id}
-          tipo={type === 'series' ? 'serie' : 'filme'}
-          className="absolute top-2 right-2 z-20"
-        />
+        {/* Adjusted positioning and size of the favorite button */}
+        <div className="absolute top-2 right-2 z-20">
+          <FavoritoButton
+            itemId={id}
+            tipo={type === 'series' ? 'serie' : 'filme'}
+          />
+        </div>
         
         <div className="absolute top-2 right-10 z-20 flex items-center bg-black/40 rounded-sm px-1.5 py-0.5">
           <Star className="h-3 w-3 fill-movieRed stroke-movieRed mr-1" />
@@ -83,46 +79,33 @@ const CartaoFilme = ({
           </div>
         </div>
         
-        <div className={`absolute inset-0 bg-black/75 flex flex-col justify-center items-center p-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          <Button 
-            variant="default" 
-            size="sm" 
-            className="w-full mb-2 bg-movieRed hover:bg-movieRed/90 text-white flex items-center justify-center gap-1 rounded-sm transition-transform duration-200 transform-gpu"
-          >
-            <Play className="h-3 w-3 fill-white" /> Assistir
-          </Button>
-          
-          <div className="flex justify-between w-full mt-2">
+        {/* Improved hover overlay with better proportions */}
+        <div className={`absolute inset-0 bg-black/80 flex flex-col justify-between p-4 transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="w-full">
             <Button 
-              variant="ghost" 
+              variant="default" 
               size="sm" 
-              className="flex-1 rounded-sm bg-white/10 hover:bg-white/20 text-white transition-transform duration-200 transform-gpu"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                // Lógica para adicionar à lista
-              }}
+              className="w-full mb-3 bg-movieRed hover:bg-movieRed/90 text-white font-medium flex items-center justify-center gap-1.5 rounded-sm"
             >
-              <Plus className="h-4 w-4" />
+              <Play className="h-4 w-4 fill-white" /> Assistir
             </Button>
             
-            <Link to={detailsPath}>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="flex-1 rounded-sm bg-white/10 hover:bg-white/20 text-white ml-2 transition-transform duration-200 transform-gpu"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                <Info className="h-4 w-4" />
-              </Button>
-            </Link>
+            <div className="flex justify-between w-full gap-2">
+              <Link to={detailsPath} className="w-full">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full rounded-sm bg-white/10 hover:bg-white/20 text-white"
+                >
+                  <Info className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </div>
           
-          <div className="mt-auto">
-            <h3 className="text-white font-semibold text-center mt-2 text-sm">{title}</h3>
-            <div className="flex items-center justify-center text-xs text-white/70 mt-1 mb-1">
+          <div>
+            <h3 className="text-white font-semibold text-center mt-2 text-sm line-clamp-2">{title}</h3>
+            <div className="flex items-center justify-center text-xs text-white/70 mt-1">
               <span>{year}</span>
               {duration && (
                 <>
@@ -131,9 +114,9 @@ const CartaoFilme = ({
                 </>
               )}
             </div>
-            <div className="flex items-center justify-center mt-1">
-              <Star className="h-3 w-3 fill-movieRed stroke-movieRed mr-1" />
-              <span className="text-white text-xs">{rating}</span>
+            <div className="flex items-center justify-center mt-1.5">
+              <Star className="h-4 w-4 fill-movieRed stroke-movieRed mr-1" />
+              <span className="text-white text-xs font-medium">{rating}</span>
             </div>
           </div>
         </div>
