@@ -10,19 +10,19 @@ interface RotaProtegidaProps {
 }
 
 const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) => {
-  const { session, perfil, loading } = useAuth();
+  const { session, loading } = useAuth();
   const [timeoutAtingido, setTimeoutAtingido] = useState(false);
 
-  // Timeout para evitar loading infinito
+  // Timeout para evitar loading infinito - reduzido para 800ms
   useEffect(() => {
     let timeout: number | undefined;
     
     if (loading) {
-      console.log('RotaProtegida - Iniciando timer de timeout para loading');
+      console.log('RotaProtegida - Iniciando timer de timeout para loading (800ms)');
       timeout = window.setTimeout(() => {
-        console.log('RotaProtegida - Tempo limite atingido após 3 segundos');
+        console.log('RotaProtegida - Tempo limite atingido');
         setTimeoutAtingido(true);
-      }, 3000); // Aumentando para 3 segundos para dar mais tempo
+      }, 800);
     } else {
       console.log('RotaProtegida - Loading completado, resetando timeout');
       setTimeoutAtingido(false);
@@ -36,23 +36,24 @@ const RotaProtegida = ({ children, redirectTo = '/auth' }: RotaProtegidaProps) =
     };
   }, [loading]);
 
-  // Adicionar logs para depuração
+  // Logs para depuração
   useEffect(() => {
     console.log('RotaProtegida - Estado atualizado:', { 
       autenticado: !!session, 
-      temPerfil: !!perfil,
       carregando: loading,
       tempoLimiteAtingido: timeoutAtingido 
     });
-  }, [session, perfil, loading, timeoutAtingido]);
+  }, [session, loading, timeoutAtingido]);
 
-  // Se o tempo limite foi atingido ou loading completo, tomar decisão
+  // Lógica simplificada - se timeout ou loading completo
   if (timeoutAtingido || !loading) {
+    // Se não tem sessão, redireciona
     if (!session) {
       console.log('RotaProtegida - Sem sessão, redirecionando para', redirectTo);
       return <Navigate to={redirectTo} replace />;
     }
     
+    // Se tem sessão, mostra conteúdo
     console.log('RotaProtegida - Sessão presente, mostrando conteúdo protegido');
     return <>{children}</>;
   }

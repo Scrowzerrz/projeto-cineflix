@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   BrowserRouter,
   Routes,
@@ -33,12 +33,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  useEffect(() => {
-    console.log("App componente montado");
-    return () => {
-      console.log("App componente desmontado");
-    };
-  }, []);
+  console.log("App componente renderizado");
 
   return (
     <QueryClientProvider client={queryClient}>
