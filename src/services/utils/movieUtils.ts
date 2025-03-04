@@ -25,14 +25,13 @@ export const serieToFilmeDB = (serie: any): FilmeDB => {
     titulo: serie.titulo,
     poster_url: serie.poster_url,
     ano: serie.ano,
-    duracao: serie.duracao,
+    duracao: serie.duracao || '',
     tipo: 'series',
-    qualidade: serie.qualidade,
-    avaliacao: serie.avaliacao,
-    destaque: serie.destaque,
-    descricao: serie.descricao,
-    categoria: serie.categoria,
-    // Campos que não existem na tabela series, mas são necessários para FilmeDB
+    qualidade: serie.qualidade || '',
+    avaliacao: serie.avaliacao || '0.0',
+    destaque: serie.destaque || false,
+    descricao: serie.descricao || '',
+    categoria: serie.categoria || '',
     diretor: '',
     elenco: '',
     produtor: '',
@@ -40,7 +39,7 @@ export const serieToFilmeDB = (serie: any): FilmeDB => {
     trailer_url: '',
     player_url: '',
     idioma: '',
-    created_at: serie.created_at,
-    updated_at: serie.updated_at
+    created_at: serie.created_at || new Date().toISOString(),
+    updated_at: serie.updated_at || new Date().toISOString()
   };
 };
