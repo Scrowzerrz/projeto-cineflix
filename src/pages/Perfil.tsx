@@ -192,6 +192,54 @@ const Perfil = () => {
     return null;
   }
 
+  const renderConteudoFavoritos = () => {
+    if (carregandoFavoritos) {
+      return (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-10 w-10 text-movieRed animate-spin" />
+        </div>
+      );
+    }
+
+    const favoritosFiltrados = getFavoritosFiltrados();
+
+    if (favoritosFiltrados.length === 0) {
+      let mensagem = 'Nenhum favorito encontrado';
+      if (tipoFavoritoAtivo === 'filmes') {
+        mensagem = 'Nenhum filme adicionado aos favoritos';
+      } else if (tipoFavoritoAtivo === 'series') {
+        mensagem = 'Nenhuma série adicionada aos favoritos';
+      }
+
+      return (
+        <div className="text-center py-10 text-gray-400">
+          <Heart className="h-16 w-16 mx-auto mb-4 text-movieGray/40" />
+          <p className="text-xl font-medium mb-2">{mensagem}</p>
+          <p>Adicione {tipoFavoritoAtivo === 'todos' ? 'filmes e séries' : tipoFavoritoAtivo === 'filmes' ? 'filmes' : 'séries'} aos seus favoritos para vê-los aqui.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+        {favoritosFiltrados.map((fav) => (
+          fav.detalhes && (
+            <CartaoFilme
+              key={fav.id}
+              id={fav.item_id}
+              title={fav.detalhes.titulo}
+              posterUrl={fav.detalhes.poster_url}
+              year={fav.detalhes.ano}
+              duration={fav.detalhes.duracao}
+              rating={fav.detalhes.avaliacao}
+              type={fav.tipo === 'serie' ? 'series' : 'movie'}
+            />
+          )
+        ))}
+      </div>
+    );
+  };
+
   return (
     <>
       <Navbar />
@@ -307,18 +355,16 @@ const Perfil = () => {
             <Card className="bg-movieDark/80 border-movieGray/20 backdrop-blur shadow-xl">
               <CardContent className="pt-6">
                 <Tabs defaultValue="todos" className="w-full">
-                  <TabsList className="bg-movieDarkBlue/70 mb-6">
+                  <TabsList className="mb-6">
                     <TabsTrigger 
                       value="todos" 
                       onClick={() => setTipoFavoritoAtivo('todos')}
-                      className="data-[state=active]:bg-movieRed data-[state=active]:text-white"
                     >
                       Todos
                     </TabsTrigger>
                     <TabsTrigger 
                       value="filmes" 
                       onClick={() => setTipoFavoritoAtivo('filmes')}
-                      className="data-[state=active]:bg-movieRed data-[state=active]:text-white"
                     >
                       <Film className="h-4 w-4 mr-1" /> 
                       Filmes
@@ -326,7 +372,6 @@ const Perfil = () => {
                     <TabsTrigger 
                       value="series" 
                       onClick={() => setTipoFavoritoAtivo('series')}
-                      className="data-[state=active]:bg-movieRed data-[state=active]:text-white"
                     >
                       <Tv className="h-4 w-4 mr-1" /> 
                       Séries
@@ -334,42 +379,15 @@ const Perfil = () => {
                   </TabsList>
                   
                   <TabsContent value="todos" className="mt-0">
-                    {carregandoFavoritos ? (
-                      <div className="flex justify-center py-10">
-                        <Loader2 className="h-10 w-10 text-movieRed animate-spin" />
-                      </div>
-                    ) : getFavoritosFiltrados().length === 0 ? (
-                      <div className="text-center py-10 text-gray-400">
-                        <Heart className="h-16 w-16 mx-auto mb-4 text-movieGray/40" />
-                        <p className="text-xl font-medium mb-2">Nenhum favorito encontrado</p>
-                        <p>Adicione filmes e séries aos seus favoritos para vê-los aqui.</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                        {getFavoritosFiltrados().map((fav) => (
-                          fav.detalhes && (
-                            <CartaoFilme
-                              key={fav.id}
-                              id={fav.item_id}
-                              title={fav.detalhes.titulo}
-                              posterUrl={fav.detalhes.poster_url}
-                              year={fav.detalhes.ano}
-                              duration={fav.detalhes.duracao}
-                              rating={fav.detalhes.avaliacao}
-                              type={fav.tipo === 'serie' ? 'series' : 'movie'}
-                            />
-                          )
-                        ))}
-                      </div>
-                    )}
+                    {renderConteudoFavoritos()}
                   </TabsContent>
                   
                   <TabsContent value="filmes" className="mt-0">
-                    {/* O conteúdo é controlado pelo estado tipoFavoritoAtivo */}
+                    {renderConteudoFavoritos()}
                   </TabsContent>
                   
                   <TabsContent value="series" className="mt-0">
-                    {/* O conteúdo é controlado pelo estado tipoFavoritoAtivo */}
+                    {renderConteudoFavoritos()}
                   </TabsContent>
                 </Tabs>
               </CardContent>
