@@ -18,7 +18,15 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { perfil, signOut } = useAuth();
+  const { perfil, signOut, loading, session } = useAuth();
+
+  useEffect(() => {
+    console.log("Navbar renderizada. Estado de autenticação:", { 
+      autenticado: !!session, 
+      perfilExiste: !!perfil, 
+      carregando: loading 
+    });
+  }, [perfil, loading, session]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -130,7 +138,7 @@ const Navbar = () => {
             <span className="absolute top-1 right-1 w-2 h-2 bg-movieRed rounded-full"></span>
           </Button>
           
-          {perfil ? (
+          {!loading && session && perfil ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -175,8 +183,9 @@ const Navbar = () => {
               variant="ghost"
               className="text-white hover:bg-white/10"
               onClick={() => navigate('/auth')}
+              disabled={loading}
             >
-              Entrar
+              {loading ? 'Carregando...' : 'Entrar'}
             </Button>
           )}
         </div>
