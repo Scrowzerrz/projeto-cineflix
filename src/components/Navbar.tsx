@@ -1,15 +1,14 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Search, Menu, X, LogIn, User } from 'lucide-react';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import NotificacaoBadge from './NotificacaoBadge';
 import AdminLink from './AdminLink';
 
 const Navbar = () => {
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,7 +46,6 @@ const Navbar = () => {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-black/90 backdrop-blur-md' : 'bg-gradient-to-b from-black/90 to-transparent'}`}>
       <div className="container mx-auto flex items-center justify-between py-3 px-4">
-        {/* Logo */}
         <Link to="/" className="flex items-center">
           <span className="text-white text-xl font-bold">Cineflix</span>
           <div className="ml-1 w-4 h-4 bg-movieRed rotate-45 relative">
@@ -57,7 +55,6 @@ const Navbar = () => {
           </div>
         </Link>
         
-        {/* Desktop Navigation */}
         {!isMobile && (
           <div className="flex-1 flex items-center justify-center space-x-6">
             {links.map((link) => (
@@ -75,7 +72,6 @@ const Navbar = () => {
           </div>
         )}
         
-        {/* Search and User Controls */}
         <div className="flex items-center space-x-3">
           <form onSubmit={handleSearchSubmit} className="relative hidden sm:block">
             <input
@@ -108,7 +104,6 @@ const Navbar = () => {
             )
           )}
           
-          {/* Mobile Menu Toggle */}
           {isMobile && (
             <Button 
               variant="ghost" 
@@ -126,7 +121,6 @@ const Navbar = () => {
         </div>
       </div>
       
-      {/* Mobile Menu */}
       {isMobile && mobileMenuOpen && (
         <div className="bg-black/95 backdrop-blur-md border-t border-gray-800">
           <div className="container mx-auto py-4 px-4">
