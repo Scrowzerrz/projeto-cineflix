@@ -70,7 +70,7 @@ const VejaTambemSeries = ({ isLoading: isLoadingProp, serieAtualId }: VejaTambem
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-white font-bold text-xl flex items-center">
           <div className="w-1 h-7 bg-movieRed mr-3 rounded-sm"></div>
-          <span>SÉRIES SEMELHANTES</span>
+          <span>VEJA TAMBÉM</span>
         </h3>
         <div className="flex gap-2">
           <Button 
