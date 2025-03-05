@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { MovieCardProps } from '@/components/MovieCard';
 import { mapToMovieCard } from './utils/movieUtils';
@@ -148,5 +147,46 @@ export const fetchMovieDetails = async (movieId: string): Promise<MovieResponse 
   } catch (error) {
     console.error('Erro ao buscar detalhes do filme:', error);
     return null;
+  }
+};
+
+// Nova função para buscar um número específico de filmes aleatórios
+export const fetchSomeMovies = async (quantidade: number = 5): Promise<MovieResponse[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('filmes')
+      .select('*')
+      .order('id', { ascending: false }) // Ordenando por ID em ordem decrescente para trazer os mais recentes
+      .limit(quantidade);
+    
+    if (error) {
+      console.error('Erro ao buscar filmes aleatórios:', error);
+      throw error;
+    }
+    
+    return (data || []).map((filme: FilmeDB) => ({
+      id: filme.id,
+      titulo: filme.titulo,
+      poster_url: filme.poster_url,
+      ano: filme.ano,
+      duracao: filme.duracao,
+      avaliacao: filme.avaliacao || '0.0',
+      tipo: filme.tipo === 'series' ? 'series' : 'movie',
+      qualidade: filme.qualidade,
+      descricao: filme.descricao,
+      categoria: filme.categoria,
+      destaque: filme.destaque,
+      diretor: filme.diretor,
+      elenco: filme.elenco,
+      produtor: filme.produtor,
+      generos: filme.generos,
+      trailer_url: filme.trailer_url,
+      player_url: filme.player_url,
+      idioma: filme.idioma,
+      visualizacoes: filme.visualizacoes
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar filmes aleatórios:', error);
+    return [];
   }
 };

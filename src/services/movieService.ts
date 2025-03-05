@@ -6,7 +6,8 @@ export {
   fetchMovies, 
   fetchAllMovies, 
   fetchMovieDetails,
-  incrementarVisualizacaoFilme
+  incrementarVisualizacaoFilme,
+  fetchSomeMovies
 } from './filmesService';
 
 // Exportações de seriesService
