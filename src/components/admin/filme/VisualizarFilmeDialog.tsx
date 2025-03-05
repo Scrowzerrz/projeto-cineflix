@@ -20,8 +20,8 @@ interface VisualizarFilmeDialogProps {
 export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
   const [open, setOpen] = useState(false);
 
-  // Função para processar URL do player ou trailer
-  const getEmbedUrl = (url: string) => {
+  // Função para extrair URL do iframe
+  const extrairUrlIframe = (url: string): string => {
     if (!url) return '';
     
     // Verificar se a URL é um iframe
@@ -32,24 +32,17 @@ export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
       }
     }
     
-    // Verificar se é uma URL de vídeo direto (MP4)
-    if (url.endsWith('.mp4') || url.includes('download') || url.includes('pixeldrain.com')) {
-      return (
-        <video src={url} controls className="w-full h-full" />
-      );
-    }
-    
     // Caso contrário, retornar a URL como está
     return url;
   };
-
-  const playerUrl = filme.player_url;
-  const trailerUrl = filme.trailer_url;
   
   // Verifica se a URL é de vídeo direto
-  const isDirectVideo = (url: string) => {
+  const isDirectVideo = (url: string): boolean => {
     return url && (url.endsWith('.mp4') || url.includes('download') || url.includes('pixeldrain.com'));
   };
+
+  const trailerUrl = filme.trailer_url;
+  const playerUrl = filme.player_url;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -152,7 +145,7 @@ export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
                 <video src={trailerUrl} controls className="w-full h-full" />
               ) : (
                 <iframe
-                  src={getEmbedUrl(trailerUrl)}
+                  src={extrairUrlIframe(trailerUrl)}
                   allowFullScreen
                   className="w-full h-full"
                   title={`Trailer de ${filme.titulo}`}
@@ -171,7 +164,7 @@ export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
                 <video src={playerUrl} controls className="w-full h-full" />
               ) : (
                 <iframe
-                  src={getEmbedUrl(playerUrl)}
+                  src={extrairUrlIframe(playerUrl)}
                   allowFullScreen
                   className="w-full h-full"
                   title={`Player de ${filme.titulo}`}
