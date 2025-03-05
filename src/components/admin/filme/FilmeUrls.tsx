@@ -40,7 +40,9 @@ export function FilmeUrls({ form }: FilmeUrlsProps) {
             <FormControl>
               <Input placeholder="https://..." {...field} />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="text-xs">
+              Cole a URL completa do iframe do trailer (YouTube, Vimeo, etc.)
+            </FormMessage>
           </FormItem>
         )}
       />
@@ -50,12 +52,12 @@ export function FilmeUrls({ form }: FilmeUrlsProps) {
         name="player_url"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>URL do Player (HLS) *</FormLabel>
+            <FormLabel>URL do Player Externo *</FormLabel>
             <FormControl>
-              <Input placeholder="https://...index.m3u8" {...field} />
+              <Input placeholder="https://..." {...field} />
             </FormControl>
             <FormMessage className="text-xs">
-              Cole aqui a URL do stream HLS, geralmente termina com .m3u8
+              Cole aqui a URL completa do player externo (iframe) onde o vídeo está hospedado
             </FormMessage>
           </FormItem>
         )}

@@ -34,6 +34,7 @@ const SerieVideoPlayer = ({
               title={`Trailer: ${serie.titulo}`}
               className="w-full h-full z-0"
               allowFullScreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             ></iframe>
           </div>
         ) : episodioAtual ? (
