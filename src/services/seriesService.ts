@@ -4,6 +4,23 @@ import { MovieCardProps } from '@/components/MovieCard';
 import { mapToMovieCard } from './utils/movieUtils';
 import { SerieDB, SerieDetalhes, TemporadaDB, EpisodioDB } from './types/movieTypes';
 
+// Função para incrementar visualizações de uma série
+export const incrementarVisualizacaoSerie = async (serieId: string): Promise<void> => {
+  try {
+    const { error } = await supabase.rpc('incrementar_visualizacao', {
+      tabela: 'series',
+      item_id: serieId
+    });
+    
+    if (error) {
+      console.error('Erro ao incrementar visualização da série:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Erro ao incrementar visualização da série:', error);
+  }
+};
+
 // Função para buscar séries do Supabase por categoria
 export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> => {
   console.log(`Buscando séries da categoria: ${categoria}`);
@@ -21,18 +38,19 @@ export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> 
         break;
       
       case 'MAIS VISTOS':
-        // Séries com mais visualizações (simulação com avaliação)
-        query = query.order('avaliacao', { ascending: false }).limit(20);
+        // Séries com mais visualizações - agora usando a coluna real de visualizações
+        query = query.order('visualizacoes', { ascending: false }).limit(20);
         break;
       
       case 'EM ALTA':
-        // Séries populares nos últimos 30 dias
+        // Séries populares nos últimos 30 dias - agora usando visualizações recentes
         const trintaDiasAtras = new Date();
         trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
         
         query = query
-          .gte('updated_at', trintaDiasAtras.toISOString())
-          .order('avaliacao', { ascending: false })
+          .not('ultima_visualizacao', 'is', null)
+          .gte('ultima_visualizacao', trintaDiasAtras.toISOString())
+          .order('visualizacoes', { ascending: false })
           .limit(20);
         break;
       

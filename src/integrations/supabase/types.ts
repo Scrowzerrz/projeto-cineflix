@@ -109,7 +109,9 @@ export type Database = {
           tipo: string | null
           titulo: string
           trailer_url: string | null
+          ultima_visualizacao: string | null
           updated_at: string | null
+          visualizacoes: number | null
         }
         Insert: {
           ano: string
@@ -131,7 +133,9 @@ export type Database = {
           tipo?: string | null
           titulo: string
           trailer_url?: string | null
+          ultima_visualizacao?: string | null
           updated_at?: string | null
+          visualizacoes?: number | null
         }
         Update: {
           ano?: string
@@ -153,7 +157,9 @@ export type Database = {
           tipo?: string | null
           titulo?: string
           trailer_url?: string | null
+          ultima_visualizacao?: string | null
           updated_at?: string | null
+          visualizacoes?: number | null
         }
         Relationships: []
       }
@@ -273,7 +279,9 @@ export type Database = {
           titulo: string
           titulo_original: string | null
           trailer_url: string | null
+          ultima_visualizacao: string | null
           updated_at: string | null
+          visualizacoes: number | null
         }
         Insert: {
           ano: string
@@ -295,7 +303,9 @@ export type Database = {
           titulo: string
           titulo_original?: string | null
           trailer_url?: string | null
+          ultima_visualizacao?: string | null
           updated_at?: string | null
+          visualizacoes?: number | null
         }
         Update: {
           ano?: string
@@ -317,7 +327,9 @@ export type Database = {
           titulo?: string
           titulo_original?: string | null
           trailer_url?: string | null
+          ultima_visualizacao?: string | null
           updated_at?: string | null
+          visualizacoes?: number | null
         }
         Relationships: []
       }
@@ -367,6 +379,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      incrementar_visualizacao: {
+        Args: {
+          tabela: string
+          item_id: string
+        }
+        Returns: undefined
+      }
       tem_papel: {
         Args: {
           usuario_id: string

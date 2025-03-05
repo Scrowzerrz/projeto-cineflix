@@ -4,6 +4,23 @@ import { MovieCardProps } from '@/components/MovieCard';
 import { mapToMovieCard } from './utils/movieUtils';
 import { FilmeDB, MovieResponse } from './types/movieTypes';
 
+// Função para incrementar visualizações de um filme
+export const incrementarVisualizacaoFilme = async (filmeId: string): Promise<void> => {
+  try {
+    const { error } = await supabase.rpc('incrementar_visualizacao', {
+      tabela: 'filmes',
+      item_id: filmeId
+    });
+    
+    if (error) {
+      console.error('Erro ao incrementar visualização:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Erro ao incrementar visualização:', error);
+  }
+};
+
 // Função para buscar filmes do Supabase por categoria
 export const fetchMovies = async (categoria: string): Promise<MovieCardProps[]> => {
   console.log(`Buscando filmes da categoria: ${categoria}`);
@@ -21,20 +38,19 @@ export const fetchMovies = async (categoria: string): Promise<MovieCardProps[]> 
         break;
       
       case 'MAIS VISTOS':
-        // Filmes com mais visualizações (assumimos que existe uma coluna views)
-        // Como não temos essa coluna no DB atual, vamos usar uma simulação com avaliação
-        query = query.order('avaliacao', { ascending: false }).limit(20);
+        // Filmes com mais visualizações - agora usando a coluna real de visualizações
+        query = query.order('visualizacoes', { ascending: false }).limit(20);
         break;
       
       case 'EM ALTA':
-        // Filmes populares nos últimos 30 dias
-        // Como não temos dados reais de visualizações com data, vamos ordenar por avaliação e data de atualização
+        // Filmes populares nos últimos 30 dias - agora usando visualizações recentes
         const trintaDiasAtras = new Date();
         trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
         
         query = query
-          .gte('updated_at', trintaDiasAtras.toISOString())
-          .order('avaliacao', { ascending: false })
+          .not('ultima_visualizacao', 'is', null)
+          .gte('ultima_visualizacao', trintaDiasAtras.toISOString())
+          .order('visualizacoes', { ascending: false })
           .limit(20);
         break;
       
@@ -84,7 +100,7 @@ export const fetchAllMovies = async (filtroCategoria?: string): Promise<MovieCar
   }
 };
 
-// Nova função para buscar detalhes de um filme específico
+// Função para buscar detalhes de um filme específico
 export const fetchMovieDetails = async (movieId: string): Promise<MovieResponse | null> => {
   try {
     const { data, error } = await supabase
@@ -122,7 +138,8 @@ export const fetchMovieDetails = async (movieId: string): Promise<MovieResponse 
       generos: filme.generos,
       trailer_url: filme.trailer_url,
       player_url: filme.player_url,
-      idioma: filme.idioma
+      idioma: filme.idioma,
+      visualizacoes: filme.visualizacoes
     };
   } catch (error) {
     console.error('Erro ao buscar detalhes do filme:', error);

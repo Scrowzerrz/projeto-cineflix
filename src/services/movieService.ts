@@ -5,14 +5,16 @@
 export { 
   fetchMovies, 
   fetchAllMovies, 
-  fetchMovieDetails 
+  fetchMovieDetails,
+  incrementarVisualizacaoFilme
 } from './filmesService';
 
 // Exportações de seriesService
 export { 
   fetchSeries, 
   fetchAllSeries,
-  fetchSerieDetails
+  fetchSerieDetails,
+  incrementarVisualizacaoSerie
 } from './seriesService';
 
 // Exportações de searchService

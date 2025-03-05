@@ -23,6 +23,8 @@ export interface FilmeDB {
   idioma: string;
   created_at: string;
   updated_at: string;
+  visualizacoes: number;
+  ultima_visualizacao: string | null;
 }
 
 // Interface para os dados de série
@@ -47,6 +49,8 @@ export interface SerieDB {
   idioma: string;
   created_at: string;
   updated_at: string;
+  visualizacoes: number;
+  ultima_visualizacao: string | null;
 }
 
 // Interface para temporadas
@@ -96,6 +100,7 @@ export interface MovieResponse {
   trailer_url?: string;
   player_url?: string;
   idioma?: string;
+  visualizacoes?: number;
 }
 
 // Interface para o filme em destaque

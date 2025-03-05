@@ -26,6 +26,14 @@ const DetalhesFilme = () => {
     enabled: !!id
   });
 
+  useEffect(() => {
+    if (id) {
+      incrementarVisualizacaoFilme(id).catch(erro => 
+        console.error("Erro ao registrar visualização do filme:", erro)
+      );
+    }
+  }, [id]);
+
   const compartilharFilme = () => {
     if (navigator.share) {
       navigator.share({
