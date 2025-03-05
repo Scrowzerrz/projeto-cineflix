@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -18,7 +17,6 @@ import { useFavoritos } from '@/hooks/useFavoritos';
 import { useAuth } from '@/hooks/useAuth';
 import { MovieResponse } from '@/services/types/movieTypes';
 import CartaoFilme from '@/components/MovieCard';
-import { mapToMovieCard } from '@/services/utils/movieUtils';
 
 const DetalhesFilme = () => {
   const { id } = useParams<{ id: string }>();
@@ -125,7 +123,7 @@ const DetalhesFilme = () => {
               posterUrl={filmeItem.poster_url}
               year={filmeItem.ano}
               duration={filmeItem.duracao}
-              type={filmeItem.tipo as 'movie' | 'series'}
+              type={filmeItem.tipo}
               quality={filmeItem.qualidade as 'HD' | 'CAM' | 'DUB' | 'LEG'}
               rating={filmeItem.avaliacao}
             />

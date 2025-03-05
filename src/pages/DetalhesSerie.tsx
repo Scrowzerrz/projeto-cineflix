@@ -4,23 +4,20 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { fetchSerieDetails, incrementarVisualizacaoSerie, fetchSomeMovies } from '@/services/movieService';
-import { ChevronDown, MessageSquare, Download, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { fetchSerieDetails, incrementarVisualizacaoSerie } from '@/services/movieService';
+import { TabsContent, Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import SerieHeader from '@/components/series/SerieHeader';
-import SerieDetalhes from '@/components/series/SerieDetalhes';
-import SerieEpisodeLista from '@/components/series/SerieEpisodeLista';
-import SerieComentarios from '@/components/series/SerieComentarios';
+import SerieVideoPlayer from '@/components/series/SerieVideoPlayer';
+import SerieEpisodesList from '@/components/series/SerieEpisodesList';
+import SerieDetails from '@/components/series/SerieDetails';
+import SerieComments from '@/components/series/SerieComments';
 import SerieLoading from '@/components/series/SerieLoading';
 import SerieError from '@/components/series/SerieError';
-import CartaoFilme from '@/components/MovieCard';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MovieResponse } from '@/services/types/movieTypes';
-import { mapToMovieCard } from '@/services/utils/movieUtils';
 
 const DetalhesSerie = () => {
   const { id } = useParams<{ id: string }>();
+  const [activeTab, setActiveTab] = useState('temporadas');
   const [temporadaAtiva, setTemporadaAtiva] = useState(1);
   const [episodioAtivo, setEpisodioAtivo] = useState<string | null>(null);
   const [isTrailer, setIsTrailer] = useState(false);
@@ -33,11 +30,6 @@ const DetalhesSerie = () => {
     queryKey: ['serie-detalhes', id],
     queryFn: () => fetchSerieDetails(id || ''),
     enabled: !!id
-  });
-
-  const { data: sugestoes = [] } = useQuery({
-    queryKey: ['sugestoes-series'],
-    queryFn: () => fetchSomeMovies(6),
   });
 
   useEffect(() => {
@@ -73,12 +65,9 @@ const DetalhesSerie = () => {
     }
   };
 
-  const handleTemporadaChange = (value: string) => {
-    trocarTemporada(parseInt(value));
-  };
-
   const trocarEpisodio = (id: string) => {
     setEpisodioAtivo(id);
+    setActiveTab('assistir');
     setIsTrailer(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -95,101 +84,64 @@ const DetalhesSerie = () => {
     return <SerieError />;
   }
 
-  const temporadaAtual = getTemporadaAtiva();
   const episodioAtual = getEpisodioAtivo();
+  const temporadaAtual = getTemporadaAtiva();
 
   return (
-    <div className="bg-black min-h-screen">
+    <div className="bg-movieDarkBlue min-h-screen">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Cabeçalho da Série */}
-        <SerieHeader 
-          serie={serie} 
-          setIsTrailer={setIsTrailer}
-        />
-        
-        {/* Detalhes e informações da série */}
-        <SerieDetalhes 
-          serie={serie}
-          trocarTemporada={trocarTemporada} 
-        />
-        
-        {/* Seleção de Temporada */}
-        <div className="bg-[#0a1117] my-6 p-4 rounded-md">
-          <div className="flex items-center justify-between">
-            <h2 className="text-white text-xl font-bold">SELECIONE A TEMPORADA</h2>
-            <div className="w-44">
-              <Select 
-                defaultValue={temporadaAtiva.toString()}
-                onValueChange={handleTemporadaChange}
-              >
-                <SelectTrigger className="bg-[#17212b] border-none text-white">
-                  <SelectValue placeholder="Temporada 1" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#17212b] border-[#2a3543] text-white">
-                  {serie.temporadas.map((temporada) => (
-                    <SelectItem key={temporada.id} value={temporada.numero.toString()}>
-                      Temporada {temporada.numero}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-        
-        {/* Lista de Episódios */}
-        <SerieEpisodeLista 
-          temporada={temporadaAtual} 
-          episodioAtivo={episodioAtivo} 
-          trocarEpisodio={trocarEpisodio} 
-        />
-        
-        {/* Veja Também */}
-        <div className="mt-12 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-white text-xl font-bold flex items-center">
-              <span className="border-l-4 border-[#0197f6] h-6 mr-2"></span>
-              VEJA TAMBÉM
-            </h2>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="bg-[#17212b] hover:bg-[#1c2836] border-none text-white"
-              >
-                <ChevronLeft size={18} />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="bg-[#17212b] hover:bg-[#1c2836] border-none text-white"
-              >
-                <ChevronRight size={18} />
-              </Button>
-            </div>
-          </div>
+      <SerieHeader 
+        serie={serie} 
+        temporadaAtiva={temporadaAtiva} 
+        trocarTemporada={trocarTemporada} 
+        setActiveTab={setActiveTab} 
+        setIsTrailer={setIsTrailer} 
+      />
+      
+      <div className="container mx-auto px-4 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="bg-movieDark/60 backdrop-blur-sm mb-6">
+            <TabsTrigger value="assistir" className="text-white data-[state=active]:bg-movieRed">Assistir</TabsTrigger>
+            <TabsTrigger value="temporadas" className="text-white data-[state=active]:bg-movieRed">Episódios</TabsTrigger>
+            <TabsTrigger value="sobre" className="text-white data-[state=active]:bg-movieRed">Sobre</TabsTrigger>
+            <TabsTrigger value="comentarios" className="text-white data-[state=active]:bg-movieRed">Comentários</TabsTrigger>
+          </TabsList>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {sugestoes.map((filme) => (
-              <CartaoFilme 
-                key={filme.id}
-                id={filme.id}
-                title={filme.titulo}
-                posterUrl={filme.poster_url}
-                year={filme.ano}
-                duration={filme.duracao}
-                type={filme.tipo as 'movie' | 'series'}
-                quality={filme.qualidade as 'HD' | 'CAM' | 'DUB' | 'LEG'}
-                rating={filme.avaliacao}
-              />
-            ))}
-          </div>
-        </div>
-        
-        {/* Comentários */}
-        <SerieComentarios />
+          <TabsContent value="assistir">
+            <SerieVideoPlayer 
+              serie={serie}
+              isTrailer={isTrailer}
+              episodioAtual={episodioAtual}
+              temporadaAtual={temporadaAtual}
+              setIsTrailer={setIsTrailer}
+              trocarEpisodio={trocarEpisodio}
+            />
+          </TabsContent>
+          
+          <TabsContent value="temporadas">
+            <SerieEpisodesList 
+              temporadaAtual={temporadaAtual}
+              temporadaAtiva={temporadaAtiva}
+              episodioAtivo={episodioAtivo}
+              trocarTemporada={trocarTemporada}
+              trocarEpisodio={trocarEpisodio}
+              totalTemporadas={serie.temporadas.length}
+            />
+          </TabsContent>
+          
+          <TabsContent value="sobre">
+            <SerieDetails 
+              serie={serie} 
+              trocarTemporada={trocarTemporada} 
+              setActiveTab={setActiveTab} 
+            />
+          </TabsContent>
+          
+          <TabsContent value="comentarios">
+            <SerieComments />
+          </TabsContent>
+        </Tabs>
       </div>
       
       <Footer />
