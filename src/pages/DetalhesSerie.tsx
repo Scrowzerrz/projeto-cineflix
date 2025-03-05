@@ -89,117 +89,121 @@ const DetalhesSerie = () => {
   const temporadaAtual = getTemporadaAtiva();
 
   return (
-    <div className="min-h-screen relative">
-      {/* Background com poster desfocado em toda a página */}
-      <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat z-0"
-        style={{ 
-          backgroundImage: `url(${serie.poster_url})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-movieDarkBlue/95 to-black/90 backdrop-blur-md"></div>
-      </div>
+    <div className="min-h-screen bg-black">
+      <Navbar />
       
-      <div className="relative z-10">
-        <Navbar />
-        
-        <SerieHeader 
-          serie={serie} 
-          temporadaAtiva={temporadaAtiva} 
-          trocarTemporada={trocarTemporada} 
-          setActiveTab={setActiveTab} 
-          setIsTrailer={setIsTrailer} 
-        />
-        
-        <div className="container mx-auto px-4 py-8 relative z-10">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="bg-movieDark/70 backdrop-blur-md mb-6 p-1 rounded-full border border-white/10">
-              <TabsTrigger 
-                value="assistir" 
-                className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
-              >
-                Assistir
-              </TabsTrigger>
-              <TabsTrigger 
-                value="temporadas" 
-                className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
-              >
-                Episódios
-              </TabsTrigger>
-              <TabsTrigger 
-                value="sobre" 
-                className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
-              >
-                Sobre
-              </TabsTrigger>
-              <TabsTrigger 
-                value="comentarios" 
-                className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
-              >
-                Comentários
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="assistir" className="animate-fade-in">
-              <SerieVideoPlayer 
-                serie={serie}
-                isTrailer={isTrailer}
-                episodioAtual={episodioAtual}
-                temporadaAtual={temporadaAtual}
-                setIsTrailer={setIsTrailer}
-                trocarEpisodio={trocarEpisodio}
-              />
-              
-              <VejaTambemSeries 
-                isLoading={false}
-                serieAtualId={serie.id}
-              />
-            </TabsContent>
-            
-            <TabsContent value="temporadas" className="animate-fade-in">
-              <SerieEpisodesList 
-                temporadaAtual={temporadaAtual}
-                temporadaAtiva={temporadaAtiva}
-                episodioAtivo={episodioAtivo}
-                trocarTemporada={trocarTemporada}
-                trocarEpisodio={trocarEpisodio}
-                totalTemporadas={serie.temporadas.length}
-              />
-              
-              <VejaTambemSeries 
-                isLoading={false}
-                serieAtualId={serie.id}
-              />
-            </TabsContent>
-            
-            <TabsContent value="sobre" className="animate-fade-in">
-              <SerieDetails 
-                serie={serie} 
-                trocarTemporada={trocarTemporada} 
-                setActiveTab={setActiveTab} 
-              />
-              
-              <VejaTambemSeries 
-                isLoading={false}
-                serieAtualId={serie.id}
-              />
-            </TabsContent>
-            
-            <TabsContent value="comentarios" className="animate-fade-in">
-              <SerieComments />
-              
-              <VejaTambemSeries 
-                isLoading={false}
-                serieAtualId={serie.id}
-              />
-            </TabsContent>
-          </Tabs>
+      {/* Área de header com o background da série */}
+      <div className="relative">
+        {/* Background com poster desfocado apenas no header */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+          style={{ 
+            backgroundImage: `url(${serie.poster_url})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-movieDarkBlue/95 to-black/100 backdrop-blur-md"></div>
         </div>
         
-        <Footer />
+        <div className="relative z-10">
+          <SerieHeader 
+            serie={serie} 
+            temporadaAtiva={temporadaAtiva} 
+            trocarTemporada={trocarTemporada} 
+            setActiveTab={setActiveTab} 
+            setIsTrailer={setIsTrailer} 
+          />
+        </div>
       </div>
+      
+      {/* Conteúdo da página */}
+      <div className="container mx-auto px-4 py-8 relative z-10">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="bg-movieDark/70 backdrop-blur-md mb-6 p-1 rounded-full border border-white/10">
+            <TabsTrigger 
+              value="assistir" 
+              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
+            >
+              Assistir
+            </TabsTrigger>
+            <TabsTrigger 
+              value="temporadas" 
+              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
+            >
+              Episódios
+            </TabsTrigger>
+            <TabsTrigger 
+              value="sobre" 
+              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
+            >
+              Sobre
+            </TabsTrigger>
+            <TabsTrigger 
+              value="comentarios" 
+              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
+            >
+              Comentários
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="assistir" className="animate-fade-in">
+            <SerieVideoPlayer 
+              serie={serie}
+              isTrailer={isTrailer}
+              episodioAtual={episodioAtual}
+              temporadaAtual={temporadaAtual}
+              setIsTrailer={setIsTrailer}
+              trocarEpisodio={trocarEpisodio}
+            />
+            
+            <VejaTambemSeries 
+              isLoading={false}
+              serieAtualId={serie.id}
+            />
+          </TabsContent>
+          
+          <TabsContent value="temporadas" className="animate-fade-in">
+            <SerieEpisodesList 
+              temporadaAtual={temporadaAtual}
+              temporadaAtiva={temporadaAtiva}
+              episodioAtivo={episodioAtivo}
+              trocarTemporada={trocarTemporada}
+              trocarEpisodio={trocarEpisodio}
+              totalTemporadas={serie.temporadas.length}
+            />
+            
+            <VejaTambemSeries 
+              isLoading={false}
+              serieAtualId={serie.id}
+            />
+          </TabsContent>
+          
+          <TabsContent value="sobre" className="animate-fade-in">
+            <SerieDetails 
+              serie={serie} 
+              trocarTemporada={trocarTemporada} 
+              setActiveTab={setActiveTab} 
+            />
+            
+            <VejaTambemSeries 
+              isLoading={false}
+              serieAtualId={serie.id}
+            />
+          </TabsContent>
+          
+          <TabsContent value="comentarios" className="animate-fade-in">
+            <SerieComments />
+            
+            <VejaTambemSeries 
+              isLoading={false}
+              serieAtualId={serie.id}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+      
+      <Footer />
     </div>
   );
 };
