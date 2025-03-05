@@ -1,23 +1,32 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { fetchMovieDetails, incrementarVisualizacaoFilme } from '@/services/filmesService';
+import { fetchSomeMovies } from '@/services/movieService';
 import { Button } from '@/components/ui/button';
-import { Play, Plus, Download, Share2, Star, Clock, Calendar, Heart, Film, Users, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, Plus, Download, Share2, Star, Clock, Calendar, Film, Users, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 import FavoritoButton from '@/components/FavoritoButton';
 import VideoPlayer from '@/components/player/VideoPlayer';
 import { Badge } from '@/components/ui/badge';
+import { useFavoritos } from '@/hooks/useFavoritos';
+import { useAuth } from '@/hooks/useAuth';
+import { MovieResponse } from '@/services/types/movieTypes';
 
 const DetalhesFilme = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState('assistir');
   const [isTrailer, setIsTrailer] = useState(false);
+  const navigate = useNavigate();
+  const { perfil } = useAuth();
+  const { favoritos, adicionarFavorito, removerFavorito } = useFavoritos();
+  
+  const isFavorito = favoritos.some(f => f.item_id === id);
   
   const { 
     data: filme, 
@@ -27,6 +36,15 @@ const DetalhesFilme = () => {
     queryKey: ['filme-detalhes', id],
     queryFn: () => fetchMovieDetails(id || ''),
     enabled: !!id
+  });
+
+  // Buscar filmes aleatórios para a seção "Veja também"
+  const { 
+    data: filmesSugestoes = [],
+    isLoading: isLoadingSugestoes
+  } = useQuery({
+    queryKey: ['filmes-sugestoes'],
+    queryFn: () => fetchSomeMovies(5),
   });
 
   useEffect(() => {
@@ -53,8 +71,17 @@ const DetalhesFilme = () => {
     }
   };
 
-  const adicionarLista = () => {
-    toast.success('Filme adicionado à sua lista!');
+  const handleFavoritoClick = async () => {
+    if (!perfil) {
+      navigate('/auth');
+      return;
+    }
+
+    if (isFavorito) {
+      await removerFavorito.mutateAsync(id || '');
+    } else {
+      await adicionarFavorito.mutateAsync({ itemId: id || '', tipo: 'filme' });
+    }
   };
 
   const baixarFilme = () => {
@@ -64,6 +91,55 @@ const DetalhesFilme = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Componente para a seção "Veja também"
+  const VejaTambemSection = () => (
+    <div className="mt-10">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-white font-bold text-xl flex items-center">
+          <span>VEJA TAMBÉM</span>
+        </h3>
+        <div className="flex gap-2">
+          <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-gray-700 bg-black/50 hover:bg-gray-800">
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-gray-700 bg-black/50 hover:bg-gray-800">
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {isLoadingSugestoes ? (
+          // Loading skeleton para filmes sugeridos
+          Array(5).fill(0).map((_, index) => (
+            <div key={index} className="group relative rounded-md overflow-hidden">
+              <div className="aspect-[2/3] bg-gray-800 animate-pulse"></div>
+            </div>
+          ))
+        ) : (
+          // Filmes sugeridos reais
+          filmesSugestoes.map((filmeItem: MovieResponse) => (
+            <Link to={`/movie/${filmeItem.id}`} key={filmeItem.id} className="group relative rounded-md overflow-hidden">
+              <img 
+                src={filmeItem.poster_url} 
+                alt={filmeItem.titulo} 
+                className="aspect-[2/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <p className="text-white text-sm font-medium truncate">{filmeItem.titulo}</p>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-gray-400 text-xs">{filmeItem.ano}</span>
+                  <span className="text-gray-400 text-xs">{filmeItem.qualidade || 'HD'}</span>
+                </div>
+              </div>
+            </Link>
+          ))
+        )}
+      </div>
+    </div>
+  );
 
   if (isLoading) {
     return (
@@ -152,7 +228,7 @@ const DetalhesFilme = () => {
                   <Button 
                     variant="outline"
                     className="border-gray-700 text-white bg-black/50 hover:bg-gray-800"
-                    onClick={adicionarLista}
+                    onClick={handleFavoritoClick}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -163,11 +239,6 @@ const DetalhesFilme = () => {
                   >
                     <Download className="h-4 w-4" />
                   </Button>
-                  <FavoritoButton
-                    itemId={id || ''}
-                    tipo="filme"
-                    className="border-gray-700 bg-black/50 hover:bg-gray-800"
-                  />
                 </div>
               </div>
             </div>
@@ -283,9 +354,9 @@ const DetalhesFilme = () => {
                 <Button 
                   variant="outline"
                   className="border-gray-700 text-white bg-black/50 hover:bg-gray-800"
-                  onClick={adicionarLista}
+                  onClick={handleFavoritoClick}
                 >
-                  <Plus className="mr-2 h-5 w-5" /> Minha Lista
+                  <Plus className="mr-2 h-5 w-5" /> {isFavorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                 </Button>
                 
                 <Button 
@@ -303,12 +374,6 @@ const DetalhesFilme = () => {
                 >
                   <Share2 className="mr-2 h-5 w-5" /> Compartilhar
                 </Button>
-                
-                <FavoritoButton
-                  itemId={id || ''}
-                  tipo="filme"
-                  className="border-gray-700 bg-black/50 hover:bg-gray-800"
-                />
               </div>
             </div>
           </div>
@@ -325,12 +390,6 @@ const DetalhesFilme = () => {
                 className="flex-1 text-gray-300 data-[state=active]:bg-gray-800 data-[state=active]:text-white rounded-md text-sm py-2"
               >
                 Assistir
-              </TabsTrigger>
-              <TabsTrigger 
-                value="sugestoes" 
-                className="flex-1 text-gray-300 data-[state=active]:bg-gray-800 data-[state=active]:text-white rounded-md text-sm py-2"
-              >
-                Sugestões
               </TabsTrigger>
               <TabsTrigger 
                 value="comentarios" 
@@ -406,59 +465,15 @@ const DetalhesFilme = () => {
                     variant="outline"
                     size="sm"
                     className="border-gray-700 text-white bg-black/50 hover:bg-gray-800"
-                    onClick={adicionarLista}
+                    onClick={handleFavoritoClick}
                   >
-                    <Plus className="mr-2 h-4 w-4" /> Adicionar à Lista
+                    <Plus className="mr-2 h-4 w-4" /> {isFavorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                   </Button>
-                  
-                  <FavoritoButton
-                    itemId={id || ''}
-                    tipo="filme"
-                    className="h-9 px-3 border-gray-700 bg-black/50 hover:bg-gray-800"
-                  />
                 </div>
               </div>
               
               {/* Seção "Veja também" */}
-              <div className="mt-10">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-white font-bold text-xl flex items-center">
-                    <span>VEJA TAMBÉM</span>
-                  </h3>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-gray-700 bg-black/50 hover:bg-gray-800">
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" className="h-8 w-8 rounded-full border-gray-700 bg-black/50 hover:bg-gray-800">
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {[1, 2, 3, 4, 5].map((item) => (
-                    <div key={item} className="group relative rounded-md overflow-hidden">
-                      <div className="aspect-[2/3] bg-gray-800 animate-pulse"></div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                      <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p className="text-white text-sm font-medium truncate">Filme Recomendado</p>
-                        <div className="flex items-center justify-between mt-1">
-                          <span className="text-gray-400 text-xs">2023</span>
-                          <span className="text-gray-400 text-xs">HD</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-            
-            {/* Tab de Sugestões */}
-            <TabsContent value="sugestoes" className="mt-6 focus-visible:outline-none">
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-8 text-center">
-                <h3 className="text-white text-xl mb-2">Sugestões em breve</h3>
-                <p className="text-gray-400">Estamos trabalhando para trazer sugestões de filmes similares.</p>
-              </div>
+              <VejaTambemSection />
             </TabsContent>
             
             {/* Tab de Comentários */}
@@ -481,7 +496,7 @@ const DetalhesFilme = () => {
                 </div>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-6 mb-12">
                 <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
                   <div className="flex items-start gap-3">
                     <div className="bg-gray-800 rounded-full h-10 w-10 flex items-center justify-center">
@@ -506,6 +521,9 @@ const DetalhesFilme = () => {
                   </div>
                 </div>
               </div>
+              
+              {/* Seção "Veja também" na aba de comentários */}
+              <VejaTambemSection />
             </TabsContent>
           </Tabs>
         </div>
