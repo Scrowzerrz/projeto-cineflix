@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
@@ -54,11 +55,12 @@ export function FilmeUrls({ form }: FilmeUrlsProps) {
           <FormItem>
             <FormLabel>URL do Player Externo *</FormLabel>
             <FormControl>
-              <Input placeholder="https://..." {...field} />
+              <Input placeholder="b5hqh.fun/e/zgnqvx86laag" {...field} />
             </FormControl>
-            <FormMessage className="text-xs">
-              Cole aqui a URL completa do player externo (iframe) onde o vídeo está hospedado
-            </FormMessage>
+            <FormDescription className="text-xs">
+              Cole apenas o domínio e caminho (ex: b5hqh.fun/e/zgnqvx86laag) sem https://
+            </FormDescription>
+            <FormMessage />
           </FormItem>
         )}
       />

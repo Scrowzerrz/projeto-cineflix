@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Play, Info } from 'lucide-react';
 import { SerieDetalhes, TemporadaDB, EpisodioDB } from '@/services/types/movieTypes';
@@ -21,20 +20,35 @@ const SerieVideoPlayer = ({
   setIsTrailer,
   trocarEpisodio
 }: SerieVideoPlayerProps) => {
+  const getPlayerUrl = (url: string) => {
+    try {
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+      
+      new URL(url);
+      
+      return url;
+    } catch (error) {
+      console.error("URL inválida:", error);
+      return "";
+    }
+  };
+
   return (
     <div className="mt-6">
       <div className="w-full mb-8 rounded-xl overflow-hidden shadow-2xl">
         {isTrailer ? (
           <div className="aspect-video bg-black/40 overflow-hidden relative group">
-            {/* Overlay de gradiente para o iframe */}
             <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
             
             <iframe
-              src={serie.trailer_url}
+              src={getPlayerUrl(serie.trailer_url)}
               title={`Trailer: ${serie.titulo}`}
               className="w-full h-full z-0"
               allowFullScreen
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              sandbox="allow-same-origin allow-scripts allow-forms"
             ></iframe>
           </div>
         ) : episodioAtual ? (
@@ -45,13 +59,11 @@ const SerieVideoPlayer = ({
           />
         ) : (
           <div className="relative aspect-video overflow-hidden rounded-lg">
-            {/* Background com poster da série */}
             <div 
               className="absolute inset-0 bg-cover bg-center" 
               style={{ backgroundImage: `url(${serie.poster_url})` }}
             />
             
-            {/* Overlay escuro com gradiente */}
             <div className="absolute inset-0 bg-black/70 bg-gradient-to-t from-black via-black/80 to-black/50" />
             
             <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -113,7 +125,6 @@ const SerieVideoPlayer = ({
         </div>
       )}
 
-      {/* Navegação entre episódios com design aprimorado */}
       {temporadaAtual?.episodios && temporadaAtual.episodios.length > 0 && (
         <div className="mt-8">
           <h3 className="text-white font-bold text-xl mb-5 flex items-center after:content-[''] after:ml-4 after:h-[1px] after:flex-1 after:bg-white/10">Mais episódios</h3>
@@ -140,7 +151,6 @@ const SerieVideoPlayer = ({
                     <h4 className="text-white text-sm font-medium mt-2 line-clamp-2">{ep.titulo}</h4>
                   </div>
                   
-                  {/* Botão de play que aparece no hover */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20">
                     <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
                       <Play className="h-6 w-6 fill-white" />
