@@ -43,12 +43,12 @@ export function AdicionarFilmeDialog() {
     try {
       const { error } = await supabase
         .from('filmes')
-        .insert([{
+        .insert({
           ...data,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           tipo: 'movie'
-        }]);
+        });
 
       if (error) throw error;
 
