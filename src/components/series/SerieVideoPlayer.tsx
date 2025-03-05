@@ -21,24 +21,6 @@ const SerieVideoPlayer = ({
   setIsTrailer,
   trocarEpisodio
 }: SerieVideoPlayerProps) => {
-  // Função para extrair URL do iframe ou usar a URL direta
-  const getPlayerUrl = (url: string) => {
-    if (!url) return '';
-    
-    // Verificar se é um iframe
-    if (url.includes('<iframe') && url.includes('src="')) {
-      // Extrair a URL dentro do src
-      const srcMatch = url.match(/src="([^"]+)"/);
-      if (srcMatch && srcMatch[1]) {
-        return srcMatch[1];
-      }
-    }
-    
-    return url;
-  };
-
-  const trailerUrl = getPlayerUrl(serie.trailer_url);
-
   return (
     <div className="mt-6">
       <div className="w-full mb-8 rounded-xl overflow-hidden shadow-2xl">
@@ -48,13 +30,11 @@ const SerieVideoPlayer = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
             
             <iframe
-              src={trailerUrl}
+              src={serie.trailer_url}
               title={`Trailer: ${serie.titulo}`}
               className="w-full h-full z-0"
               allowFullScreen
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              frameBorder="0"
-              scrolling="no"
             ></iframe>
           </div>
         ) : episodioAtual ? (

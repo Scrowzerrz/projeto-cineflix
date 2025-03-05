@@ -63,19 +63,6 @@ const DetalhesFilme = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const getPlayerUrl = (url: string) => {
-    if (!url) return '';
-    
-    if (url.includes('<iframe') && url.includes('src="')) {
-      const srcMatch = url.match(/src="([^"]+)"/);
-      if (srcMatch && srcMatch[1]) {
-        return srcMatch[1];
-      }
-    }
-    
-    return url;
-  };
-
   if (isLoading) {
     return (
       <div className="bg-movieDarkBlue min-h-screen">
@@ -283,13 +270,11 @@ const DetalhesFilme = () => {
             {isTrailer ? (
               <div className="w-full aspect-video bg-black/40 rounded-md overflow-hidden mb-6">
                 <iframe
-                  src={getPlayerUrl(filme.trailer_url)}
+                  src={filme.trailer_url}
                   title={`Trailer: ${filme.titulo}`}
                   className="w-full h-full"
                   allowFullScreen
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  frameBorder="0"
-                  scrolling="no"
                 ></iframe>
               </div>
             ) : (
