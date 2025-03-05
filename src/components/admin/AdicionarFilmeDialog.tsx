@@ -45,7 +45,9 @@ export function AdicionarFilmeDialog() {
         .from('filmes')
         .insert({
           ...data,
-          tipo: 'movie',
+          tipo: 'movie' as const,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         });
 
       if (error) throw error;

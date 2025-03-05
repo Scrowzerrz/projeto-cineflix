@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 export const filmeSchema = z.object({
@@ -18,7 +17,7 @@ export const filmeSchema = z.object({
   idioma: z.string().min(1, "Idioma é obrigatório"),
   avaliacao: z.string().regex(/^\d(\.\d)?$/, "Avaliação deve estar entre 0 e 10").optional(),
   destaque: z.boolean().default(false),
-});
+}).strict();
 
 export type FilmeFormData = z.infer<typeof filmeSchema>;
 
@@ -60,4 +59,3 @@ export const GENEROS = [
   "Terror",
   "Western",
 ] as const;
-
