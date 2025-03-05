@@ -3,27 +3,33 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import CartaoFilme from '@/components/MovieCard';
-import { MovieResponse } from '@/services/types/movieTypes';
 import { fetchSeries } from '@/services/seriesService';
 import { useQuery } from '@tanstack/react-query';
 import { MovieCardProps } from '@/components/MovieCard';
 
 interface VejaTambemSeriesProps {
-  filmes: MovieResponse[];
   isLoading: boolean;
-  categoriaExcluida?: string;
+  serieAtualId?: string;
 }
 
-const VejaTambemSeries = ({ isLoading: isLoadingProp }: VejaTambemSeriesProps) => {
+const VejaTambemSeries = ({ isLoading: isLoadingProp, serieAtualId }: VejaTambemSeriesProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   // Buscar séries relacionadas
   const { data: seriesRelacionadas = [], isLoading } = useQuery({
-    queryKey: ['series-relacionadas'],
+    queryKey: ['series-semelhantes'],
     queryFn: () => fetchSeries('EM ALTA'),
   });
+
+  // Filtrar a série atual da lista de recomendações
+  const seriesFiltradas = seriesRelacionadas.filter(serie => 
+    !serieAtualId || serie.id !== serieAtualId
+  );
+
+  // Embaralhar o array para exibir séries aleatórias
+  const seriesAleatorias = [...seriesFiltradas].sort(() => Math.random() - 0.5).slice(0, 10);
 
   // Função para verificar se pode rolar para os lados
   const checkScrollability = () => {
@@ -57,7 +63,7 @@ const VejaTambemSeries = ({ isLoading: isLoadingProp }: VejaTambemSeriesProps) =
     window.addEventListener('resize', handleResize);
     
     return () => window.removeEventListener('resize', handleResize);
-  }, [seriesRelacionadas]);
+  }, [seriesAleatorias]);
 
   return (
     <div className="mt-10 bg-movieDark/20 p-6 rounded-xl backdrop-blur-sm border border-white/5">
@@ -104,7 +110,7 @@ const VejaTambemSeries = ({ isLoading: isLoadingProp }: VejaTambemSeriesProps) =
             </div>
           ))
         ) : (
-          seriesRelacionadas.map((serie: MovieCardProps) => (
+          seriesAleatorias.map((serie: MovieCardProps) => (
             <div key={serie.id} className="flex-shrink-0 w-[180px] snap-start">
               <CartaoFilme
                 id={serie.id}

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -140,8 +139,8 @@ const DetalhesSerie = () => {
             />
             
             <VejaTambemSeries 
-              filmes={[]} 
-              isLoading={false} 
+              isLoading={false}
+              serieAtualId={serie.id}
             />
           </TabsContent>
           
@@ -156,8 +155,8 @@ const DetalhesSerie = () => {
             />
             
             <VejaTambemSeries 
-              filmes={[]} 
-              isLoading={false} 
+              isLoading={false}
+              serieAtualId={serie.id}
             />
           </TabsContent>
           
@@ -169,8 +168,8 @@ const DetalhesSerie = () => {
             />
             
             <VejaTambemSeries 
-              filmes={[]} 
-              isLoading={false} 
+              isLoading={false}
+              serieAtualId={serie.id}
             />
           </TabsContent>
           
@@ -178,8 +177,8 @@ const DetalhesSerie = () => {
             <SerieComments />
             
             <VejaTambemSeries 
-              filmes={[]} 
-              isLoading={false} 
+              isLoading={false}
+              serieAtualId={serie.id}
             />
           </TabsContent>
         </Tabs>
