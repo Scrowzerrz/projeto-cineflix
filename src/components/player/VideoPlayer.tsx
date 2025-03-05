@@ -14,51 +14,71 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
-  const videoRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Player | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [playerInicializado, setPlayerInicializado] = useState(false);
   
-  // Clean up the player on component unmount
+  // Limpa o player quando o componente é desmontado
   useEffect(() => {
+    console.log('VideoPlayer montado');
     return () => {
       if (playerRef.current) {
-        console.log('Disposing player on unmount');
+        console.log('Limpando player no unmount');
         playerRef.current.dispose();
         playerRef.current = null;
       }
     };
   }, []);
 
+  // Efeito para inicializar o player quando o modo de reprodução está ativo
+  useEffect(() => {
+    // Se está no modo de reprodução e o player ainda não foi inicializado
+    if (isPlaying && !playerInicializado) {
+      console.log('isPlaying true, inicializando player');
+      inicializarVideoJS();
+    }
+  }, [isPlaying, playerInicializado, playerUrl]);
+
   const iniciarPlayer = () => {
-    console.log('Iniciando player com URL:', playerUrl);
+    console.log('Botão play clicado, ativando modo de reprodução');
+    setIsPlaying(true);
+  };
+
+  const inicializarVideoJS = () => {
+    console.log('Inicializando Video.js com URL:', playerUrl);
     
-    // Check if the videoRef is available
-    if (!videoRef.current) {
-      console.error('Container ref não encontrado');
+    // Verificar se a referência ao container existe
+    if (!containerRef.current) {
+      console.error('Erro: Container ref não encontrado');
       toast.error('Erro ao inicializar o player. Tente novamente.');
+      setIsPlaying(false);
       return;
     }
 
     try {
-      // Reset state and clean up any existing player
+      // Limpar player existente se houver
       if (playerRef.current) {
         console.log('Limpando player existente');
         playerRef.current.dispose();
         playerRef.current = null;
       }
 
-      // Clear the container
-      const container = videoRef.current;
+      // Limpar o container
+      const container = containerRef.current;
       container.innerHTML = '';
       
-      // Create a new div with video-js class
+      // Criar elemento de vídeo
       const videoElement = document.createElement('video');
       videoElement.className = 'video-js vjs-big-play-centered vjs-fluid';
+      videoElement.setAttribute('data-setup', '{}');
+      
+      // Adicionar o elemento de vídeo ao container
       container.appendChild(videoElement);
       
       console.log('Elemento de vídeo criado e adicionado ao container');
       
-      // Initialize videojs
+      // Inicializar videojs
       const player = videojs(videoElement, {
         controls: true,
         responsive: true,
@@ -81,14 +101,14 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
         }
       });
       
-      // Set player reference
+      // Definir referência do player
       playerRef.current = player;
       console.log('Player VideoJS inicializado com sucesso');
+      setPlayerInicializado(true);
 
-      // Handle player events
+      // Lidar com eventos do player
       player.on('ready', () => {
-        console.log('Player pronto');
-        setIsPlaying(true);
+        console.log('Player pronto para reprodução');
         
         player.play()
           .then(() => console.log('Reprodução iniciada'))
@@ -103,11 +123,11 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
         console.error('Erro no player:', error);
         toast.error('Erro ao carregar o vídeo. Tente novamente mais tarde.');
         setIsPlaying(false);
+        setPlayerInicializado(false);
       });
 
       player.on('playing', () => {
         console.log('Vídeo reproduzindo');
-        setIsPlaying(true);
       });
 
       player.on('pause', () => {
@@ -117,12 +137,14 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       player.on('ended', () => {
         console.log('Reprodução finalizada');
         setIsPlaying(false);
+        setPlayerInicializado(false);
       });
 
     } catch (error) {
       console.error('Erro ao inicializar o player:', error);
       toast.error('Falha ao iniciar o player de vídeo. Tente novamente.');
       setIsPlaying(false);
+      setPlayerInicializado(false);
     }
   };
 
@@ -145,9 +167,9 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
         </div>
       ) : (
         <div 
-          ref={videoRef} 
-          className="w-full h-full" 
-          data-vjs-player
+          ref={containerRef} 
+          data-vjs-player="true"
+          className="w-full h-full bg-black" 
         />
       )}
     </div>
