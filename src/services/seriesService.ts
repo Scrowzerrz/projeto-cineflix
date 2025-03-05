@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { MovieCardProps } from '@/components/MovieCard';
-import { mapToMovieCard, serieToFilmeDB } from './utils/movieUtils';
+import { mapToMovieCard } from './utils/movieUtils';
 import { SerieDB, SerieDetalhes, TemporadaDB, EpisodioDB } from './types/movieTypes';
 
 // Função para buscar séries do Supabase por categoria
@@ -9,24 +9,55 @@ export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> 
   console.log(`Buscando séries da categoria: ${categoria}`);
   
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('series')
-      .select('*')
-      .eq('categoria', categoria);
+      .select('*');
+    
+    // Lógica para filtrar com base na categoria
+    switch (categoria) {
+      case 'RECENTES':
+        // Séries recém adicionadas - ordenados por data de criação decrescente
+        query = query.order('created_at', { ascending: false }).limit(20);
+        break;
+      
+      case 'MAIS VISTOS':
+        // Séries com mais visualizações (simulação com avaliação)
+        query = query.order('avaliacao', { ascending: false }).limit(20);
+        break;
+      
+      case 'EM ALTA':
+        // Séries populares nos últimos 30 dias
+        const trintaDiasAtras = new Date();
+        trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+        
+        query = query
+          .gte('updated_at', trintaDiasAtras.toISOString())
+          .order('avaliacao', { ascending: false })
+          .limit(20);
+        break;
+      
+      case 'NOVOS EPISÓDIOS':
+      default:
+        // Séries com novos episódios (por enquanto, usamos a categoria padrão)
+        query = query.eq('categoria', categoria).limit(20);
+        break;
+    }
+    
+    const { data, error } = await query;
     
     if (error) {
       console.error('Erro ao buscar séries:', error);
       throw error;
     }
     
-    return (data || []).map(serie => mapToMovieCard(serieToFilmeDB(serie)));
+    return (data || []).map(serie => mapToMovieCard(serie as SerieDB));
   } catch (error) {
     console.error('Erro ao buscar séries:', error);
     return [];
   }
 };
 
-// Função para buscar todas as séries (para a página de séries)
+// Função para buscar todas as séries para a página de séries
 export const fetchAllSeries = async (filtroCategoria?: string): Promise<MovieCardProps[]> => {
   try {
     let query = supabase
@@ -44,44 +75,49 @@ export const fetchAllSeries = async (filtroCategoria?: string): Promise<MovieCar
       throw error;
     }
     
-    return (data || []).map(serie => mapToMovieCard(serieToFilmeDB(serie)));
+    return (data || []).map(serie => mapToMovieCard(serie as SerieDB));
   } catch (error) {
     console.error('Erro ao buscar todas as séries:', error);
     return [];
   }
 };
 
-// Função para buscar detalhes completos de uma série específica
-export const fetchSerieDetails = async (id: string): Promise<SerieDetalhes | null> => {
+// Função para buscar detalhes de uma série específica, incluindo temporadas e episódios
+export const fetchSerieDetails = async (serieId: string): Promise<SerieDetalhes | null> => {
   try {
     // Buscar informações básicas da série
     const { data: serieData, error: serieError } = await supabase
       .from('series')
       .select('*')
-      .eq('id', id)
-      .maybeSingle();
+      .eq('id', serieId)
+      .single();
     
-    if (serieError || !serieData) {
-      console.error('Erro ao buscar série:', serieError);
+    if (serieError) {
+      console.error('Erro ao buscar detalhes da série:', serieError);
+      throw serieError;
+    }
+    
+    if (!serieData) {
       return null;
     }
 
+    const serie = serieData as SerieDB;
+    
     // Buscar temporadas da série
     const { data: temporadasData, error: temporadasError } = await supabase
       .from('temporadas')
       .select('*')
-      .eq('serie_id', id)
+      .eq('serie_id', serieId)
       .order('numero', { ascending: true });
     
     if (temporadasError) {
-      console.error('Erro ao buscar temporadas:', temporadasError);
-      return null;
+      console.error('Erro ao buscar temporadas da série:', temporadasError);
+      throw temporadasError;
     }
 
-    // Para cada temporada, buscar seus episódios
-    const temporadasComEpisodios: TemporadaDB[] = [];
-    
-    for (const temporada of temporadasData || []) {
+    // Mapear temporadas
+    const temporadas = await Promise.all((temporadasData || []).map(async (temporada: TemporadaDB) => {
+      // Buscar episódios de cada temporada
       const { data: episodiosData, error: episodiosError } = await supabase
         .from('episodios')
         .select('*')
@@ -90,32 +126,37 @@ export const fetchSerieDetails = async (id: string): Promise<SerieDetalhes | nul
       
       if (episodiosError) {
         console.error(`Erro ao buscar episódios da temporada ${temporada.numero}:`, episodiosError);
-        continue;
+        return { ...temporada, episodios: [] };
       }
       
-      temporadasComEpisodios.push({
+      return {
         ...temporada,
-        episodios: episodiosData || []
-      });
-    }
-
-    // Preparar e retornar o objeto completo da série
-    const serieDetalhes: SerieDetalhes = {
-      ...serieData,
-      temporadas: temporadasComEpisodios,
-      tipo: serieData.tipo || 'series',
-      generos: serieData.generos || [],
-      avaliacao: serieData.avaliacao || '0.0',
-      destaque: serieData.destaque || false,
-      diretor: serieData.diretor || '',
-      elenco: serieData.elenco || '',
-      produtor: serieData.produtor || '',
-      titulo_original: serieData.titulo_original || '',
-      trailer_url: serieData.trailer_url || '',
-      idioma: serieData.idioma || 'DUB'
+        episodios: episodiosData as EpisodioDB[] || []
+      };
+    }));
+    
+    // Construir objeto de detalhes da série
+    return {
+      id: serie.id,
+      titulo: serie.titulo,
+      titulo_original: serie.titulo_original,
+      poster_url: serie.poster_url,
+      ano: serie.ano,
+      duracao: serie.duracao,
+      avaliacao: serie.avaliacao || '0.0',
+      tipo: 'series',
+      qualidade: serie.qualidade,
+      descricao: serie.descricao,
+      categoria: serie.categoria,
+      destaque: serie.destaque,
+      diretor: serie.diretor,
+      elenco: serie.elenco,
+      produtor: serie.produtor,
+      generos: serie.generos || [],
+      trailer_url: serie.trailer_url,
+      idioma: serie.idioma,
+      temporadas: temporadas
     };
-
-    return serieDetalhes;
   } catch (error) {
     console.error('Erro ao buscar detalhes da série:', error);
     return null;

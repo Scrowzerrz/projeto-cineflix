@@ -9,12 +9,12 @@ import { fetchMovies, fetchSeries, fetchHeroMovie } from '@/services/movieServic
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const categories = ['LANÇAMENTOS', 'RECENTES', 'MAIS VISTOS', 'EM ALTA'];
-const seriesCategories = ['NOVOS EPISÓDIOS', 'RECENTES', 'MAIS VISTOS', 'EM ALTA'];
+const categoriesFilmes = ['LANÇAMENTOS', 'RECENTES', 'MAIS VISTOS', 'EM ALTA'];
+const categoriesSeries = ['NOVOS EPISÓDIOS', 'RECENTES', 'MAIS VISTOS', 'EM ALTA'];
 
 const Index = () => {
-  const [activeCategory, setActiveCategory] = useState(categories[0]);
-  const [activeSeriesCategory, setActiveSeriesCategory] = useState(seriesCategories[0]);
+  const [activeCategoryFilmes, setActiveCategoryFilmes] = useState(categoriesFilmes[0]);
+  const [activeCategorySeries, setActiveCategorySeries] = useState(categoriesSeries[0]);
 
   // Fetch hero movie data
   const { 
@@ -43,8 +43,8 @@ const Index = () => {
     error: moviesError,
     refetch: refetchMovies
   } = useQuery({
-    queryKey: ['movies', activeCategory],
-    queryFn: () => fetchMovies(activeCategory)
+    queryKey: ['movies', activeCategoryFilmes],
+    queryFn: () => fetchMovies(activeCategoryFilmes)
   });
 
   // Fetch series based on active series category
@@ -54,18 +54,18 @@ const Index = () => {
     error: seriesError,
     refetch: refetchSeries
   } = useQuery({
-    queryKey: ['series', activeSeriesCategory],
-    queryFn: () => fetchSeries(activeSeriesCategory)
+    queryKey: ['series', activeCategorySeries],
+    queryFn: () => fetchSeries(activeCategorySeries)
   });
 
   // Trigger refetch when category changes
   useEffect(() => {
     refetchMovies();
-  }, [activeCategory, refetchMovies]);
+  }, [activeCategoryFilmes, refetchMovies]);
   
   useEffect(() => {
     refetchSeries();
-  }, [activeSeriesCategory, refetchSeries]);
+  }, [activeCategorySeries, refetchSeries]);
 
   // Loading state for the hero section
   const renderHero = () => {
@@ -118,9 +118,9 @@ const Index = () => {
           <LinhaFilmes 
             title="Filmes" 
             movies={movies ? movies.map(movie => ({...movie, type: 'movie'})) : []}
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
+            categories={categoriesFilmes}
+            activeCategory={activeCategoryFilmes}
+            onCategoryChange={setActiveCategoryFilmes}
             isLoading={moviesLoading}
             error={moviesError ? "Erro ao carregar filmes" : undefined}
           />
@@ -128,9 +128,9 @@ const Index = () => {
           <LinhaFilmes 
             title="Séries" 
             movies={series ? series.map(serie => ({...serie, type: 'series'})) : []}
-            categories={seriesCategories}
-            activeCategory={activeSeriesCategory}
-            onCategoryChange={setActiveSeriesCategory}
+            categories={categoriesSeries}
+            activeCategory={activeCategorySeries}
+            onCategoryChange={setActiveCategorySeries}
             isLoading={seriesLoading}
             error={seriesError ? "Erro ao carregar séries" : undefined}
           />

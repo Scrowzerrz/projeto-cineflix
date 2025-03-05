@@ -9,10 +9,43 @@ export const fetchMovies = async (categoria: string): Promise<MovieCardProps[]> 
   console.log(`Buscando filmes da categoria: ${categoria}`);
   
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('filmes')
-      .select('*')
-      .eq('categoria', categoria);
+      .select('*');
+    
+    // Lógica para filtrar com base na categoria
+    switch (categoria) {
+      case 'RECENTES':
+        // Filmes recém adicionados - ordenados por data de criação decrescente
+        query = query.order('created_at', { ascending: false }).limit(20);
+        break;
+      
+      case 'MAIS VISTOS':
+        // Filmes com mais visualizações (assumimos que existe uma coluna views)
+        // Como não temos essa coluna no DB atual, vamos usar uma simulação com avaliação
+        query = query.order('avaliacao', { ascending: false }).limit(20);
+        break;
+      
+      case 'EM ALTA':
+        // Filmes populares nos últimos 30 dias
+        // Como não temos dados reais de visualizações com data, vamos ordenar por avaliação e data de atualização
+        const trintaDiasAtras = new Date();
+        trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+        
+        query = query
+          .gte('updated_at', trintaDiasAtras.toISOString())
+          .order('avaliacao', { ascending: false })
+          .limit(20);
+        break;
+      
+      case 'LANÇAMENTOS':
+      default:
+        // Filmes que são lançamentos
+        query = query.eq('categoria', 'LANÇAMENTOS');
+        break;
+    }
+    
+    const { data, error } = await query;
     
     if (error) {
       console.error('Erro ao buscar filmes:', error);
