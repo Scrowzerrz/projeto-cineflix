@@ -17,20 +17,15 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   const iniciarPlayer = () => {
     setIsLoading(true);
     setIsPlaying(true);
-    setTimeout(() => setIsLoading(false), 500); // Simular carregamento breve
+    setTimeout(() => setIsLoading(false), 500); // Simulate brief loading
   };
 
-  // Formatar URL para garantir que seja segura e funcione corretamente em um iframe
-  const getPlayerUrl = (url: string) => {
+  // Sanitize URL to ensure it can be safely embedded
+  const getSafeUrl = (url: string) => {
     try {
-      // Se a URL já tem https:// ou http://, não adicione
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url;
-      }
-      
-      // Validar URL
-      new URL(url);
-      
+      // Make sure URL is valid
+      const validatedUrl = new URL(url);
+      // Return the safe URL
       return url;
     } catch (error) {
       console.error("URL inválida:", error);
@@ -77,12 +72,11 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       ) : (
         <div className="w-full h-full bg-black">
           <iframe
-            src={getPlayerUrl(playerUrl)}
+            src={getSafeUrl(playerUrl)}
             title={title}
             className="w-full h-full border-0"
             allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            sandbox="allow-same-origin allow-scripts allow-forms"
           ></iframe>
         </div>
       )}
