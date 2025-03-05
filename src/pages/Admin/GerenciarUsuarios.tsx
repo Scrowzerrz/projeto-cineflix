@@ -39,37 +39,60 @@ const GerenciarUsuarios = () => {
     setCarregando(true);
     
     try {
-      // Buscar perfis de usuários
+      console.log("Carregando usuários do sistema...");
+      
+      // Buscar perfis de usuários com ordenação e sem limites
       const { data: perfis, error: erroPerf } = await supabase
         .from('perfis')
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (erroPerf) throw erroPerf;
+      if (erroPerf) {
+        console.error("Erro ao buscar perfis:", erroPerf);
+        throw erroPerf;
+      }
       
-      if (!perfis) {
+      console.log(`Encontrados ${perfis?.length || 0} perfis de usuários`);
+      
+      if (!perfis || perfis.length === 0) {
         setUsuarios([]);
+        setCarregando(false);
         return;
       }
       
       // Buscar função de admin para cada usuário
       const usuariosComPapel = await Promise.all(
         perfis.map(async (perfil) => {
-          const { data: ehAdmin, error: erroAdmin } = await supabase
-            .rpc('tem_papel', { 
-              usuario_id: perfil.id, 
-              tipo_papel_param: 'admin' 
-            });
-          
-          if (erroAdmin) console.error("Erro ao verificar papel admin:", erroAdmin);
-          
-          return {
-            ...perfil,
-            eh_admin: ehAdmin || false
-          };
+          try {
+            const { data: ehAdmin, error: erroAdmin } = await supabase
+              .rpc('tem_papel', { 
+                usuario_id: perfil.id, 
+                tipo_papel_param: 'admin' 
+              });
+            
+            if (erroAdmin) {
+              console.error(`Erro ao verificar papel admin para usuário ${perfil.id}:`, erroAdmin);
+              return {
+                ...perfil,
+                eh_admin: false
+              };
+            }
+            
+            return {
+              ...perfil,
+              eh_admin: ehAdmin || false
+            };
+          } catch (erro) {
+            console.error(`Erro ao processar usuário ${perfil.id}:`, erro);
+            return {
+              ...perfil,
+              eh_admin: false
+            };
+          }
         })
       );
       
+      console.log(`Processados ${usuariosComPapel.length} usuários com seus papéis`);
       setUsuarios(usuariosComPapel);
     } catch (erro) {
       console.error("Erro ao carregar usuários:", erro);
