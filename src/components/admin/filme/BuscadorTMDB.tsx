@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,13 @@ export function BuscadorTMDB({ onFilmeEncontrado }: BuscadorTMDBProps) {
       );
       const detalhes = await detalhesResponse.json();
 
+      // Encontrar o produtor(a) principal
+      const produtor = detalhes.credits.crew
+        .filter((pessoa: any) => pessoa.job === "Producer")
+        .map((p: any) => p.name)
+        .slice(0, 2)
+        .join(", ");
+
       const dadosFilme: Partial<FilmeFormData> = {
         titulo: detalhes.title,
         ano: String(new Date(detalhes.release_date).getFullYear()),
@@ -50,6 +58,7 @@ export function BuscadorTMDB({ onFilmeEncontrado }: BuscadorTMDBProps) {
         descricao: detalhes.overview,
         diretor: detalhes.credits.crew.find((pessoa: any) => pessoa.job === "Director")?.name || "",
         elenco: detalhes.credits.cast.slice(0, 5).map((ator: any) => ator.name).join(", "),
+        produtor: produtor || "",
         generos: detalhes.genres.map((genero: any) => genero.name),
         categoria: detalhes.genres[0]?.name || "Ação",
         qualidade: "1080p",

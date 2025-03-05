@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { FilmeProdutor } from "./FilmeProdutor";
 
 interface FilmeInfoBasicaProps {
   form: UseFormReturn<FilmeFormData>;
@@ -72,6 +73,8 @@ export function FilmeInfoBasica({ form }: FilmeInfoBasicaProps) {
           </FormItem>
         )}
       />
+
+      <FilmeProdutor form={form} />
     </>
   );
 }
