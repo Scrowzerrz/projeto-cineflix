@@ -84,6 +84,7 @@ export interface EpisodioDB {
 export interface MovieResponse {
   id: string;
   titulo: string;
+  titulo_original?: string;
   poster_url: string;
   ano: string;
   duracao?: string;
