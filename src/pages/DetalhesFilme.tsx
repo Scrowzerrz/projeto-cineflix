@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { fetchMovieDetails } from '@/services/movieService';
+import { fetchMovieDetails, incrementarVisualizacaoFilme } from '@/services/movieService';
 import { Button } from '@/components/ui/button';
 import { Play, Plus, Download, Share2, Star, Award, Calendar, Clock, Film, Users } from 'lucide-react';
 import { toast } from 'sonner';

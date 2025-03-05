@@ -1,9 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { fetchSerieDetails } from '@/services/movieService';
+import { fetchSerieDetails, incrementarVisualizacaoSerie } from '@/services/movieService';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import SerieHeader from '@/components/series/SerieHeader';

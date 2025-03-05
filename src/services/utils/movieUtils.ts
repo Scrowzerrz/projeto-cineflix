@@ -40,6 +40,8 @@ export const serieToFilmeDB = (serie: SerieDB): FilmeDB => {
     player_url: '', // Adicionando um player_url vazio já que SerieDB não possui essa propriedade
     idioma: serie.idioma || 'DUB',
     created_at: serie.created_at || new Date().toISOString(),
-    updated_at: serie.updated_at || new Date().toISOString()
+    updated_at: serie.updated_at || new Date().toISOString(),
+    visualizacoes: serie.visualizacoes || 0,
+    ultima_visualizacao: serie.ultima_visualizacao || null
   };
 };
