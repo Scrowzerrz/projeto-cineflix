@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
@@ -14,39 +15,50 @@ interface VideoPlayerProps {
 
 const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<Player | null>(null);
+  const [player, setPlayer] = useState<Player | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     return () => {
-      if (playerRef.current) {
-        playerRef.current.dispose();
-        playerRef.current = null;
+      if (player) {
+        player.dispose();
+        setPlayer(null);
       }
     };
-  }, []);
+  }, [player]);
 
   const iniciarPlayer = () => {
     console.log('Iniciando player com URL:', playerUrl);
+    
     if (!videoRef.current) {
       console.error('Elemento de referência não encontrado');
       return;
     }
 
     try {
-      if (playerRef.current) {
+      // Primeiro, limpa qualquer player existente
+      if (player) {
         console.log('Destruindo player existente');
-        playerRef.current.dispose();
+        player.dispose();
+        setPlayer(null);
       }
 
-      console.log('Limpando conteúdo e criando novo elemento de vídeo');
+      // Limpa o conteúdo e cria o elemento de vídeo
+      console.log('Preparando elemento de vídeo');
       videoRef.current.innerHTML = '';
-      const videoElement = document.createElement("video-js");
-      videoElement.className = "vjs-big-play-centered vjs-fluid";
-      videoRef.current.appendChild(videoElement);
+      
+      // Cria um elemento div para o player
+      const playerContainer = document.createElement("div");
+      playerContainer.setAttribute("data-vjs-player", "");
+      
+      // Cria o elemento de vídeo dentro do container
+      const videoElement = document.createElement("video");
+      videoElement.className = "video-js vjs-big-play-centered vjs-fluid";
+      playerContainer.appendChild(videoElement);
+      videoRef.current.appendChild(playerContainer);
 
       console.log('Inicializando player com configurações');
-      const player = videojs(
+      const vjsPlayer = videojs(
         videoElement,
         {
           controls: true,
@@ -70,56 +82,43 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
           }
         },
         function onPlayerReady() {
-          console.log('Player inicializado, configurando eventos');
-          
-          // Configura eventos assim que o player estiver pronto
-          player.on('loadedmetadata', () => {
-            console.log('Metadados carregados, tentando reproduzir');
-            player.play()
-              .then(() => {
-                console.log('Reprodução iniciada com sucesso');
-                setIsPlaying(true);
-              })
-              .catch(error => {
-                console.error('Erro ao iniciar reprodução:', error);
-                toast.error('Erro ao iniciar reprodução. Tente novamente.');
-              });
-          });
-
-          // Log de todos os eventos importantes
-          player.on('error', (e) => {
-            const error = player.error();
-            console.error('Erro no player:', error);
-            console.error('Detalhes do erro:', error?.code, error?.message, error?.status);
-            toast.error('Erro ao carregar o vídeo. Verifique a URL ou tente novamente mais tarde.');
-            setIsPlaying(false);
-          });
-
-          player.on('loadstart', () => console.log('Iniciando carregamento'));
-          player.on('progress', () => console.log('Progresso no carregamento'));
-          player.on('waiting', () => console.log('Aguardando - buffering'));
-          player.on('canplay', () => console.log('Pronto para reproduzir'));
-          player.on('canplaythrough', () => console.log('Pode reproduzir até o fim'));
-          player.on('playing', () => {
-            console.log('Reproduzindo');
-            setIsPlaying(true);
-          });
-          player.on('pause', () => {
-            console.log('Vídeo pausado');
-            setIsPlaying(false);
-          });
-          player.on('seeking', () => console.log('Buscando nova posição'));
-          player.on('seeked', () => console.log('Busca completada'));
-          player.on('ended', () => {
-            console.log('Reprodução finalizada');
-            setIsPlaying(false);
-          });
+          console.log('Player inicializado com sucesso');
+          setIsPlaying(true);
+          vjsPlayer.play()
+            .then(() => console.log('Reprodução iniciada'))
+            .catch(error => {
+              console.error('Erro ao iniciar reprodução:', error);
+              toast.error('Erro ao iniciar reprodução. Tente novamente.');
+            });
         }
       );
 
-      playerRef.current = player;
+      // Configura eventos do player
+      vjsPlayer.on('error', (e) => {
+        const error = vjsPlayer.error();
+        console.error('Erro no player:', error);
+        toast.error('Erro ao carregar o vídeo. Tente novamente mais tarde.');
+        setIsPlaying(false);
+      });
+
+      vjsPlayer.on('playing', () => {
+        console.log('Vídeo reproduzindo');
+        setIsPlaying(true);
+      });
+
+      vjsPlayer.on('pause', () => {
+        console.log('Vídeo pausado');
+        setIsPlaying(false);
+      });
+
+      vjsPlayer.on('ended', () => {
+        console.log('Reprodução finalizada');
+        setIsPlaying(false);
+      });
+
+      setPlayer(vjsPlayer);
       console.log('Player configurado e pronto');
-      
+
     } catch (error) {
       console.error('Erro ao inicializar o player:', error);
       toast.error('Falha ao iniciar o player de vídeo. Tente novamente.');
