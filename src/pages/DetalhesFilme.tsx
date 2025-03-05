@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -16,6 +17,7 @@ const DetalhesFilme = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState('assistir');
   const [isTrailer, setIsTrailer] = useState(false);
+  const [trailerUrl, setTrailerUrl] = useState('');
   
   const { 
     data: filme, 
@@ -34,6 +36,23 @@ const DetalhesFilme = () => {
       );
     }
   }, [id]);
+
+  // Processa a URL do trailer para garantir parâmetros corretos
+  useEffect(() => {
+    if (filme?.trailer_url) {
+      let url = filme.trailer_url;
+      
+      // Garantir que as URLs do YouTube tenham os parâmetros necessários
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        // Remover parâmetros existentes se houver
+        url = url.split('?')[0];
+        // Adicionar parâmetros para melhor reprodução
+        url = `${url}?autoplay=0&showinfo=0&controls=1&rel=0&origin=${window.location.origin}`;
+      }
+      
+      setTrailerUrl(url);
+    }
+  }, [filme?.trailer_url]);
 
   const compartilharFilme = () => {
     if (navigator.share) {
@@ -269,14 +288,16 @@ const DetalhesFilme = () => {
           <TabsContent value="assistir" className="mt-6">
             {isTrailer ? (
               <div className="w-full aspect-video bg-black/40 rounded-md overflow-hidden mb-6">
-                <iframe
-                  src={`${filme.trailer_url}?autoplay=0&showinfo=0&controls=1&rel=0`}
-                  title={`Trailer: ${filme.titulo}`}
-                  className="w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
+                {trailerUrl && (
+                  <iframe
+                    src={trailerUrl}
+                    title={`Trailer: ${filme.titulo}`}
+                    className="w-full h-full"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                )}
               </div>
             ) : (
               <VideoPlayer 
