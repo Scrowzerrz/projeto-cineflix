@@ -1,13 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import MovieCard, { MovieCardProps } from '@/components/MovieCard';
+import MovieCard from '@/components/MovieCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search, Filter, Calendar, Star, TrendingUp, FileVideo } from 'lucide-react';
 import { fetchAllSeries } from '@/services/movieService';
 
 const generos = [
@@ -20,6 +19,7 @@ const Series = () => {
   const [generoSelecionado, setGeneroSelecionado] = useState('Todos');
   const [anoSelecionado, setAnoSelecionado] = useState('Todos');
   const [abaPrincipal, setAbaPrincipal] = useState('populares');
+  const [pesquisa, setPesquisa] = useState('');
   
   // Buscar séries usando React Query
   const { 
@@ -42,7 +42,10 @@ const Series = () => {
     if (isLoading) {
       return (
         <div className="flex items-center justify-center h-96">
-          <Loader2 className="h-12 w-12 text-movieRed animate-spin" />
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 text-movieRed animate-spin mx-auto mb-4" />
+            <p className="text-white">Carregando séries...</p>
+          </div>
         </div>
       );
     }
@@ -51,8 +54,11 @@ const Series = () => {
       return (
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <p className="text-white text-2xl">Erro ao carregar séries</p>
+            <p className="text-white text-2xl mb-2">Erro ao carregar séries</p>
             <p className="text-movieGray">Por favor, tente novamente mais tarde</p>
+            <Button onClick={() => refetch()} className="mt-4 bg-movieRed hover:bg-movieRed/90">
+              Tentar novamente
+            </Button>
           </div>
         </div>
       );
@@ -62,17 +68,23 @@ const Series = () => {
       return (
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <p className="text-white text-2xl">Nenhuma série encontrada</p>
+            <p className="text-white text-2xl mb-2">Nenhuma série encontrada</p>
             <p className="text-movieGray">Tente mudar os filtros de busca</p>
           </div>
         </div>
       );
     }
 
+    const seriesFiltradas = pesquisa 
+      ? series.filter(serie => 
+          serie.title.toLowerCase().includes(pesquisa.toLowerCase())
+        )
+      : series;
+
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        {series.map((serie) => (
-          <div key={serie.id}>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+        {seriesFiltradas.map((serie) => (
+          <div key={serie.id} className="transform hover:scale-105 transition-transform duration-300">
             <MovieCard {...serie} type="series" />
           </div>
         ))}
@@ -81,26 +93,64 @@ const Series = () => {
   };
   
   return (
-    <div className="min-h-screen bg-movieDarkBlue">
+    <div className="min-h-screen bg-gradient-to-b from-movieDarkBlue via-movieDarkBlue to-black">
       <Navbar />
       
-      <main className="pt-20 pb-10">
+      <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold text-white mb-8 pt-4">Séries</h1>
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 md:mb-0">
+              <span className="text-gradient bg-gradient-to-r from-white to-gray-400">Séries</span>
+            </h1>
+            
+            <div className="relative w-full md:w-auto md:min-w-[320px]">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input 
+                type="text" 
+                placeholder="Buscar série..." 
+                className="w-full bg-movieDark/70 text-white border border-gray-700 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-movieRed/50 backdrop-blur-sm"
+                value={pesquisa}
+                onChange={(e) => setPesquisa(e.target.value)}
+              />
+            </div>
+          </div>
           
           <Tabs value={abaPrincipal} onValueChange={setAbaPrincipal} className="w-full mb-8">
-            <TabsList className="bg-movieDark/60 backdrop-blur-sm">
-              <TabsTrigger value="populares" className="text-white data-[state=active]:bg-movieRed">Populares</TabsTrigger>
-              <TabsTrigger value="recentes" className="text-white data-[state=active]:bg-movieRed">Recentes</TabsTrigger>
-              <TabsTrigger value="top-rated" className="text-white data-[state=active]:bg-movieRed">Mais Avaliadas</TabsTrigger>
-              <TabsTrigger value="novas-temporadas" className="text-white data-[state=active]:bg-movieRed">Novas Temporadas</TabsTrigger>
+            <TabsList className="bg-movieDark/70 backdrop-blur-md p-1 rounded-full border border-white/10 mb-6">
+              <TabsTrigger 
+                value="populares" 
+                className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 flex items-center gap-2 transition-all duration-300"
+              >
+                <Star className="h-4 w-4" /> Populares
+              </TabsTrigger>
+              <TabsTrigger 
+                value="recentes" 
+                className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 flex items-center gap-2 transition-all duration-300"
+              >
+                <Calendar className="h-4 w-4" /> Recentes
+              </TabsTrigger>
+              <TabsTrigger 
+                value="top-rated" 
+                className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 flex items-center gap-2 transition-all duration-300"
+              >
+                <TrendingUp className="h-4 w-4" /> Mais Avaliadas
+              </TabsTrigger>
+              <TabsTrigger 
+                value="novas-temporadas" 
+                className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 flex items-center gap-2 transition-all duration-300"
+              >
+                <FileVideo className="h-4 w-4" /> Novas Temporadas
+              </TabsTrigger>
             </TabsList>
             
-            <div className="my-6 flex flex-wrap gap-4">
-              <div className="flex-1">
-                <label className="block text-movieGray text-sm mb-2">Gênero</label>
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <div className="bg-movieDark/30 p-4 rounded-xl border border-white/10 backdrop-blur-sm flex-1">
+                <div className="flex items-center gap-2 mb-2 text-white/80">
+                  <Filter className="h-4 w-4" />
+                  <span>Filtrar por gênero</span>
+                </div>
                 <select 
-                  className="w-full bg-movieDark text-white border border-movieGray/20 rounded-md p-2.5"
+                  className="w-full bg-movieDark text-white border border-gray-700 rounded-md p-2.5"
                   value={generoSelecionado}
                   onChange={(e) => setGeneroSelecionado(e.target.value)}
                 >
@@ -110,14 +160,17 @@ const Series = () => {
                 </select>
               </div>
               
-              <div className="flex-1">
-                <label className="block text-movieGray text-sm mb-2">Ano</label>
+              <div className="bg-movieDark/30 p-4 rounded-xl border border-white/10 backdrop-blur-sm flex-1">
+                <div className="flex items-center gap-2 mb-2 text-white/80">
+                  <Calendar className="h-4 w-4" />
+                  <span>Filtrar por ano</span>
+                </div>
                 <select 
-                  className="w-full bg-movieDark text-white border border-movieGray/20 rounded-md p-2.5"
+                  className="w-full bg-movieDark text-white border border-gray-700 rounded-md p-2.5"
                   value={anoSelecionado}
                   onChange={(e) => setAnoSelecionado(e.target.value)}
                 >
-                  <option value="Todos">Todos</option>
+                  <option value="Todos">Todos os anos</option>
                   {[...Array(10)].map((_, i) => {
                     const year = 2024 - i;
                     return <option key={year} value={year.toString()}>{year}</option>;
@@ -126,31 +179,31 @@ const Series = () => {
               </div>
             </div>
             
-            <TabsContent value="populares" className="mt-6">
+            <TabsContent value="populares" className="mt-6 animate-fade-in">
               {renderConteudo()}
             </TabsContent>
             
-            <TabsContent value="recentes" className="mt-6">
+            <TabsContent value="recentes" className="mt-6 animate-fade-in">
               {renderConteudo()}
             </TabsContent>
             
-            <TabsContent value="top-rated" className="mt-6">
+            <TabsContent value="top-rated" className="mt-6 animate-fade-in">
               {renderConteudo()}
             </TabsContent>
             
-            <TabsContent value="novas-temporadas" className="mt-6">
+            <TabsContent value="novas-temporadas" className="mt-6 animate-fade-in">
               {renderConteudo()}
             </TabsContent>
           </Tabs>
           
           <div className="flex justify-center mt-10">
             <Button 
-              className="bg-movieRed hover:bg-movieRed/90"
+              className="bg-movieRed hover:bg-movieRed/90 px-8 py-6 rounded-full text-lg font-medium"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                   Carregando...
                 </>
               ) : 'Carregar Mais'}

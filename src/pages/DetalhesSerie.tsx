@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { fetchSerieDetails, incrementarVisualizacaoSerie, fetchSomeMovies } from '@/services/movieService';
+import { fetchSerieDetails, incrementarVisualizacaoSerie } from '@/services/movieService';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import SerieHeader from '@/components/series/SerieHeader';
@@ -31,14 +31,6 @@ const DetalhesSerie = () => {
     queryKey: ['serie-detalhes', id],
     queryFn: () => fetchSerieDetails(id || ''),
     enabled: !!id
-  });
-
-  const { 
-    data: seriesSugestoes = [],
-    isLoading: isLoadingSugestoes
-  } = useQuery({
-    queryKey: ['series-sugestoes'],
-    queryFn: () => fetchSomeMovies(5),
   });
 
   useEffect(() => {
@@ -97,7 +89,7 @@ const DetalhesSerie = () => {
   const temporadaAtual = getTemporadaAtiva();
 
   return (
-    <div className="bg-movieDarkBlue min-h-screen">
+    <div className="bg-gradient-to-b from-movieDarkBlue via-movieDarkBlue to-black min-h-screen">
       <Navbar />
       
       <SerieHeader 
@@ -110,14 +102,34 @@ const DetalhesSerie = () => {
       
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-movieDark/60 backdrop-blur-sm mb-6">
-            <TabsTrigger value="assistir" className="text-white data-[state=active]:bg-movieRed">Assistir</TabsTrigger>
-            <TabsTrigger value="temporadas" className="text-white data-[state=active]:bg-movieRed">Episódios</TabsTrigger>
-            <TabsTrigger value="sobre" className="text-white data-[state=active]:bg-movieRed">Sobre</TabsTrigger>
-            <TabsTrigger value="comentarios" className="text-white data-[state=active]:bg-movieRed">Comentários</TabsTrigger>
+          <TabsList className="bg-movieDark/70 backdrop-blur-md mb-6 p-1 rounded-full border border-white/10">
+            <TabsTrigger 
+              value="assistir" 
+              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
+            >
+              Assistir
+            </TabsTrigger>
+            <TabsTrigger 
+              value="temporadas" 
+              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
+            >
+              Episódios
+            </TabsTrigger>
+            <TabsTrigger 
+              value="sobre" 
+              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
+            >
+              Sobre
+            </TabsTrigger>
+            <TabsTrigger 
+              value="comentarios" 
+              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
+            >
+              Comentários
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="assistir">
+          <TabsContent value="assistir" className="animate-fade-in">
             <SerieVideoPlayer 
               serie={serie}
               isTrailer={isTrailer}
@@ -128,12 +140,12 @@ const DetalhesSerie = () => {
             />
             
             <VejaTambemSeries 
-              filmes={seriesSugestoes} 
-              isLoading={isLoadingSugestoes} 
+              filmes={[]} 
+              isLoading={false} 
             />
           </TabsContent>
           
-          <TabsContent value="temporadas">
+          <TabsContent value="temporadas" className="animate-fade-in">
             <SerieEpisodesList 
               temporadaAtual={temporadaAtual}
               temporadaAtiva={temporadaAtiva}
@@ -144,12 +156,12 @@ const DetalhesSerie = () => {
             />
             
             <VejaTambemSeries 
-              filmes={seriesSugestoes} 
-              isLoading={isLoadingSugestoes} 
+              filmes={[]} 
+              isLoading={false} 
             />
           </TabsContent>
           
-          <TabsContent value="sobre">
+          <TabsContent value="sobre" className="animate-fade-in">
             <SerieDetails 
               serie={serie} 
               trocarTemporada={trocarTemporada} 
@@ -157,17 +169,17 @@ const DetalhesSerie = () => {
             />
             
             <VejaTambemSeries 
-              filmes={seriesSugestoes} 
-              isLoading={isLoadingSugestoes} 
+              filmes={[]} 
+              isLoading={false} 
             />
           </TabsContent>
           
-          <TabsContent value="comentarios">
+          <TabsContent value="comentarios" className="animate-fade-in">
             <SerieComments />
             
             <VejaTambemSeries 
-              filmes={seriesSugestoes} 
-              isLoading={isLoadingSugestoes} 
+              filmes={[]} 
+              isLoading={false} 
             />
           </TabsContent>
         </Tabs>
