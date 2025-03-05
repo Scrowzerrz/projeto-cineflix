@@ -6,7 +6,7 @@ import { Search, Edit, Trash2, Star, Eye, Film } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { FilmeDB } from '@/services/types/movieTypes';
-import { AdicionarFilmeDialog } from '@/components/admin/AdicionarFilmeDialog';
+import { NovoFilmeDialog } from '@/components/admin/filme/NovoFilmeDialog';
 
 const GerenciarFilmes = () => {
   const [filmes, setFilmes] = useState<FilmeDB[]>([]);
@@ -88,7 +88,7 @@ const GerenciarFilmes = () => {
             />
           </div>
           
-          <AdicionarFilmeDialog />
+          <NovoFilmeDialog />
         </div>
       </div>
       
