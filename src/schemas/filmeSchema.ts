@@ -15,7 +15,7 @@ export const filmeSchema = z.object({
   trailer_url: z.string().url("URL do trailer inválida").optional(),
   player_url: z.string().url("URL do player inválida"),
   idioma: z.string().min(1, "Idioma é obrigatório"),
-  avaliacao: z.string().regex(/^\d(\.\d)?$/, "Avaliação deve estar entre 0 e 10").optional(),
+  avaliacao: z.string().min(1, "Avaliação é obrigatória"),
   destaque: z.boolean().default(false),
 }).strict();
 

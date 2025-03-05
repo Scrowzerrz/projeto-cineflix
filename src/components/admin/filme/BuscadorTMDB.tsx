@@ -57,6 +57,7 @@ export function BuscadorTMDB({ onFilmeEncontrado }: BuscadorTMDBProps) {
         trailer_url: detalhes.videos.results[0]?.key 
           ? `https://www.youtube.com/watch?v=${detalhes.videos.results[0].key}`
           : "",
+        // Convertendo a avaliação do TMDB (0-10) para nossa escala (0-5)
         avaliacao: (detalhes.vote_average / 2).toFixed(1),
         idioma: "Português",
         destaque: false
