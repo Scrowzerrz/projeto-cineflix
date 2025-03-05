@@ -267,7 +267,7 @@ const DetalhesSerie = () => {
                     <FavoritoButton
                       itemId={serie.id}
                       tipo="serie"
-                      className="border-gray-700 text-white bg-black/50 hover:bg-gray-800 px-4 py-2 rounded-md flex items-center gap-2"
+                      className="border-gray-700 text-white bg-black/50 hover:bg-gray-800"
                       showText
                     />
                     
@@ -326,7 +326,7 @@ const DetalhesSerie = () => {
                 <TabsContent value="assistir" className="mt-6 focus-visible:outline-none">
                   <SerieVideoPlayer 
                     serie={serie} 
-                    temporada={temporadaAtual} 
+                    temporada={temporadaAtual}
                     isTrailer={isTrailer}
                     setIsTrailer={setIsTrailer}
                   />
@@ -336,7 +336,6 @@ const DetalhesSerie = () => {
                 
                 <TabsContent value="episodios" className="mt-6 focus-visible:outline-none">
                   <SerieEpisodesList 
-                    serie={serie} 
                     temporada={temporadaAtual} 
                   />
                   

@@ -2,24 +2,24 @@
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Play, Calendar, Clock } from 'lucide-react';
 import { TemporadaDB, EpisodioDB } from '@/services/types/movieTypes';
+import { useState } from 'react';
 
 interface SerieEpisodesListProps {
-  temporadaAtual: TemporadaDB | null;
-  temporadaAtiva: number;
-  episodioAtivo: string | null;
-  trocarTemporada: (numero: number) => void;
-  trocarEpisodio: (id: string) => void;
-  totalTemporadas: number;
+  temporada: TemporadaDB & { episodios: EpisodioDB[] };
+  trocarTemporada?: (numero: number) => void;
 }
 
-const SerieEpisodesList = ({ 
-  temporadaAtual, 
-  temporadaAtiva, 
-  episodioAtivo,
-  trocarTemporada, 
-  trocarEpisodio,
-  totalTemporadas
-}: SerieEpisodesListProps) => {
+const SerieEpisodesList = ({ temporada }: SerieEpisodesListProps) => {
+  const [episodioAtivo, setEpisodioAtivo] = useState<string | null>(
+    temporada?.episodios && temporada.episodios.length > 0 
+      ? temporada.episodios[0].id 
+      : null
+  );
+
+  const trocarEpisodio = (id: string) => {
+    setEpisodioAtivo(id);
+  };
+
   return (
     <div className="mb-6 bg-movieDark/30 p-6 rounded-xl border border-white/5 backdrop-blur-sm shadow-lg">
       {/* Cabeçalho da Temporada */}
@@ -27,42 +27,18 @@ const SerieEpisodesList = ({
         <div>
           <h2 className="text-white text-xl font-semibold flex items-center gap-2">
             <Calendar className="h-5 w-5 text-movieRed" />
-            {temporadaAtual?.titulo || `Temporada ${temporadaAtiva}`}
+            {temporada?.titulo || `Temporada ${temporada?.numero}`}
           </h2>
           <p className="text-movieGray text-sm mt-1 flex items-center gap-1">
             <Clock className="h-4 w-4" />
-            {temporadaAtual?.episodios?.length || 0} episódios
+            {temporada?.episodios?.length || 0} episódios
           </p>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="border-white/30 text-white bg-white/10 hover:bg-white/20"
-            disabled={temporadaAtiva <= 1}
-            onClick={() => trocarTemporada(temporadaAtiva - 1)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="flex items-center px-3 text-white bg-white/5 rounded-md">
-            {temporadaAtiva} / {totalTemporadas}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            className="border-white/30 text-white bg-white/10 hover:bg-white/20"
-            disabled={temporadaAtiva >= totalTemporadas}
-            onClick={() => trocarTemporada(temporadaAtiva + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
         </div>
       </div>
       
       {/* Lista de episódios */}
       <div className="grid grid-cols-1 gap-4">
-        {temporadaAtual?.episodios?.map((episodio) => (
+        {temporada?.episodios?.map((episodio) => (
           <div 
             key={episodio.id}
             className={`p-4 rounded-lg transition-all cursor-pointer hover:transform hover:scale-[1.01] ${
@@ -133,32 +109,12 @@ const SerieEpisodesList = ({
           </div>
         ))}
         
-        {(!temporadaAtual?.episodios || temporadaAtual.episodios.length === 0) && (
+        {(!temporada?.episodios || temporada.episodios.length === 0) && (
           <div className="text-center py-16 bg-movieDark/30 rounded-lg border border-white/5">
             <p className="text-white text-xl mb-2">Nenhum episódio disponível</p>
             <p className="text-movieGray">Esta temporada ainda não possui episódios cadastrados.</p>
           </div>
         )}
-      </div>
-      
-      {/* Navegação entre temporadas */}
-      <div className="flex justify-between mt-8 pt-4 border-t border-white/10">
-        <Button
-          variant="outline"
-          className="border-white/30 text-white bg-white/10 hover:bg-white/20"
-          disabled={temporadaAtiva <= 1}
-          onClick={() => trocarTemporada(temporadaAtiva - 1)}
-        >
-          <ChevronLeft className="h-4 w-4 mr-2" /> Temporada anterior
-        </Button>
-        <Button
-          variant="outline"
-          className="border-white/30 text-white bg-white/10 hover:bg-white/20"
-          disabled={temporadaAtiva >= totalTemporadas}
-          onClick={() => trocarTemporada(temporadaAtiva + 1)}
-        >
-          Próxima temporada <ChevronRight className="h-4 w-4 ml-2" />
-        </Button>
       </div>
     </div>
   );

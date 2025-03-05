@@ -1,25 +1,38 @@
+
 import { Button } from '@/components/ui/button';
 import { Play, Info } from 'lucide-react';
 import { SerieDetalhes, TemporadaDB, EpisodioDB } from '@/services/types/movieTypes';
 import VideoPlayer from '@/components/player/VideoPlayer';
+import { useState } from 'react';
 
 interface SerieVideoPlayerProps {
   serie: SerieDetalhes;
   isTrailer: boolean;
-  episodioAtual: EpisodioDB | null;
-  temporadaAtual: TemporadaDB | null;
   setIsTrailer: (isTrailer: boolean) => void;
-  trocarEpisodio: (id: string) => void;
+  temporada?: TemporadaDB & { episodios: EpisodioDB[] };
 }
 
 const SerieVideoPlayer = ({ 
   serie, 
   isTrailer,
-  episodioAtual,
-  temporadaAtual,
   setIsTrailer,
-  trocarEpisodio
+  temporada
 }: SerieVideoPlayerProps) => {
+  const [episodioAtual, setEpisodioAtual] = useState<EpisodioDB | null>(
+    temporada?.episodios && temporada.episodios.length > 0 
+      ? temporada.episodios[0] 
+      : null
+  );
+
+  const trocarEpisodio = (id: string) => {
+    if (!temporada) return;
+    
+    const novoEpisodio = temporada.episodios.find(ep => ep.id === id);
+    if (novoEpisodio) {
+      setEpisodioAtual(novoEpisodio);
+    }
+  };
+
   const getPlayerUrl = (url: string): string => {
     try {
       new URL(url);
@@ -74,9 +87,9 @@ const SerieVideoPlayer = ({
                 <h3 className="text-white text-xl font-semibold mb-3">Comece a assistir {serie.titulo}</h3>
                 <p className="text-white/70 mb-6">Selecione um episódio para começar a assistir esta incrível série</p>
                 
-                {temporadaAtual?.episodios && temporadaAtual.episodios.length > 0 && (
+                {temporada?.episodios && temporada.episodios.length > 0 && (
                   <Button 
-                    onClick={() => trocarEpisodio(temporadaAtual.episodios[0].id)}
+                    onClick={() => trocarEpisodio(temporada.episodios[0].id)}
                     className="bg-movieRed hover:bg-movieRed/90"
                   >
                     <Play className="mr-2 h-4 w-4 fill-white" /> Assistir primeiro episódio
@@ -94,7 +107,7 @@ const SerieVideoPlayer = ({
             {isTrailer ? 'Trailer Oficial' : (episodioAtual ? episodioAtual.titulo : 'Selecione um episódio')}
           </h2>
           {!isTrailer && episodioAtual && (
-            <p className="text-movieGray text-sm mt-1">{temporadaAtual?.titulo} • Episódio {episodioAtual.numero} • {episodioAtual.duracao}</p>
+            <p className="text-movieGray text-sm mt-1">{temporada?.titulo} • Episódio {episodioAtual.numero} • {episodioAtual.duracao}</p>
           )}
         </div>
         
@@ -128,11 +141,11 @@ const SerieVideoPlayer = ({
         </div>
       )}
 
-      {temporadaAtual?.episodios && temporadaAtual.episodios.length > 0 && (
+      {temporada?.episodios && temporada.episodios.length > 0 && (
         <div className="mt-8">
           <h3 className="text-white font-bold text-xl mb-5 flex items-center after:content-[''] after:ml-4 after:h-[1px] after:flex-1 after:bg-white/10">Mais episódios</h3>
           <div className="flex gap-4 mb-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none">
-            {temporadaAtual.episodios.map((ep) => (
+            {temporada.episodios.map((ep) => (
               <div 
                 key={ep.id}
                 className={`flex-shrink-0 w-64 cursor-pointer transition-all snap-start ${ep.id === episodioAtual?.id ? 'ring-2 ring-movieRed scale-[1.02]' : 'opacity-80 hover:opacity-100'}`}

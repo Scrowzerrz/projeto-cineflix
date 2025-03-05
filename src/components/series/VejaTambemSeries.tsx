@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { MovieCardProps } from '@/components/MovieCard';
 
 interface VejaTambemSeriesProps {
-  isLoading: boolean;
+  isLoading?: boolean;
   serieAtualId?: string;
 }
 
