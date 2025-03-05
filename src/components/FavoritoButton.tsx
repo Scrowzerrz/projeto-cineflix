@@ -9,10 +9,9 @@ interface FavoritoButtonProps {
   itemId: string;
   tipo: 'filme' | 'serie';
   className?: string;
-  showText?: boolean;
 }
 
-const FavoritoButton = ({ itemId, tipo, className = '', showText = false }: FavoritoButtonProps) => {
+const FavoritoButton = ({ itemId, tipo, className = '' }: FavoritoButtonProps) => {
   const { perfil } = useAuth();
   const { favoritos, adicionarFavorito, removerFavorito } = useFavoritos();
   const navigate = useNavigate();
@@ -39,15 +38,12 @@ const FavoritoButton = ({ itemId, tipo, className = '', showText = false }: Favo
     <Button
       variant="ghost"
       size="icon"
-      className={`${className} ${showText ? 'px-4 py-2' : 'h-8 w-8'} bg-black/40 hover:bg-black/60`}
+      className={`${className} h-8 w-8 bg-black/40 p-0 hover:bg-black/60`}
       onClick={handleClick}
     >
       <Heart 
         className={`h-4 w-4 ${isFavorito ? 'fill-movieRed stroke-movieRed' : 'text-white'}`} 
       />
-      {showText && 
-        <span className="ml-2">{isFavorito ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}</span>
-      }
     </Button>
   );
 };
