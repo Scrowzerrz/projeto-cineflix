@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -14,6 +13,10 @@ export function BuscadorTMDB({ onFilmeEncontrado }: BuscadorTMDBProps) {
   const [termoBusca, setTermoBusca] = useState("");
   const [buscando, setBuscando] = useState(false);
 
+  const converterUrlYoutube = (videoId: string): string => {
+    return `https://www.youtube.com/embed/${videoId}`;
+  };
+
   const buscarFilme = async () => {
     if (!termoBusca.trim()) {
       toast.error("Digite um título para buscar");
@@ -22,7 +25,6 @@ export function BuscadorTMDB({ onFilmeEncontrado }: BuscadorTMDBProps) {
 
     setBuscando(true);
     try {
-      // Primeiro, busca o filme
       const response = await fetch(
         `https://api.themoviedb.org/3/search/movie?api_key=95e5f944f39ea853d3f6569d68672ba1&language=pt-BR&query=${encodeURIComponent(
           termoBusca
@@ -35,14 +37,12 @@ export function BuscadorTMDB({ onFilmeEncontrado }: BuscadorTMDBProps) {
         return;
       }
 
-      // Pega os detalhes do primeiro resultado
       const filmeId = data.results[0].id;
       const detalhesResponse = await fetch(
         `https://api.themoviedb.org/3/movie/${filmeId}?api_key=95e5f944f39ea853d3f6569d68672ba1&language=pt-BR&append_to_response=credits,videos`
       );
       const detalhes = await detalhesResponse.json();
 
-      // Organiza os dados no formato do nosso formulário
       const dadosFilme: Partial<FilmeFormData> = {
         titulo: detalhes.title,
         ano: String(new Date(detalhes.release_date).getFullYear()),
@@ -55,9 +55,8 @@ export function BuscadorTMDB({ onFilmeEncontrado }: BuscadorTMDBProps) {
         qualidade: "1080p",
         poster_url: `https://image.tmdb.org/t/p/original${detalhes.poster_path}`,
         trailer_url: detalhes.videos.results[0]?.key 
-          ? `https://www.youtube.com/watch?v=${detalhes.videos.results[0].key}`
+          ? converterUrlYoutube(detalhes.videos.results[0].key)
           : "",
-        // Convertendo a avaliação do TMDB (0-10) para nossa escala (0-5)
         avaliacao: (detalhes.vote_average / 2).toFixed(1),
         idioma: "Português",
         destaque: false

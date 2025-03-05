@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -17,7 +16,6 @@ const DetalhesFilme = () => {
   const [activeTab, setActiveTab] = useState('assistir');
   const [isTrailer, setIsTrailer] = useState(false);
   
-  // Buscar detalhes do filme
   const { 
     data: filme, 
     isLoading, 
@@ -28,7 +26,6 @@ const DetalhesFilme = () => {
     enabled: !!id
   });
 
-  // Compartilhar filme
   const compartilharFilme = () => {
     if (navigator.share) {
       navigator.share({
@@ -40,28 +37,23 @@ const DetalhesFilme = () => {
         console.error('Erro ao compartilhar:', err);
       });
     } else {
-      // Fallback para navegadores que não suportam Web Share API
       navigator.clipboard.writeText(window.location.href);
       toast.success('Link copiado para a área de transferência!');
     }
   };
 
-  // Adicionar à lista
   const adicionarLista = () => {
     toast.success('Filme adicionado à sua lista!');
   };
 
-  // Baixar filme
   const baixarFilme = () => {
     toast.info('Iniciando download...');
   };
 
   useEffect(() => {
-    // Rolar para o topo quando o componente for montado
     window.scrollTo(0, 0);
   }, []);
 
-  // Renderizar conteúdo baseado no estado de carregamento/erro
   if (isLoading) {
     return (
       <div className="bg-movieDarkBlue min-h-screen">
@@ -98,9 +90,7 @@ const DetalhesFilme = () => {
     <div className="bg-movieDarkBlue min-h-screen">
       <Navbar />
       
-      {/* Hero Section com Backdrop e Informações */}
       <div className="relative pt-16">
-        {/* Background Image com Gradient */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat h-[70vh] z-0"
           style={{ 
@@ -112,10 +102,8 @@ const DetalhesFilme = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-movieDarkBlue via-movieDarkBlue/95 to-black/30"></div>
         </div>
         
-        {/* Conteúdo principal */}
         <div className="container mx-auto px-4 pt-16 relative z-10">
           <div className="flex flex-col md:flex-row gap-8 items-start">
-            {/* Poster */}
             <div className="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
               <div className="rounded-md overflow-hidden shadow-xl border-2 border-movieGray/10">
                 <img 
@@ -126,9 +114,7 @@ const DetalhesFilme = () => {
               </div>
             </div>
             
-            {/* Informações do filme */}
             <div className="w-full md:w-2/3 lg:w-3/4">
-              {/* Título e meta */}
               <div className="mb-6">
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{filme.titulo}</h1>
                 <div className="flex flex-wrap items-center gap-3 text-sm text-white/70 mt-2">
@@ -150,7 +136,6 @@ const DetalhesFilme = () => {
                 </div>
               </div>
               
-              {/* Gêneros */}
               <div className="flex flex-wrap gap-2 mb-6">
                 {filme.generos?.map((genero, index) => (
                   <span 
@@ -162,7 +147,6 @@ const DetalhesFilme = () => {
                 ))}
               </div>
               
-              {/* Sinopse */}
               <div className="mb-6">
                 <h3 className="text-white font-semibold text-xl mb-2">Sinopse</h3>
                 <p className="text-white/80 leading-relaxed">
@@ -170,7 +154,6 @@ const DetalhesFilme = () => {
                 </p>
               </div>
               
-              {/* Detalhes técnicos */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <div className="flex items-start gap-2 mb-3">
@@ -209,7 +192,6 @@ const DetalhesFilme = () => {
                 </div>
               </div>
               
-              {/* Ações */}
               <div className="flex flex-wrap gap-3 mt-8">
                 <Button 
                   className="bg-movieRed hover:bg-movieRed/90 text-white flex items-center gap-2 rounded-md px-6"
@@ -267,7 +249,6 @@ const DetalhesFilme = () => {
         </div>
       </div>
       
-      {/* Tabs para Assistir / Trailer / Episódios (se for série) */}
       <div className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="bg-movieDark/60 backdrop-blur-sm mb-6">
@@ -284,6 +265,7 @@ const DetalhesFilme = () => {
                   title={`Trailer: ${filme.titulo}`}
                   className="w-full h-full"
                   allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 ></iframe>
               ) : (
                 <iframe 
@@ -291,6 +273,7 @@ const DetalhesFilme = () => {
                   title={filme.titulo}
                   className="w-full h-full"
                   allowFullScreen
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 ></iframe>
               )}
             </div>
