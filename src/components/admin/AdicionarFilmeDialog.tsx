@@ -43,10 +43,10 @@ export function AdicionarFilmeDialog() {
     try {
       const { error } = await supabase
         .from('filmes')
-        .insert([{
+        .insert({
           ...data,
           tipo: 'movie',
-        }]);
+        });
 
       if (error) throw error;
 
