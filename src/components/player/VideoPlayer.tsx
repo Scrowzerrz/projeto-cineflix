@@ -52,32 +52,45 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       videoRef.current.appendChild(videoElement);
 
       // Inicializa o player
-      const player = videojs(videoElement, {
-        autoplay: true,
-        controls: true,
-        responsive: true,
-        fluid: true,
-        sources: [{
-          src: playerUrl,
-          type: 'application/x-mpegURL' // HLS
-        }],
-        poster: posterUrl,
-        playbackRates: [0.5, 1, 1.5, 2],
-        html5: {
-          hls: {
-            overrideNative: true
-          },
-          nativeVideoTracks: false,
-          nativeAudioTracks: false,
-          nativeTextTracks: false
+      const player = videojs(
+        videoElement, 
+        {
+          autoplay: false, // Importante: começamos com autoplay false
+          controls: true,
+          responsive: true,
+          fluid: true,
+          sources: [{
+            src: playerUrl,
+            type: 'application/x-mpegURL' // HLS
+          }],
+          poster: posterUrl,
+          playbackRates: [0.5, 1, 1.5, 2],
+          html5: {
+            hls: {
+              overrideNative: true
+            },
+            nativeVideoTracks: false,
+            nativeAudioTracks: false,
+            nativeTextTracks: false
+          }
+        }, 
+        function onPlayerReady() {
+          console.log('Player pronto! Tentando reproduzir...');
+          
+          // Tentamos reproduzir depois que o player estiver pronto
+          setTimeout(() => {
+            player.play()
+              .then(() => {
+                console.log("Reprodução iniciada com sucesso");
+                setIsPlaying(true);
+              })
+              .catch(error => {
+                console.error("Erro ao tentar reproduzir:", error);
+                toast.error("Erro ao iniciar reprodução. Tente novamente.");
+              });
+          }, 500);
         }
-      }, function onPlayerReady() {
-        console.log('Player pronto!');
-        player.play().catch(error => {
-          console.error("Erro ao tentar reproduzir:", error);
-          toast.error("Erro ao iniciar reprodução. Tente novamente.");
-        });
-      });
+      );
 
       player.on('error', (error) => {
         console.error("Erro no player:", player.error());
@@ -100,7 +113,6 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       });
 
       playerRef.current = player;
-      setIsPlaying(true);
     } catch (error) {
       console.error("Erro ao inicializar o player:", error);
       toast.error("Falha ao iniciar o player de vídeo. Tente novamente.");
