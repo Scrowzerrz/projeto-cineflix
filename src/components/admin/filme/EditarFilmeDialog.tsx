@@ -53,31 +53,6 @@ export function EditarFilmeDialog({ filme, onSuccess }: EditarFilmeDialogProps) 
     }
   }, [open, filme]);
 
-  // Função para salvar as alterações
-  const handleEdit = async (data: FilmeFormData) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('filmes')
-        .update({
-          ...data,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', filme.id);
-
-      if (error) throw error;
-
-      toast.success("Filme atualizado com sucesso!");
-      onSuccess();
-      setOpen(false);
-    } catch (error) {
-      console.error('Erro ao atualizar filme:', error);
-      toast.error("Erro ao atualizar filme");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -99,10 +74,14 @@ export function EditarFilmeDialog({ filme, onSuccess }: EditarFilmeDialogProps) 
         </DialogHeader>
         {!loading && filmeData && (
           <FilmeForm 
-            onSuccess={onSuccess} 
+            onSuccess={() => {
+              onSuccess();
+              setOpen(false);
+            }} 
             initialData={filmeData}
             filmeId={filme.id}
             isEditing={true}
+            mostrarBuscadorTMDB={true}
           />
         )}
       </DialogContent>

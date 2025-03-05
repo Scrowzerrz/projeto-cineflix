@@ -18,9 +18,16 @@ interface FilmeFormProps {
   initialData?: FilmeFormData;
   filmeId?: string;
   isEditing?: boolean;
+  mostrarBuscadorTMDB?: boolean;
 }
 
-export function FilmeForm({ onSuccess, initialData, filmeId, isEditing = false }: FilmeFormProps) {
+export function FilmeForm({ 
+  onSuccess, 
+  initialData, 
+  filmeId, 
+  isEditing = false,
+  mostrarBuscadorTMDB = true 
+}: FilmeFormProps) {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<FilmeFormData>({
@@ -82,7 +89,7 @@ export function FilmeForm({ onSuccess, initialData, filmeId, isEditing = false }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {!isEditing && (
+        {mostrarBuscadorTMDB && (
           <BuscadorTMDB onFilmeEncontrado={preencherDadosFilme} />
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
