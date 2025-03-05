@@ -1,12 +1,12 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Plus, Edit, Trash2, Star, Eye, Film } from 'lucide-react';
+import { Search, Edit, Trash2, Star, Eye, Film } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { FilmeDB } from '@/services/types/movieTypes';
+import { AdicionarFilmeDialog } from '@/components/admin/AdicionarFilmeDialog';
 
 const GerenciarFilmes = () => {
   const [filmes, setFilmes] = useState<FilmeDB[]>([]);
@@ -88,13 +88,7 @@ const GerenciarFilmes = () => {
             />
           </div>
           
-          <Button 
-            variant="default" 
-            className="bg-movieRed hover:bg-red-700 gap-1"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Novo Filme</span>
-          </Button>
+          <AdicionarFilmeDialog />
         </div>
       </div>
       
@@ -198,7 +192,6 @@ const GerenciarFilmes = () => {
           </table>
         </div>
         
-        {/* Paginação */}
         {filmesFiltrados.length > itensPorPagina && (
           <div className="flex items-center justify-between border-t border-gray-800 p-4">
             <div className="text-sm text-gray-400">
