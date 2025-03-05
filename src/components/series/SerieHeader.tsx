@@ -15,8 +15,16 @@ const SerieHeader = ({
   serie, 
   setIsTrailer 
 }: SerieHeaderProps) => {
-  const { isFavorito, toggleFavorito } = useFavoritos();
-  const ehFavorito = isFavorito(serie.id);
+  const { favoritos, adicionarFavorito, removerFavorito } = useFavoritos();
+  const ehFavorito = favoritos.some(f => f.item_id === serie.id);
+
+  const handleFavoritoClick = async () => {
+    if (ehFavorito) {
+      await removerFavorito.mutateAsync(serie.id);
+    } else {
+      await adicionarFavorito.mutateAsync({ itemId: serie.id, tipo: 'serie' });
+    }
+  };
 
   // Compartilhar série
   const compartilharSerie = () => {
@@ -66,10 +74,10 @@ const SerieHeader = ({
             <Button 
               variant="outline"
               className="border-gray-700 bg-[#17212b] hover:bg-[#1c2836] text-white"
-              onClick={() => toggleFavorito(serie.id, 'serie')}
+              onClick={handleFavoritoClick}
             >
               <Plus className="h-4 w-4 mr-2" /> 
-              {ehFavorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+              {ehFavorito ? 'Remover' : 'Adicionar'}
             </Button>
             
             <Button 

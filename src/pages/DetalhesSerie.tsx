@@ -14,8 +14,10 @@ import SerieEpisodeLista from '@/components/series/SerieEpisodeLista';
 import SerieComentarios from '@/components/series/SerieComentarios';
 import SerieLoading from '@/components/series/SerieLoading';
 import SerieError from '@/components/series/SerieError';
-import { MovieCard } from '@/components/MovieCard';
+import CartaoFilme from '@/components/MovieCard';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MovieResponse } from '@/services/types/movieTypes';
+import { mapToMovieCard } from '@/services/utils/movieUtils';
 
 const DetalhesSerie = () => {
   const { id } = useParams<{ id: string }>();
@@ -171,17 +173,16 @@ const DetalhesSerie = () => {
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {sugestoes.map((filme) => (
-              <MovieCard 
+              <CartaoFilme 
                 key={filme.id}
                 id={filme.id}
-                tipo={filme.tipo}
-                titulo={filme.titulo}
-                poster_url={filme.poster_url}
-                ano={filme.ano}
-                avaliacao={filme.avaliacao}
-                duracao={filme.duracao}
-                qualidade={filme.qualidade}
-                idioma={filme.idioma}
+                title={filme.titulo}
+                posterUrl={filme.poster_url}
+                year={filme.ano}
+                duration={filme.duracao}
+                type={filme.tipo as 'movie' | 'series'}
+                quality={filme.qualidade as 'HD' | 'CAM' | 'DUB' | 'LEG'}
+                rating={filme.avaliacao}
               />
             ))}
           </div>
