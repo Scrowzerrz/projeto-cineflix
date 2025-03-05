@@ -18,18 +18,25 @@ const VejaTambemSeries = ({ isLoading: isLoadingProp, serieAtualId }: VejaTambem
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   // Buscar séries relacionadas
-  const { data: seriesRelacionadas = [], isLoading } = useQuery({
-    queryKey: ['series-semelhantes'],
+  const { data: seriesRelacionadas = [], isLoading: isQueryLoading } = useQuery({
+    queryKey: ['series-semelhantes', serieAtualId],
     queryFn: () => fetchSeries('EM ALTA'),
+    staleTime: 5 * 60 * 1000, // 5 minutos
   });
+
+  console.log('Séries relacionadas:', seriesRelacionadas);
 
   // Filtrar a série atual da lista de recomendações
   const seriesFiltradas = seriesRelacionadas.filter(serie => 
     !serieAtualId || serie.id !== serieAtualId
   );
 
+  console.log('Séries filtradas (sem a atual):', seriesFiltradas);
+
   // Embaralhar o array para exibir séries aleatórias
   const seriesAleatorias = [...seriesFiltradas].sort(() => Math.random() - 0.5).slice(0, 10);
+
+  console.log('Séries aleatórias para exibição:', seriesAleatorias);
 
   // Função para verificar se pode rolar para os lados
   const checkScrollability = () => {
@@ -65,6 +72,8 @@ const VejaTambemSeries = ({ isLoading: isLoadingProp, serieAtualId }: VejaTambem
     return () => window.removeEventListener('resize', handleResize);
   }, [seriesAleatorias]);
 
+  const isLoadingFinal = isLoadingProp || isQueryLoading;
+
   return (
     <div className="mt-10 bg-movieDark/20 p-6 rounded-xl backdrop-blur-sm border border-white/5">
       <div className="flex items-center justify-between mb-6">
@@ -99,7 +108,7 @@ const VejaTambemSeries = ({ isLoading: isLoadingProp, serieAtualId }: VejaTambem
         className="flex gap-4 overflow-x-auto pb-4 scrollbar-none scroll-smooth snap-x snap-mandatory"
         onScroll={checkScrollability}
       >
-        {(isLoading || isLoadingProp) ? (
+        {isLoadingFinal ? (
           Array(6).fill(0).map((_, index) => (
             <div key={index} className="flex-shrink-0 w-[180px] snap-start">
               <div className="group relative rounded-md overflow-hidden">
@@ -109,7 +118,7 @@ const VejaTambemSeries = ({ isLoading: isLoadingProp, serieAtualId }: VejaTambem
               </div>
             </div>
           ))
-        ) : (
+        ) : seriesAleatorias.length > 0 ? (
           seriesAleatorias.map((serie: MovieCardProps) => (
             <div key={serie.id} className="flex-shrink-0 w-[180px] snap-start">
               <CartaoFilme
@@ -124,6 +133,10 @@ const VejaTambemSeries = ({ isLoading: isLoadingProp, serieAtualId }: VejaTambem
               />
             </div>
           ))
+        ) : (
+          <div className="w-full py-8 text-center">
+            <p className="text-white/60">Nenhuma série semelhante encontrada</p>
+          </div>
         )}
       </div>
     </div>
