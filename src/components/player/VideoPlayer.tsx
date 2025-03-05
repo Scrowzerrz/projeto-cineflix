@@ -5,6 +5,7 @@ import "video.js/dist/video-js.css";
 import Player from "video.js/dist/types/player";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface VideoPlayerProps {
   playerUrl: string;
@@ -28,51 +29,87 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   }, []);
 
   const iniciarPlayer = () => {
-    if (!videoRef.current) return;
-
-    // Se já tiver um player, destrua-o primeiro
-    if (playerRef.current) {
-      playerRef.current.dispose();
-      playerRef.current = null;
+    if (!videoRef.current) {
+      console.error("Elemento de referência de vídeo não encontrado");
+      return;
     }
 
-    // Cria o elemento de vídeo
-    const videoElement = document.createElement("video");
-    videoElement.className = "video-js vjs-big-play-centered vjs-fluid";
-    videoRef.current.appendChild(videoElement);
+    console.log("Iniciando player com URL:", playerUrl);
 
-    // Inicializa o player
-    const player = videojs(videoElement, {
-      autoplay: true,
-      controls: true,
-      responsive: true,
-      fluid: true,
-      sources: [{
-        src: playerUrl,
-        type: 'application/x-mpegURL' // HLS
-      }],
-      poster: posterUrl,
-      playbackRates: [0.5, 1, 1.5, 2],
-    });
+    try {
+      // Se já tiver um player, destrua-o primeiro
+      if (playerRef.current) {
+        playerRef.current.dispose();
+        playerRef.current = null;
+      }
 
-    player.on('play', () => {
+      // Limpa o conteúdo anterior
+      videoRef.current.innerHTML = '';
+
+      // Cria o elemento de vídeo
+      const videoElement = document.createElement("video");
+      videoElement.className = "video-js vjs-big-play-centered vjs-fluid";
+      videoRef.current.appendChild(videoElement);
+
+      // Inicializa o player
+      const player = videojs(videoElement, {
+        autoplay: true,
+        controls: true,
+        responsive: true,
+        fluid: true,
+        sources: [{
+          src: playerUrl,
+          type: 'application/x-mpegURL' // HLS
+        }],
+        poster: posterUrl,
+        playbackRates: [0.5, 1, 1.5, 2],
+        html5: {
+          hls: {
+            overrideNative: true
+          },
+          nativeVideoTracks: false,
+          nativeAudioTracks: false,
+          nativeTextTracks: false
+        }
+      }, function onPlayerReady() {
+        console.log('Player pronto!');
+        player.play().catch(error => {
+          console.error("Erro ao tentar reproduzir:", error);
+          toast.error("Erro ao iniciar reprodução. Tente novamente.");
+        });
+      });
+
+      player.on('error', (error) => {
+        console.error("Erro no player:", player.error());
+        toast.error("Erro ao carregar o vídeo. Verifique a URL ou tente novamente mais tarde.");
+      });
+
+      player.on('play', () => {
+        console.log("Evento de play recebido");
+        setIsPlaying(true);
+      });
+
+      player.on('pause', () => {
+        console.log("Evento de pause recebido");
+        setIsPlaying(false);
+      });
+
+      player.on('ended', () => {
+        console.log("Evento de ended recebido");
+        setIsPlaying(false);
+      });
+
+      playerRef.current = player;
       setIsPlaying(true);
-    });
-
-    player.on('pause', () => {
+    } catch (error) {
+      console.error("Erro ao inicializar o player:", error);
+      toast.error("Falha ao iniciar o player de vídeo. Tente novamente.");
       setIsPlaying(false);
-    });
-
-    player.on('ended', () => {
-      setIsPlaying(false);
-    });
-
-    playerRef.current = player;
-    setIsPlaying(true);
+    }
   };
 
   return (
-    <div className="relative w-full aspect-video rounded-lg overflow-hidden">
+    <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
       {!isPlaying ? (
         <div 
           className="absolute inset-0 bg-cover bg-center z-10" 

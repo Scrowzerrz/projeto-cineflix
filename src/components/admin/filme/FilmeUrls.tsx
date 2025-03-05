@@ -50,11 +50,13 @@ export function FilmeUrls({ form }: FilmeUrlsProps) {
         name="player_url"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>URL do Player *</FormLabel>
+            <FormLabel>URL do Player (HLS) *</FormLabel>
             <FormControl>
-              <Input placeholder="https://..." {...field} />
+              <Input placeholder="https://...index.m3u8" {...field} />
             </FormControl>
-            <FormMessage />
+            <FormMessage className="text-xs">
+              Cole aqui a URL do stream HLS, geralmente termina com .m3u8
+            </FormMessage>
           </FormItem>
         )}
       />
