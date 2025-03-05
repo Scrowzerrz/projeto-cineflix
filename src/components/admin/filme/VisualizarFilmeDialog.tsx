@@ -20,16 +20,17 @@ interface VisualizarFilmeDialogProps {
 export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
   const [open, setOpen] = useState(false);
 
-  // Converter URL do player para embed se for do YouTube
+  // Extrair URL do iframe ou usar a URL direta
   const getEmbedUrl = (url: string) => {
     if (!url) return '';
     
-    // YouTube URL
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-    const match = url.match(youtubeRegex);
-    
-    if (match && match[1]) {
-      return `https://www.youtube.com/embed/${match[1]}`;
+    // Verificar se é um iframe
+    if (url.includes('<iframe') && url.includes('src="')) {
+      // Extrair a URL dentro do src
+      const srcMatch = url.match(/src="([^"]+)"/);
+      if (srcMatch && srcMatch[1]) {
+        return srcMatch[1];
+      }
     }
     
     return url;
@@ -140,6 +141,8 @@ export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
                 allowFullScreen
                 className="w-full h-full"
                 title={`Trailer de ${filme.titulo}`}
+                frameBorder="0"
+                scrolling="no"
               />
             </AspectRatio>
           </div>
@@ -154,6 +157,8 @@ export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
                 allowFullScreen
                 className="w-full h-full"
                 title={`Player de ${filme.titulo}`}
+                frameBorder="0"
+                scrolling="no"
               />
             </AspectRatio>
           </div>

@@ -54,10 +54,11 @@ export function FilmeUrls({ form }: FilmeUrlsProps) {
           <FormItem>
             <FormLabel>URL do Player Externo *</FormLabel>
             <FormControl>
-              <Input placeholder="https://..." {...field} />
+              <Input placeholder='<iframe src="https://filemoon.to/e/..." ...' {...field} />
             </FormControl>
             <FormMessage className="text-xs">
-              Cole aqui a URL completa do player externo (iframe) onde o vídeo está hospedado
+              Cole aqui o código iframe completo do player externo (exemplo: &lt;iframe src="https://filemoon.to/e/..."&gt;&lt;/iframe&gt;) 
+              ou apenas a URL direta (exemplo: https://filemoon.to/e/...)
             </FormMessage>
           </FormItem>
         )}

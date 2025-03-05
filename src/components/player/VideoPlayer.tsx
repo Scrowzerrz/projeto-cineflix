@@ -17,15 +17,24 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   const iniciarPlayer = () => {
     setIsLoading(true);
     setIsPlaying(true);
-    setTimeout(() => setIsLoading(false), 500); // Simulate brief loading
+    setTimeout(() => setIsLoading(false), 500); // Simular carregamento breve
   };
 
-  // Sanitize URL to ensure it can be safely embedded
-  const getSafeUrl = (url: string) => {
+  // Extrair URL do iframe ou usar a URL direta
+  const getPlayerUrl = (url: string) => {
     try {
-      // Make sure URL is valid
-      const validatedUrl = new URL(url);
-      // Return the safe URL
+      // Verificar se é um iframe
+      if (url.includes('<iframe') && url.includes('src="')) {
+        // Extrair a URL dentro do src
+        const srcMatch = url.match(/src="([^"]+)"/);
+        if (srcMatch && srcMatch[1]) {
+          return srcMatch[1];
+        }
+      }
+      
+      // Se não for um iframe ou não conseguir extrair o src, usar a URL como está
+      // Tenta validar se a URL é válida
+      new URL(url);
       return url;
     } catch (error) {
       console.error("URL inválida:", error);
@@ -33,6 +42,8 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       return "";
     }
   };
+
+  const safePlayerUrl = getPlayerUrl(playerUrl);
 
   return (
     <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black group">
@@ -72,11 +83,13 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       ) : (
         <div className="w-full h-full bg-black">
           <iframe
-            src={getSafeUrl(playerUrl)}
+            src={safePlayerUrl}
             title={title}
             className="w-full h-full border-0"
             allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            frameBorder="0"
+            scrolling="no"
           ></iframe>
         </div>
       )}
