@@ -5,9 +5,10 @@ import { Loader2 } from "lucide-react";
 interface FilmeSubmitButtonsProps {
   loading: boolean;
   onCancel: () => void;
+  isEditing?: boolean;
 }
 
-export function FilmeSubmitButtons({ loading, onCancel }: FilmeSubmitButtonsProps) {
+export function FilmeSubmitButtons({ loading, onCancel, isEditing = false }: FilmeSubmitButtonsProps) {
   return (
     <div className="flex justify-end space-x-4">
       <Button
@@ -22,10 +23,10 @@ export function FilmeSubmitButtons({ loading, onCancel }: FilmeSubmitButtonsProp
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Salvando...
+            {isEditing ? 'Salvando...' : 'Adicionando...'}
           </>
         ) : (
-          'Adicionar Filme'
+          isEditing ? 'Salvar Alterações' : 'Adicionar Filme'
         )}
       </Button>
     </div>

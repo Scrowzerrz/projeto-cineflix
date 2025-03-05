@@ -7,6 +7,8 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { FilmeDB } from '@/services/types/movieTypes';
 import { NovoFilmeDialog } from '@/components/admin/filme/NovoFilmeDialog';
+import { EditarFilmeDialog } from '@/components/admin/filme/EditarFilmeDialog';
+import { VisualizarFilmeDialog } from '@/components/admin/filme/VisualizarFilmeDialog';
 
 const GerenciarFilmes = () => {
   const [filmes, setFilmes] = useState<FilmeDB[]>([]);
@@ -150,23 +152,12 @@ const GerenciarFilmes = () => {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 bg-blue-600/20 hover:bg-blue-600/40 text-blue-400"
-                        >
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">Editar</span>
-                        </Button>
+                        <EditarFilmeDialog 
+                          filme={filme} 
+                          onSuccess={carregarFilmes} 
+                        />
                         
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 bg-green-600/20 hover:bg-green-600/40 text-green-400"
-                        >
-                          <Eye className="h-4 w-4" />
-                          <span className="sr-only">Visualizar</span>
-                        </Button>
+                        <VisualizarFilmeDialog filme={filme} />
                         
                         <Button 
                           variant="ghost" 
