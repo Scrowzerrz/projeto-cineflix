@@ -270,11 +270,12 @@ const DetalhesFilme = () => {
             {isTrailer ? (
               <div className="w-full aspect-video bg-black/40 rounded-md overflow-hidden mb-6">
                 <iframe
-                  src={filme.trailer_url}
+                  src={`${filme.trailer_url}?autoplay=0&showinfo=0&controls=1&rel=0`}
                   title={`Trailer: ${filme.titulo}`}
                   className="w-full h-full"
-                  allowFullScreen
+                  frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
                 ></iframe>
               </div>
             ) : (

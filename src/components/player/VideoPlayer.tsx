@@ -35,7 +35,7 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   // Efeito para inicializar o player quando o modo de reprodução está ativo
   useEffect(() => {
     // Se está no modo de reprodução e o player ainda não foi inicializado
-    if (isPlaying && !playerInicializado) {
+    if (isPlaying && !playerInicializado && containerRef.current) {
       console.log('isPlaying true, inicializando player');
       inicializarVideoJS();
     }
@@ -73,8 +73,9 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       
       // Criar elemento de vídeo
       const videoElement = document.createElement('video');
-      videoElement.className = 'video-js vjs-big-play-centered vjs-fluid vjs-theme-fantasy';
-      videoElement.setAttribute('data-setup', '{}');
+      videoElement.className = 'video-js vjs-big-play-centered vjs-fluid';
+      videoElement.setAttribute('playsinline', 'true');
+      videoElement.setAttribute('controls', 'true');
       
       // Adicionar o elemento de vídeo ao container
       container.appendChild(videoElement);
@@ -86,9 +87,11 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
         controls: true,
         responsive: true,
         fluid: true,
+        preload: 'auto',
+        playsinline: true,
         sources: [{
           src: playerUrl,
-          type: 'application/x-mpegURL'
+          type: playerUrl.includes('.mp4') ? 'video/mp4' : 'application/x-mpegURL'
         }],
         poster: posterUrl,
         html5: {
@@ -118,7 +121,8 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
           .then(() => console.log('Reprodução iniciada'))
           .catch(error => {
             console.error('Erro ao iniciar reprodução:', error);
-            toast.error('Erro ao iniciar reprodução. Tente novamente.');
+            // Política de autoplay pode bloquear, então adicionamos um botão para iniciar manualmente
+            toast.info('Clique no player para iniciar a reprodução');
           });
       });
 
