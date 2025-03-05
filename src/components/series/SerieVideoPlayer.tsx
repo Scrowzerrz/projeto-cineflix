@@ -2,6 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Play } from 'lucide-react';
 import { SerieDetalhes, TemporadaDB, EpisodioDB } from '@/services/types/movieTypes';
+import VideoPlayer from '@/components/player/VideoPlayer';
 
 interface SerieVideoPlayerProps {
   serie: SerieDetalhes;
@@ -22,23 +23,24 @@ const SerieVideoPlayer = ({
 }: SerieVideoPlayerProps) => {
   return (
     <div className="mt-6">
-      <div className="w-full aspect-video bg-black/40 rounded-md overflow-hidden mb-6">
+      <div className="w-full mb-6">
         {isTrailer ? (
-          <iframe
-            src={serie.trailer_url}
-            title={`Trailer: ${serie.titulo}`}
-            className="w-full h-full"
-            allowFullScreen
-          ></iframe>
+          <div className="aspect-video bg-black/40 rounded-md overflow-hidden">
+            <iframe
+              src={serie.trailer_url}
+              title={`Trailer: ${serie.titulo}`}
+              className="w-full h-full"
+              allowFullScreen
+            ></iframe>
+          </div>
         ) : episodioAtual ? (
-          <iframe 
-            src={episodioAtual.player_url} 
-            title={`${serie.titulo} - ${episodioAtual.titulo}`}
-            className="w-full h-full"
-            allowFullScreen
-          ></iframe>
+          <VideoPlayer 
+            playerUrl={episodioAtual.player_url} 
+            posterUrl={episodioAtual.thumbnail_url || serie.poster_url} 
+            title={`${serie.titulo} - ${episodioAtual.titulo}`} 
+          />
         ) : (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center h-[300px] bg-movieDark rounded-lg">
             <p className="text-white">Selecione um episódio para assistir</p>
           </div>
         )}

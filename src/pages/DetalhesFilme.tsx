@@ -1,16 +1,16 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { fetchMovieDetails, incrementarVisualizacaoFilme } from '@/services/movieService';
+import { fetchMovieDetails, incrementarVisualizacaoFilme } from '@/services/filmesService';
 import { Button } from '@/components/ui/button';
-import { Play, Plus, Download, Share2, Star, Award, Calendar, Clock, Film, Users } from 'lucide-react';
+import { Plus, Download, Share2, Star, Award, Calendar, Clock, Film, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2 } from 'lucide-react';
 import FavoritoButton from '@/components/FavoritoButton';
+import VideoPlayer from '@/components/player/VideoPlayer';
 
 const DetalhesFilme = () => {
   const { id } = useParams<{ id: string }>();
@@ -209,7 +209,7 @@ const DetalhesFilme = () => {
                     setIsTrailer(false);
                   }}
                 >
-                  <Play className="h-5 w-5 fill-white" /> Assistir Agora
+                  Assistir Agora
                 </Button>
                 
                 <Button 
@@ -220,7 +220,7 @@ const DetalhesFilme = () => {
                     setIsTrailer(true);
                   }}
                 >
-                  <Play className="h-5 w-5" /> Trailer
+                  Trailer
                 </Button>
                 
                 <Button 
@@ -267,8 +267,8 @@ const DetalhesFilme = () => {
           </TabsList>
           
           <TabsContent value="assistir" className="mt-6">
-            <div className="w-full aspect-video bg-black/40 rounded-md overflow-hidden mb-6">
-              {isTrailer ? (
+            {isTrailer ? (
+              <div className="w-full aspect-video bg-black/40 rounded-md overflow-hidden mb-6">
                 <iframe
                   src={filme.trailer_url}
                   title={`Trailer: ${filme.titulo}`}
@@ -276,16 +276,14 @@ const DetalhesFilme = () => {
                   allowFullScreen
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 ></iframe>
-              ) : (
-                <iframe 
-                  src={filme.player_url} 
-                  title={filme.titulo}
-                  className="w-full h-full"
-                  allowFullScreen
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                ></iframe>
-              )}
-            </div>
+              </div>
+            ) : (
+              <VideoPlayer 
+                playerUrl={filme.player_url} 
+                posterUrl={filme.poster_url} 
+                title={filme.titulo} 
+              />
+            )}
             
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-white text-xl font-semibold">
@@ -299,7 +297,7 @@ const DetalhesFilme = () => {
                   className={isTrailer ? "border-white/30 text-white bg-white/10 hover:bg-white/20" : "bg-movieRed hover:bg-movieRed/90"}
                   onClick={() => setIsTrailer(false)}
                 >
-                  <Play className={`h-4 w-4 ${!isTrailer ? "fill-white" : ""}`} /> Filme
+                  Filme
                 </Button>
                 
                 <Button 
@@ -308,7 +306,7 @@ const DetalhesFilme = () => {
                   className={!isTrailer ? "border-white/30 text-white bg-white/10 hover:bg-white/20" : "bg-movieRed hover:bg-movieRed/90"}
                   onClick={() => setIsTrailer(true)}
                 >
-                  <Play className={`h-4 w-4 ${isTrailer ? "fill-white" : ""}`} /> Trailer
+                  Trailer
                 </Button>
               </div>
             </div>
