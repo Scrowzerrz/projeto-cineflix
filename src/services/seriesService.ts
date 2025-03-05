@@ -50,7 +50,15 @@ export const fetchSeries = async (categoria: string): Promise<MovieCardProps[]> 
       throw error;
     }
     
-    return (data || []).map(serie => mapToMovieCard(serie as SerieDB));
+    // Mapeamos cada série para o formato MovieCardProps
+    return (data || []).map(serie => {
+      // Adicionamos o campo player_url que está faltando para compatibilidade com mapToMovieCard
+      const serieComPlayerUrl = {
+        ...serie,
+        player_url: '' // Adicionando player_url vazio para compatibilidade
+      };
+      return mapToMovieCard(serieComPlayerUrl as any);
+    });
   } catch (error) {
     console.error('Erro ao buscar séries:', error);
     return [];
@@ -75,7 +83,15 @@ export const fetchAllSeries = async (filtroCategoria?: string): Promise<MovieCar
       throw error;
     }
     
-    return (data || []).map(serie => mapToMovieCard(serie as SerieDB));
+    // Mapeamos cada série para o formato MovieCardProps
+    return (data || []).map(serie => {
+      // Adicionamos o campo player_url que está faltando para compatibilidade com mapToMovieCard
+      const serieComPlayerUrl = {
+        ...serie,
+        player_url: '' // Adicionando player_url vazio para compatibilidade
+      };
+      return mapToMovieCard(serieComPlayerUrl as any);
+    });
   } catch (error) {
     console.error('Erro ao buscar todas as séries:', error);
     return [];
@@ -137,26 +153,9 @@ export const fetchSerieDetails = async (serieId: string): Promise<SerieDetalhes 
     
     // Construir objeto de detalhes da série
     return {
-      id: serie.id,
-      titulo: serie.titulo,
-      titulo_original: serie.titulo_original,
-      poster_url: serie.poster_url,
-      ano: serie.ano,
-      duracao: serie.duracao,
-      avaliacao: serie.avaliacao || '0.0',
-      tipo: 'series',
-      qualidade: serie.qualidade,
-      descricao: serie.descricao,
-      categoria: serie.categoria,
-      destaque: serie.destaque,
-      diretor: serie.diretor,
-      elenco: serie.elenco,
-      produtor: serie.produtor,
-      generos: serie.generos || [],
-      trailer_url: serie.trailer_url,
-      idioma: serie.idioma,
+      ...serie,
       temporadas: temporadas
-    };
+    } as SerieDetalhes;
   } catch (error) {
     console.error('Erro ao buscar detalhes da série:', error);
     return null;

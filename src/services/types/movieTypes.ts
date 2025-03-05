@@ -112,5 +112,5 @@ export interface HeroMovie {
 
 // Interface para detalhes completos da série
 export interface SerieDetalhes extends SerieDB {
-  temporadas: TemporadaDB[];
+  temporadas: (TemporadaDB & { episodios: EpisodioDB[] })[];
 }

@@ -19,7 +19,7 @@ export const mapToMovieCard = (movie: FilmeDB): MovieCardProps => {
 };
 
 // Função para converter dados de série para o formato FilmeDB
-export const serieToFilmeDB = (serie: any): FilmeDB => {
+export const serieToFilmeDB = (serie: SerieDB): FilmeDB => {
   return {
     id: serie.id,
     titulo: serie.titulo,
@@ -37,7 +37,7 @@ export const serieToFilmeDB = (serie: any): FilmeDB => {
     produtor: serie.produtor || '',
     generos: serie.generos || [],
     trailer_url: serie.trailer_url || '',
-    player_url: serie.player_url || '',
+    player_url: '', // Adicionando um player_url vazio já que SerieDB não possui essa propriedade
     idioma: serie.idioma || 'DUB',
     created_at: serie.created_at || new Date().toISOString(),
     updated_at: serie.updated_at || new Date().toISOString()
