@@ -14,15 +14,15 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<Player | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
+  
+  // Clean up the player on component unmount
   useEffect(() => {
     return () => {
       if (playerRef.current) {
-        console.log('Limpando player existente no unmount');
+        console.log('Disposing player on unmount');
         playerRef.current.dispose();
         playerRef.current = null;
       }
@@ -32,25 +32,34 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   const iniciarPlayer = () => {
     console.log('Iniciando player com URL:', playerUrl);
     
-    if (!containerRef.current) {
-      console.error('Container não encontrado');
+    // Check if the videoRef is available
+    if (!videoRef.current) {
+      console.error('Container ref não encontrado');
+      toast.error('Erro ao inicializar o player. Tente novamente.');
       return;
     }
 
     try {
-      // Limpa o container
-      containerRef.current.innerHTML = '';
-      
-      // Cria os elementos necessários
-      const videoEl = document.createElement('video');
-      videoEl.className = 'video-js vjs-big-play-centered vjs-fluid';
-      containerRef.current.appendChild(videoEl);
-      
-      // Guarda a referência do elemento de vídeo
-      videoRef.current = videoEl;
+      // Reset state and clean up any existing player
+      if (playerRef.current) {
+        console.log('Limpando player existente');
+        playerRef.current.dispose();
+        playerRef.current = null;
+      }
 
-      console.log('Inicializando player com configurações');
-      const player = videojs(videoEl, {
+      // Clear the container
+      const container = videoRef.current;
+      container.innerHTML = '';
+      
+      // Create a new div with video-js class
+      const videoElement = document.createElement('video');
+      videoElement.className = 'video-js vjs-big-play-centered vjs-fluid';
+      container.appendChild(videoElement);
+      
+      console.log('Elemento de vídeo criado e adicionado ao container');
+      
+      // Initialize videojs
+      const player = videojs(videoElement, {
         controls: true,
         responsive: true,
         fluid: true,
@@ -71,14 +80,16 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
           nativeTextTracks: false
         }
       });
-
-      // Guarda a referência do player
+      
+      // Set player reference
       playerRef.current = player;
+      console.log('Player VideoJS inicializado com sucesso');
 
-      // Configura os eventos
+      // Handle player events
       player.on('ready', () => {
         console.log('Player pronto');
         setIsPlaying(true);
+        
         player.play()
           .then(() => console.log('Reprodução iniciada'))
           .catch(error => {
@@ -101,15 +112,12 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
 
       player.on('pause', () => {
         console.log('Vídeo pausado');
-        setIsPlaying(false);
       });
 
       player.on('ended', () => {
         console.log('Reprodução finalizada');
         setIsPlaying(false);
       });
-
-      console.log('Player configurado e pronto');
 
     } catch (error) {
       console.error('Erro ao inicializar o player:', error);
@@ -136,7 +144,11 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
           </div>
         </div>
       ) : (
-        <div ref={containerRef} className="w-full h-full" data-vjs-player />
+        <div 
+          ref={videoRef} 
+          className="w-full h-full" 
+          data-vjs-player
+        />
       )}
     </div>
   );
