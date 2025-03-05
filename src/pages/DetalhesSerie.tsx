@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { fetchSerieDetails, incrementarVisualizacaoSerie } from '@/services/movieService';
+import { fetchSerieDetails, incrementarVisualizacaoSerie, fetchSomeMovies } from '@/services/movieService';
 import { TabsContent, Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import SerieHeader from '@/components/series/SerieHeader';
@@ -14,6 +14,7 @@ import SerieDetails from '@/components/series/SerieDetails';
 import SerieComments from '@/components/series/SerieComments';
 import SerieLoading from '@/components/series/SerieLoading';
 import SerieError from '@/components/series/SerieError';
+import VejaTambemSeries from '@/components/series/VejaTambemSeries';
 
 const DetalhesSerie = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +31,14 @@ const DetalhesSerie = () => {
     queryKey: ['serie-detalhes', id],
     queryFn: () => fetchSerieDetails(id || ''),
     enabled: !!id
+  });
+
+  const { 
+    data: seriesSugestoes = [],
+    isLoading: isLoadingSugestoes
+  } = useQuery({
+    queryKey: ['series-sugestoes'],
+    queryFn: () => fetchSomeMovies(5),
   });
 
   useEffect(() => {
@@ -117,6 +126,11 @@ const DetalhesSerie = () => {
               setIsTrailer={setIsTrailer}
               trocarEpisodio={trocarEpisodio}
             />
+            
+            <VejaTambemSeries 
+              filmes={seriesSugestoes} 
+              isLoading={isLoadingSugestoes} 
+            />
           </TabsContent>
           
           <TabsContent value="temporadas">
@@ -128,6 +142,11 @@ const DetalhesSerie = () => {
               trocarEpisodio={trocarEpisodio}
               totalTemporadas={serie.temporadas.length}
             />
+            
+            <VejaTambemSeries 
+              filmes={seriesSugestoes} 
+              isLoading={isLoadingSugestoes} 
+            />
           </TabsContent>
           
           <TabsContent value="sobre">
@@ -136,10 +155,20 @@ const DetalhesSerie = () => {
               trocarTemporada={trocarTemporada} 
               setActiveTab={setActiveTab} 
             />
+            
+            <VejaTambemSeries 
+              filmes={seriesSugestoes} 
+              isLoading={isLoadingSugestoes} 
+            />
           </TabsContent>
           
           <TabsContent value="comentarios">
             <SerieComments />
+            
+            <VejaTambemSeries 
+              filmes={seriesSugestoes} 
+              isLoading={isLoadingSugestoes} 
+            />
           </TabsContent>
         </Tabs>
       </div>
