@@ -19,7 +19,6 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    // Certifique-se de destruir o player ao desmontar
     return () => {
       if (playerRef.current) {
         playerRef.current.dispose();
@@ -29,93 +28,87 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   }, []);
 
   const iniciarPlayer = () => {
-    if (!videoRef.current) {
-      console.error("Elemento de referência de vídeo não encontrado");
-      return;
-    }
-
-    console.log("Iniciando player com URL:", playerUrl);
+    if (!videoRef.current) return;
 
     try {
-      // Se já tiver um player, destrua-o primeiro
       if (playerRef.current) {
         playerRef.current.dispose();
-        playerRef.current = null;
       }
 
-      // Limpa o conteúdo anterior
       videoRef.current.innerHTML = '';
-
-      // Cria o elemento de vídeo
-      const videoElement = document.createElement("video");
-      videoElement.className = "video-js vjs-big-play-centered vjs-fluid";
+      const videoElement = document.createElement("video-js");
+      videoElement.className = "vjs-big-play-centered vjs-fluid";
       videoRef.current.appendChild(videoElement);
 
-      // Inicializa o player
       const player = videojs(
-        videoElement, 
+        videoElement,
         {
-          autoplay: false, // Importante: começamos com autoplay false
+          controlBar: {
+            pictureInPictureToggle: false
+          },
           controls: true,
           responsive: true,
           fluid: true,
           sources: [{
             src: playerUrl,
-            type: 'application/x-mpegURL' // HLS
+            type: 'application/x-mpegURL'
           }],
           poster: posterUrl,
-          playbackRates: [0.5, 1, 1.5, 2],
+          preload: 'auto',
           html5: {
-            hls: {
-              overrideNative: true
+            vhs: {
+              overrideNative: true,
+              limitRenditionByPlayerDimensions: false,
+              smoothQualityChange: true,
+              enableLowInitialPlaylist: true
             },
             nativeVideoTracks: false,
             nativeAudioTracks: false,
             nativeTextTracks: false
           }
-        }, 
+        },
         function onPlayerReady() {
-          console.log('Player pronto! Tentando reproduzir...');
+          console.log('Player pronto, configurando eventos...');
           
-          // Tentamos reproduzir depois que o player estiver pronto
-          setTimeout(() => {
+          player.on('loadedmetadata', () => {
+            console.log('Metadados carregados, iniciando reprodução...');
             player.play()
               .then(() => {
-                console.log("Reprodução iniciada com sucesso");
+                console.log('Reprodução iniciada com sucesso');
                 setIsPlaying(true);
               })
               .catch(error => {
-                console.error("Erro ao tentar reproduzir:", error);
-                toast.error("Erro ao iniciar reprodução. Tente novamente.");
+                console.error('Erro ao iniciar reprodução:', error);
+                toast.error('Erro ao iniciar reprodução. Tente novamente.');
               });
-          }, 500);
+          });
         }
       );
 
       player.on('error', (error) => {
-        console.error("Erro no player:", player.error());
-        toast.error("Erro ao carregar o vídeo. Verifique a URL ou tente novamente mais tarde.");
+        console.error('Erro no player:', player.error());
+        toast.error('Erro ao carregar o vídeo. Verifique a URL ou tente novamente mais tarde.');
+        setIsPlaying(false);
       });
 
-      player.on('play', () => {
-        console.log("Evento de play recebido");
+      player.on('waiting', () => {
+        console.log('Buffering...');
+      });
+
+      player.on('playing', () => {
+        console.log('Vídeo em reprodução');
         setIsPlaying(true);
       });
 
       player.on('pause', () => {
-        console.log("Evento de pause recebido");
-        setIsPlaying(false);
-      });
-
-      player.on('ended', () => {
-        console.log("Evento de ended recebido");
+        console.log('Vídeo pausado');
         setIsPlaying(false);
       });
 
       playerRef.current = player;
     } catch (error) {
-      console.error("Erro ao inicializar o player:", error);
-      toast.error("Falha ao iniciar o player de vídeo. Tente novamente.");
+      console.error('Erro ao inicializar o player:', error);
+      toast.error('Falha ao iniciar o player de vídeo. Tente novamente.');
       setIsPlaying(false);
     }
   };
