@@ -26,6 +26,8 @@ const DashboardAdmin = () => {
     const carregarEstatisticas = async () => {
       setCarregando(true);
       try {
+        console.log("Iniciando carregamento de estatísticas...");
+        
         // Obter total de filmes
         const { count: totalFilmes, error: erroFilmes } = await supabase
           .from('filmes')
@@ -40,6 +42,8 @@ const DashboardAdmin = () => {
         const { count: totalUsuarios, error: erroUsuarios } = await supabase
           .from('perfis')
           .select('*', { count: 'exact', head: true });
+          
+        console.log("Total de usuários encontrados:", totalUsuarios);
 
         // Obter filmes recentes (últimos 30 dias)
         const dataLimite = new Date();
@@ -57,16 +61,22 @@ const DashboardAdmin = () => {
           .gte('created_at', dataLimite.toISOString());
 
         if (erroFilmes || erroSeries || erroUsuarios || erroRecentesFilmes || erroRecentesSeries) {
+          console.error("Erros ao carregar estatísticas:", {
+            erroFilmes, erroSeries, erroUsuarios, erroRecentesFilmes, erroRecentesSeries
+          });
           throw new Error("Erro ao carregar estatísticas");
         }
 
-        setEstatisticas({
+        const novasEstatisticas = {
           totalFilmes: totalFilmes || 0,
           totalSeries: totalSeries || 0,
           totalUsuarios: totalUsuarios || 0,
           recentesFilmes: recentesFilmes || 0,
           recentesSeries: recentesSeries || 0
-        });
+        };
+        
+        console.log("Estatísticas carregadas com sucesso:", novasEstatisticas);
+        setEstatisticas(novasEstatisticas);
 
       } catch (erro) {
         console.error("Erro ao carregar estatísticas:", erro);

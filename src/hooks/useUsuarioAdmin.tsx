@@ -22,7 +22,7 @@ export function useUsuarioAdmin() {
     try {
       console.log("Carregando usuários do sistema...");
       
-      // Buscar perfis de usuários com ordenação e sem limites
+      // Buscar todos os perfis sem filtros adicionais
       const { data: perfis, error: erroPerf } = await supabase
         .from('perfis')
         .select('*')
@@ -33,7 +33,7 @@ export function useUsuarioAdmin() {
         throw erroPerf;
       }
       
-      console.log(`Encontrados ${perfis?.length || 0} perfis de usuários`);
+      console.log(`Encontrados ${perfis?.length || 0} perfis de usuários:`, perfis);
       
       if (!perfis || perfis.length === 0) {
         setUsuarios([]);
@@ -41,7 +41,7 @@ export function useUsuarioAdmin() {
         return;
       }
       
-      // Buscar função de admin para cada usuário
+      // Buscar papel de admin para cada usuário
       const usuariosComPapel = await Promise.all(
         perfis.map(async (perfil) => {
           try {
@@ -73,7 +73,7 @@ export function useUsuarioAdmin() {
         })
       );
       
-      console.log(`Processados ${usuariosComPapel.length} usuários com seus papéis`);
+      console.log(`Processados ${usuariosComPapel.length} usuários com seus papéis:`, usuariosComPapel);
       setUsuarios(usuariosComPapel);
     } catch (erro) {
       console.error("Erro ao carregar usuários:", erro);

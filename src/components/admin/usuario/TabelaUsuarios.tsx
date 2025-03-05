@@ -27,6 +27,8 @@ interface TabelaUsuariosProps {
 }
 
 export function TabelaUsuarios({ usuarios, carregando, alternarAdmin }: TabelaUsuariosProps) {
+  console.log("Renderizando tabela de usuários com", usuarios.length, "usuários:", usuarios);
+  
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
