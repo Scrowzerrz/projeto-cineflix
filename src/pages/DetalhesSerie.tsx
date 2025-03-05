@@ -5,16 +5,17 @@ import { useQuery } from '@tanstack/react-query';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { fetchSerieDetails, incrementarVisualizacaoSerie } from '@/services/movieService';
-import { TabsContent, Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TabsContent, Tabs } from '@/components/ui/tabs';
 
 import SerieHeader from '@/components/series/SerieHeader';
-import SerieVideoPlayer from '@/components/series/SerieVideoPlayer';
-import SerieEpisodesList from '@/components/series/SerieEpisodesList';
-import SerieDetails from '@/components/series/SerieDetails';
-import SerieComments from '@/components/series/SerieComments';
 import SerieLoading from '@/components/series/SerieLoading';
 import SerieError from '@/components/series/SerieError';
-import VejaTambemSeries from '@/components/series/VejaTambemSeries';
+import SerieFundoBlur from '@/components/series/SerieFundoBlur';
+import AbaSerie from '@/components/series/AbaSerie';
+import TabAssistir from '@/components/series/TabAssistir';
+import TabTemporadas from '@/components/series/TabTemporadas';
+import TabSobre from '@/components/series/TabSobre';
+import TabComentarios from '@/components/series/TabComentarios';
 
 const DetalhesSerie = () => {
   const { id } = useParams<{ id: string }>();
@@ -93,62 +94,23 @@ const DetalhesSerie = () => {
       <Navbar />
       
       {/* Área de header com o background da série */}
-      <div className="relative">
-        {/* Background com poster desfocado apenas no header */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
-          style={{ 
-            backgroundImage: `url(${serie.poster_url})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-movieDarkBlue/95 to-black/100 backdrop-blur-md"></div>
-        </div>
-        
-        <div className="relative z-10">
-          <SerieHeader 
-            serie={serie} 
-            temporadaAtiva={temporadaAtiva} 
-            trocarTemporada={trocarTemporada} 
-            setActiveTab={setActiveTab} 
-            setIsTrailer={setIsTrailer} 
-          />
-        </div>
-      </div>
+      <SerieFundoBlur posterUrl={serie.poster_url}>
+        <SerieHeader 
+          serie={serie} 
+          temporadaAtiva={temporadaAtiva} 
+          trocarTemporada={trocarTemporada} 
+          setActiveTab={setActiveTab} 
+          setIsTrailer={setIsTrailer} 
+        />
+      </SerieFundoBlur>
       
       {/* Conteúdo da página */}
       <div className="container mx-auto px-4 py-8 relative z-10">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-movieDark/70 backdrop-blur-md mb-6 p-1 rounded-full border border-white/10">
-            <TabsTrigger 
-              value="assistir" 
-              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
-            >
-              Assistir
-            </TabsTrigger>
-            <TabsTrigger 
-              value="temporadas" 
-              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
-            >
-              Episódios
-            </TabsTrigger>
-            <TabsTrigger 
-              value="sobre" 
-              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
-            >
-              Sobre
-            </TabsTrigger>
-            <TabsTrigger 
-              value="comentarios" 
-              className="text-white data-[state=active]:bg-movieRed rounded-full py-2 px-4 transition-all duration-300"
-            >
-              Comentários
-            </TabsTrigger>
-          </TabsList>
+          <AbaSerie activeTab={activeTab} setActiveTab={setActiveTab} />
           
-          <TabsContent value="assistir" className="animate-fade-in">
-            <SerieVideoPlayer 
+          <TabsContent value="assistir">
+            <TabAssistir 
               serie={serie}
               isTrailer={isTrailer}
               episodioAtual={episodioAtual}
@@ -156,49 +118,30 @@ const DetalhesSerie = () => {
               setIsTrailer={setIsTrailer}
               trocarEpisodio={trocarEpisodio}
             />
-            
-            <VejaTambemSeries 
-              isLoading={false}
-              serieAtualId={serie.id}
-            />
           </TabsContent>
           
-          <TabsContent value="temporadas" className="animate-fade-in">
-            <SerieEpisodesList 
+          <TabsContent value="temporadas">
+            <TabTemporadas 
               temporadaAtual={temporadaAtual}
               temporadaAtiva={temporadaAtiva}
               episodioAtivo={episodioAtivo}
               trocarTemporada={trocarTemporada}
               trocarEpisodio={trocarEpisodio}
               totalTemporadas={serie.temporadas.length}
-            />
-            
-            <VejaTambemSeries 
-              isLoading={false}
-              serieAtualId={serie.id}
+              serieId={serie.id}
             />
           </TabsContent>
           
-          <TabsContent value="sobre" className="animate-fade-in">
-            <SerieDetails 
+          <TabsContent value="sobre">
+            <TabSobre 
               serie={serie} 
               trocarTemporada={trocarTemporada} 
               setActiveTab={setActiveTab} 
             />
-            
-            <VejaTambemSeries 
-              isLoading={false}
-              serieAtualId={serie.id}
-            />
           </TabsContent>
           
-          <TabsContent value="comentarios" className="animate-fade-in">
-            <SerieComments />
-            
-            <VejaTambemSeries 
-              isLoading={false}
-              serieAtualId={serie.id}
-            />
+          <TabsContent value="comentarios">
+            <TabComentarios serieId={serie.id} />
           </TabsContent>
         </Tabs>
       </div>
