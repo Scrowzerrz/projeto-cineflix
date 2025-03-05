@@ -7,6 +7,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
@@ -40,9 +41,10 @@ export function FilmeUrls({ form }: FilmeUrlsProps) {
             <FormControl>
               <Input placeholder="https://..." {...field} />
             </FormControl>
-            <FormMessage className="text-xs">
+            <FormDescription className="text-xs">
               Cole a URL completa do iframe do trailer (YouTube, Vimeo, etc.)
-            </FormMessage>
+            </FormDescription>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -56,9 +58,10 @@ export function FilmeUrls({ form }: FilmeUrlsProps) {
             <FormControl>
               <Input placeholder="https://..." {...field} />
             </FormControl>
-            <FormMessage className="text-xs">
-              Cole aqui a URL completa do player externo (iframe) onde o vídeo está hospedado
-            </FormMessage>
+            <FormDescription className="text-xs">
+              Cole aqui a URL direta do vídeo (ex: https://pixeldrain.com/api/file/ID?download) ou o código iframe completo do player externo
+            </FormDescription>
+            <FormMessage />
           </FormItem>
         )}
       />

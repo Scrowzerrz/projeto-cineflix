@@ -20,23 +20,36 @@ interface VisualizarFilmeDialogProps {
 export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
   const [open, setOpen] = useState(false);
 
-  // Converter URL do player para embed se for do YouTube
+  // Função para processar URL do player ou trailer
   const getEmbedUrl = (url: string) => {
     if (!url) return '';
     
-    // YouTube URL
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-    const match = url.match(youtubeRegex);
-    
-    if (match && match[1]) {
-      return `https://www.youtube.com/embed/${match[1]}`;
+    // Verificar se a URL é um iframe
+    if (url.includes('iframe') && url.includes('src=')) {
+      const matches = url.match(/src=["'](.*?)["']/);
+      if (matches && matches[1]) {
+        return matches[1];
+      }
     }
     
+    // Verificar se é uma URL de vídeo direto (MP4)
+    if (url.endsWith('.mp4') || url.includes('download') || url.includes('pixeldrain.com')) {
+      return (
+        <video src={url} controls className="w-full h-full" />
+      );
+    }
+    
+    // Caso contrário, retornar a URL como está
     return url;
   };
 
-  const playerUrl = getEmbedUrl(filme.player_url);
-  const trailerUrl = getEmbedUrl(filme.trailer_url);
+  const playerUrl = filme.player_url;
+  const trailerUrl = filme.trailer_url;
+  
+  // Verifica se a URL é de vídeo direto
+  const isDirectVideo = (url: string) => {
+    return url && (url.endsWith('.mp4') || url.includes('download') || url.includes('pixeldrain.com'));
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -135,12 +148,17 @@ export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
           <div className="mt-6 space-y-2">
             <h3 className="font-semibold">Trailer</h3>
             <AspectRatio ratio={16/9} className="bg-black rounded-md overflow-hidden">
-              <iframe
-                src={trailerUrl}
-                allowFullScreen
-                className="w-full h-full"
-                title={`Trailer de ${filme.titulo}`}
-              />
+              {isDirectVideo(trailerUrl) ? (
+                <video src={trailerUrl} controls className="w-full h-full" />
+              ) : (
+                <iframe
+                  src={getEmbedUrl(trailerUrl)}
+                  allowFullScreen
+                  className="w-full h-full"
+                  title={`Trailer de ${filme.titulo}`}
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                />
+              )}
             </AspectRatio>
           </div>
         )}
@@ -149,12 +167,17 @@ export function VisualizarFilmeDialog({ filme }: VisualizarFilmeDialogProps) {
           <div className="mt-6 space-y-2">
             <h3 className="font-semibold">Player</h3>
             <AspectRatio ratio={16/9} className="bg-black rounded-md overflow-hidden">
-              <iframe
-                src={playerUrl}
-                allowFullScreen
-                className="w-full h-full"
-                title={`Player de ${filme.titulo}`}
-              />
+              {isDirectVideo(playerUrl) ? (
+                <video src={playerUrl} controls className="w-full h-full" />
+              ) : (
+                <iframe
+                  src={getEmbedUrl(playerUrl)}
+                  allowFullScreen
+                  className="w-full h-full"
+                  title={`Player de ${filme.titulo}`}
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                />
+              )}
             </AspectRatio>
           </div>
         )}

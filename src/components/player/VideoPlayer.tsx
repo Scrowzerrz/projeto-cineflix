@@ -20,13 +20,37 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
     setTimeout(() => setIsLoading(false), 500); // Simulate brief loading
   };
 
-  // Sanitize URL to ensure it can be safely embedded
-  const getSafeUrl = (url: string) => {
+  // Função para processar a URL do player
+  const getPlayerUrl = (url: string): string => {
     try {
-      // Make sure URL is valid
-      const validatedUrl = new URL(url);
-      // Return the safe URL
+      // Verifica se é uma URL válida
+      new URL(url);
+      
+      // Verifica se é um iframe (contém src= dentro do texto)
+      if (url.includes('iframe') && url.includes('src=')) {
+        // Extrai a URL entre aspas após src=
+        const matches = url.match(/src=["'](.*?)["']/);
+        if (matches && matches[1]) {
+          return matches[1];
+        }
+      }
+      
+      // Se não for um iframe, retorna a URL como está
       return url;
+    } catch (error) {
+      console.error("URL inválida:", error);
+      toast.error("URL do player inválida");
+      return "";
+    }
+  };
+
+  // Limpa a URL para ser seguramente incorporada
+  const getSafeUrl = (url: string): string => {
+    try {
+      const processedUrl = getPlayerUrl(url);
+      // Verificar se a URL é válida
+      new URL(processedUrl);
+      return processedUrl;
     } catch (error) {
       console.error("URL inválida:", error);
       toast.error("URL do player inválida");
@@ -71,13 +95,28 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
         </div>
       ) : (
         <div className="w-full h-full bg-black">
-          <iframe
-            src={getSafeUrl(playerUrl)}
-            title={title}
-            className="w-full h-full border-0"
-            allowFullScreen
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          ></iframe>
+          {getSafeUrl(playerUrl).endsWith('.mp4') || 
+           getSafeUrl(playerUrl).includes('download') || 
+           getSafeUrl(playerUrl).includes('pixeldrain.com') ? (
+            // Se for um mp4 direto ou link de download, usar o elemento video
+            <video
+              src={getSafeUrl(playerUrl)}
+              className="w-full h-full"
+              controls
+              autoPlay
+              poster={posterUrl}
+            />
+          ) : (
+            // Caso contrário, usar iframe
+            <iframe
+              src={getSafeUrl(playerUrl)}
+              title={title}
+              className="w-full h-full border-0"
+              allowFullScreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+            ></iframe>
+          )}
         </div>
       )}
     </div>
