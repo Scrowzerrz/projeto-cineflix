@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import CartaoFilme from '@/components/MovieCard';
 import { MovieResponse } from '@/services/types/movieTypes';
+import { MovieCardProps } from '@/components/MovieCard';
 
 interface VejaTambemSectionProps {
   filmes: MovieResponse[];

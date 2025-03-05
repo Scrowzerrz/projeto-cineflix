@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Play, Calendar, Clock, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Calendar, Clock } from 'lucide-react';
 import { TemporadaDB, EpisodioDB } from '@/services/types/movieTypes';
 
 interface SerieEpisodesListProps {
@@ -107,12 +107,6 @@ const SerieEpisodesList = ({
                         <Clock className="h-3.5 w-3.5" />
                         {episodio.duracao}
                       </span>
-                      {episodio.avaliacao && (
-                        <span className="flex items-center gap-1">
-                          <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
-                          {episodio.avaliacao}
-                        </span>
-                      )}
                     </div>
                   </div>
                   <Button 

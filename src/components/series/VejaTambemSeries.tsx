@@ -6,6 +6,7 @@ import CartaoFilme from '@/components/MovieCard';
 import { MovieResponse } from '@/services/types/movieTypes';
 import { fetchSeries } from '@/services/seriesService';
 import { useQuery } from '@tanstack/react-query';
+import { MovieCardProps } from '@/components/MovieCard';
 
 interface VejaTambemSeriesProps {
   filmes: MovieResponse[];
@@ -103,17 +104,17 @@ const VejaTambemSeries = ({ isLoading: isLoadingProp }: VejaTambemSeriesProps) =
             </div>
           ))
         ) : (
-          seriesRelacionadas.map((serie: MovieResponse) => (
+          seriesRelacionadas.map((serie: MovieCardProps) => (
             <div key={serie.id} className="flex-shrink-0 w-[180px] snap-start">
               <CartaoFilme
                 id={serie.id}
-                title={serie.titulo}
-                posterUrl={serie.poster_url}
-                year={serie.ano}
-                duration={serie.duracao}
+                title={serie.title}
+                posterUrl={serie.posterUrl}
+                year={serie.year}
+                duration={serie.duration}
                 type="series"
-                quality={serie.qualidade as 'HD' | 'CAM' | 'DUB' | 'LEG'}
-                rating={serie.avaliacao}
+                quality={serie.quality}
+                rating={serie.rating}
               />
             </div>
           ))
