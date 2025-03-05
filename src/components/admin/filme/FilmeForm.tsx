@@ -11,6 +11,7 @@ import { FilmeMetadados } from "./FilmeMetadados";
 import { FilmeUrls } from "./FilmeUrls";
 import { FilmeDescricao } from "./FilmeDescricao";
 import { FilmeSubmitButtons } from "./FilmeSubmitButtons";
+import { BuscadorTMDB } from "./BuscadorTMDB";
 
 interface FilmeFormProps {
   onSuccess: () => void;
@@ -53,9 +54,16 @@ export function FilmeForm({ onSuccess }: FilmeFormProps) {
     }
   };
 
+  const preencherDadosFilme = (dados: Partial<FilmeFormData>) => {
+    Object.entries(dados).forEach(([campo, valor]) => {
+      form.setValue(campo as keyof FilmeFormData, valor as any);
+    });
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <BuscadorTMDB onFilmeEncontrado={preencherDadosFilme} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FilmeInfoBasica form={form} />
           <FilmeMetadados form={form} />
