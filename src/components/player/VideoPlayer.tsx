@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
 import Player from "video.js/dist/types/player";
-import { Play } from "lucide-react";
+import { Play, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -18,6 +18,7 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   const playerRef = useRef<Player | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerInicializado, setPlayerInicializado] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Limpa o player quando o componente é desmontado
   useEffect(() => {
@@ -42,6 +43,7 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
 
   const iniciarPlayer = () => {
     console.log('Botão play clicado, ativando modo de reprodução');
+    setIsLoading(true);
     setIsPlaying(true);
   };
 
@@ -53,6 +55,7 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       console.error('Erro: Container ref não encontrado');
       toast.error('Erro ao inicializar o player. Tente novamente.');
       setIsPlaying(false);
+      setIsLoading(false);
       return;
     }
 
@@ -70,7 +73,7 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       
       // Criar elemento de vídeo
       const videoElement = document.createElement('video');
-      videoElement.className = 'video-js vjs-big-play-centered vjs-fluid';
+      videoElement.className = 'video-js vjs-big-play-centered vjs-fluid vjs-theme-fantasy';
       videoElement.setAttribute('data-setup', '{}');
       
       // Adicionar o elemento de vídeo ao container
@@ -105,6 +108,7 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       playerRef.current = player;
       console.log('Player VideoJS inicializado com sucesso');
       setPlayerInicializado(true);
+      setIsLoading(false);
 
       // Lidar com eventos do player
       player.on('ready', () => {
@@ -124,6 +128,7 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
         toast.error('Erro ao carregar o vídeo. Tente novamente mais tarde.');
         setIsPlaying(false);
         setPlayerInicializado(false);
+        setIsLoading(false);
       });
 
       player.on('playing', () => {
@@ -145,24 +150,43 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       toast.error('Falha ao iniciar o player de vídeo. Tente novamente.');
       setIsPlaying(false);
       setPlayerInicializado(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+    <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black group">
       {!isPlaying ? (
-        <div 
-          className="absolute inset-0 bg-cover bg-center z-10" 
-          style={{ backgroundImage: `url(${posterUrl})` }}
-        >
-          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
-            <h3 className="text-white text-xl font-semibold mb-4">{title}</h3>
+        <div className="absolute inset-0 z-10 overflow-hidden">
+          {/* Poster com efeito de desfoque */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center z-0 transition-transform duration-700 scale-105 group-hover:scale-110" 
+            style={{ 
+              backgroundImage: `url(${posterUrl})`,
+              filter: 'blur(2px)'
+            }}
+          />
+          
+          {/* Overlay gradiente */}
+          <div className="absolute inset-0 bg-black/50 bg-gradient-to-t from-black via-black/70 to-transparent z-10" />
+          
+          {/* Conteúdo */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+            <h3 className="text-white text-2xl font-bold mb-6 text-center px-6 drop-shadow-lg">{title}</h3>
+            
             <Button 
               onClick={iniciarPlayer}
-              className="bg-movieRed hover:bg-movieRed/90 text-white flex items-center gap-2 rounded-full px-6 py-6"
+              className="bg-movieRed hover:bg-movieRed/90 text-white flex items-center gap-2 rounded-full p-8 shadow-lg transform transition-transform duration-300 hover:scale-110"
+              disabled={isLoading}
             >
-              <Play className="h-8 w-8 fill-white" />
+              {isLoading ? (
+                <Loader2 className="h-10 w-10 animate-spin" />
+              ) : (
+                <Play className="h-10 w-10 fill-white" />
+              )}
             </Button>
+            
+            <p className="text-white/80 mt-6 text-sm">Clique para assistir</p>
           </div>
         </div>
       ) : (
