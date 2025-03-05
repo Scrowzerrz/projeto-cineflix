@@ -31,6 +31,7 @@ export const CATEGORIAS = [
   "Romance",
   "Terror",
   "Documentário",
+  "LANÇAMENTOS",
 ] as const;
 
 export const QUALIDADES = [

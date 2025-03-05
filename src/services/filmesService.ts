@@ -55,9 +55,13 @@ export const fetchMovies = async (categoria: string): Promise<MovieCardProps[]> 
         break;
       
       case 'LANÇAMENTOS':
-      default:
         // Filmes que são lançamentos
         query = query.eq('categoria', 'LANÇAMENTOS');
+        break;
+      
+      default:
+        // Se for uma categoria específica (Ação, Comédia, etc)
+        query = query.eq('categoria', categoria);
         break;
     }
     
