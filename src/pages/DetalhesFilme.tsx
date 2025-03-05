@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -17,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useFavoritos } from '@/hooks/useFavoritos';
 import { useAuth } from '@/hooks/useAuth';
 import { MovieResponse } from '@/services/types/movieTypes';
+import CartaoFilme from '@/components/MovieCard';
 
 const DetalhesFilme = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +38,6 @@ const DetalhesFilme = () => {
     enabled: !!id
   });
 
-  // Buscar filmes aleatórios para a seção "Veja também"
   const { 
     data: filmesSugestoes = [],
     isLoading: isLoadingSugestoes
@@ -92,7 +91,6 @@ const DetalhesFilme = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Componente para a seção "Veja também"
   const VejaTambemSection = () => (
     <div className="mt-10">
       <div className="flex items-center justify-between mb-4">
@@ -111,30 +109,24 @@ const DetalhesFilme = () => {
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {isLoadingSugestoes ? (
-          // Loading skeleton para filmes sugeridos
           Array(5).fill(0).map((_, index) => (
             <div key={index} className="group relative rounded-md overflow-hidden">
               <div className="aspect-[2/3] bg-gray-800 animate-pulse"></div>
             </div>
           ))
         ) : (
-          // Filmes sugeridos reais
           filmesSugestoes.map((filmeItem: MovieResponse) => (
-            <Link to={`/movie/${filmeItem.id}`} key={filmeItem.id} className="group relative rounded-md overflow-hidden">
-              <img 
-                src={filmeItem.poster_url} 
-                alt={filmeItem.titulo} 
-                className="aspect-[2/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-white text-sm font-medium truncate">{filmeItem.titulo}</p>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-gray-400 text-xs">{filmeItem.ano}</span>
-                  <span className="text-gray-400 text-xs">{filmeItem.qualidade || 'HD'}</span>
-                </div>
-              </div>
-            </Link>
+            <CartaoFilme
+              key={filmeItem.id}
+              id={filmeItem.id}
+              title={filmeItem.titulo}
+              posterUrl={filmeItem.poster_url}
+              year={filmeItem.ano}
+              duration={filmeItem.duracao}
+              type={filmeItem.tipo}
+              quality={filmeItem.qualidade as 'HD' | 'CAM' | 'DUB' | 'LEG'}
+              rating={filmeItem.avaliacao}
+            />
           ))
         )}
       </div>
@@ -173,14 +165,12 @@ const DetalhesFilme = () => {
     );
   }
 
-  // Formatar avaliação para exibição correta (exemplo: 7.5/10)
   const formattedRating = filme.avaliacao ? `${filme.avaliacao}/10` : '0/10';
 
   return (
     <div className="bg-black min-h-screen">
       <Navbar />
       
-      {/* Hero Section com fundo escurecido */}
       <div 
         className="relative w-full bg-black pt-16"
         style={{ 
@@ -191,9 +181,7 @@ const DetalhesFilme = () => {
         }}
       >
         <div className="container mx-auto px-4 py-10">
-          {/* Conteúdo principal do filme */}
           <div className="flex flex-col md:flex-row gap-8">
-            {/* Poster do filme */}
             <div className="w-full md:w-1/3 lg:w-1/4">
               <div className="rounded-md overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-gray-800">
                 <img 
@@ -203,7 +191,6 @@ const DetalhesFilme = () => {
                 />
               </div>
               
-              {/* Botões de ação no mobile */}
               <div className="flex flex-wrap gap-2 mt-4 md:hidden">
                 <Button 
                   className="w-full bg-movieRed hover:bg-movieRed/90 text-white rounded-md"
@@ -243,15 +230,12 @@ const DetalhesFilme = () => {
               </div>
             </div>
             
-            {/* Informações do filme */}
             <div className="w-full md:w-2/3 lg:w-3/4">
-              {/* Título e subtítulo */}
               <div className="mb-4">
                 <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">{filme.titulo}</h1>
                 <p className="text-gray-400 text-sm">{filme.titulo_original || filme.titulo}</p>
               </div>
               
-              {/* Metadados do filme */}
               <div className="flex flex-wrap items-center gap-3 mb-6">
                 <Badge className="bg-gray-800 text-white hover:bg-gray-700">{filme.ano}</Badge>
                 <Badge className="bg-gray-800 text-white hover:bg-gray-700">{filme.duracao}</Badge>
@@ -272,7 +256,6 @@ const DetalhesFilme = () => {
                 </div>
               </div>
               
-              {/* Gêneros */}
               <div className="flex flex-wrap gap-2 mb-6">
                 {filme.generos?.map((genero, index) => (
                   <Badge 
@@ -285,7 +268,6 @@ const DetalhesFilme = () => {
                 ))}
               </div>
               
-              {/* Sinopse */}
               <div className="mb-6">
                 <h3 className="text-white font-semibold text-lg mb-2">Sinopse</h3>
                 <p className="text-gray-400 leading-relaxed">
@@ -293,7 +275,6 @@ const DetalhesFilme = () => {
                 </p>
               </div>
               
-              {/* Detalhes técnicos */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 <div className="flex items-start gap-2">
                   <Film className="h-5 w-5 text-gray-500 mt-0.5" />
@@ -328,7 +309,6 @@ const DetalhesFilme = () => {
                 </div>
               </div>
               
-              {/* Botões de ação (apenas desktop) */}
               <div className="hidden md:flex flex-wrap gap-3">
                 <Button 
                   className="bg-movieRed hover:bg-movieRed/90 text-white rounded-md px-6"
@@ -380,7 +360,6 @@ const DetalhesFilme = () => {
         </div>
       </div>
       
-      {/* Tabs e conteúdo principal */}
       <div className="bg-black">
         <div className="container mx-auto px-4 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -399,7 +378,6 @@ const DetalhesFilme = () => {
               </TabsTrigger>
             </TabsList>
             
-            {/* Tab de Assistir */}
             <TabsContent value="assistir" className="mt-6 focus-visible:outline-none">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-white text-xl font-semibold">
@@ -427,7 +405,6 @@ const DetalhesFilme = () => {
                 </div>
               </div>
               
-              {/* Player */}
               <div className="w-full aspect-video bg-gray-900 rounded-lg overflow-hidden mb-8 shadow-2xl">
                 {isTrailer ? (
                   <iframe
@@ -446,7 +423,6 @@ const DetalhesFilme = () => {
                 )}
               </div>
               
-              {/* Seção de informações do player/trailer */}
               <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-8">
                 <h3 className="text-white text-lg font-bold mb-3">{filme.titulo}</h3>
                 <p className="text-gray-400 mb-4">{filme.descricao}</p>
@@ -472,11 +448,9 @@ const DetalhesFilme = () => {
                 </div>
               </div>
               
-              {/* Seção "Veja também" */}
               <VejaTambemSection />
             </TabsContent>
             
-            {/* Tab de Comentários */}
             <TabsContent value="comentarios" className="mt-6 focus-visible:outline-none">
               <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-6">
                 <div className="flex items-center gap-3 mb-4">
@@ -522,7 +496,6 @@ const DetalhesFilme = () => {
                 </div>
               </div>
               
-              {/* Seção "Veja também" na aba de comentários */}
               <VejaTambemSection />
             </TabsContent>
           </Tabs>
