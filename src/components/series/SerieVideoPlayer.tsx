@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Play, Info } from 'lucide-react';
 import { SerieDetalhes, TemporadaDB, EpisodioDB } from '@/services/types/movieTypes';
 import VideoPlayer from '@/components/player/VideoPlayer';
-import { useEffect, useState } from 'react';
 
 interface SerieVideoPlayerProps {
   serie: SerieDetalhes;
@@ -22,46 +21,20 @@ const SerieVideoPlayer = ({
   setIsTrailer,
   trocarEpisodio
 }: SerieVideoPlayerProps) => {
-  // Processa a URL do trailer para garantir parâmetros corretos
-  const [trailerUrl, setTrailerUrl] = useState('');
-  
-  useEffect(() => {
-    if (serie.trailer_url) {
-      let url = serie.trailer_url;
-      
-      // Garantir que as URLs do YouTube tenham os parâmetros necessários
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        // Remover parâmetros existentes se houver
-        url = url.split('?')[0];
-        // Adicionar parâmetros para melhor reprodução
-        url = `${url}?autoplay=0&showinfo=0&controls=1&rel=0&origin=${window.location.origin}`;
-      }
-      
-      setTrailerUrl(url);
-    }
-  }, [serie.trailer_url]);
-  
   return (
     <div className="mt-6">
       <div className="w-full mb-8 rounded-xl overflow-hidden shadow-2xl">
         {isTrailer ? (
           <div className="aspect-video bg-black/40 overflow-hidden relative group">
-            {/* Container para o iframe do trailer */}
-            <div className="absolute inset-0 z-10">
-              {trailerUrl && (
-                <iframe
-                  src={trailerUrl}
-                  title={`Trailer: ${serie.titulo}`}
-                  className="w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              )}
-            </div>
-            
             {/* Overlay de gradiente para o iframe */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
+            
+            <iframe
+              src={serie.trailer_url}
+              title={`Trailer: ${serie.titulo}`}
+              className="w-full h-full z-0"
+              allowFullScreen
+            ></iframe>
           </div>
         ) : episodioAtual ? (
           <VideoPlayer 

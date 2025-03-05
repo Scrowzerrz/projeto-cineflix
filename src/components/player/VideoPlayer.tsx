@@ -6,7 +6,6 @@ import Player from "video.js/dist/types/player";
 import { Play, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useMobile } from "@/hooks/use-mobile";
 
 interface VideoPlayerProps {
   playerUrl: string;
@@ -20,7 +19,6 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playerInicializado, setPlayerInicializado] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const isMobile = useMobile();
   
   // Limpa o player quando o componente é desmontado
   useEffect(() => {
@@ -37,7 +35,7 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
   // Efeito para inicializar o player quando o modo de reprodução está ativo
   useEffect(() => {
     // Se está no modo de reprodução e o player ainda não foi inicializado
-    if (isPlaying && !playerInicializado && containerRef.current) {
+    if (isPlaying && !playerInicializado) {
       console.log('isPlaying true, inicializando player');
       inicializarVideoJS();
     }
@@ -47,22 +45,6 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
     console.log('Botão play clicado, ativando modo de reprodução');
     setIsLoading(true);
     setIsPlaying(true);
-  };
-
-  const getVideoType = (url: string) => {
-    // Detectar tipo de mídia com base na URL
-    if (url.includes('.mp4')) return 'video/mp4';
-    if (url.includes('.webm')) return 'video/webm';
-    if (url.includes('.m3u8')) return 'application/x-mpegURL';
-    if (url.includes('.mpd')) return 'application/dash+xml';
-    
-    // Para URLs de streaming ou sem extensão clara:
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      return 'video/youtube';
-    }
-    
-    // Default para HLS (m3u8)
-    return 'application/x-mpegURL';
   };
 
   const inicializarVideoJS = () => {
@@ -91,43 +73,35 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
       
       // Criar elemento de vídeo
       const videoElement = document.createElement('video');
-      videoElement.className = 'video-js vjs-big-play-centered vjs-fluid';
-      videoElement.setAttribute('playsinline', 'true');
-      videoElement.setAttribute('controls', 'true');
+      videoElement.className = 'video-js vjs-big-play-centered vjs-fluid vjs-theme-fantasy';
+      videoElement.setAttribute('data-setup', '{}');
       
       // Adicionar o elemento de vídeo ao container
       container.appendChild(videoElement);
       
       console.log('Elemento de vídeo criado e adicionado ao container');
       
-      // Determinar o tipo de vídeo
-      const videoType = getVideoType(playerUrl);
-      console.log('Tipo de vídeo detectado:', videoType);
-      
       // Inicializar videojs
       const player = videojs(videoElement, {
         controls: true,
         responsive: true,
         fluid: true,
-        preload: 'auto',
-        playsinline: true,
         sources: [{
           src: playerUrl,
-          type: videoType
+          type: 'application/x-mpegURL'
         }],
         poster: posterUrl,
         html5: {
           vhs: {
-            overrideNative: !isMobile,
+            overrideNative: true,
             enableLowInitialPlaylist: true,
             smoothQualityChange: true,
             limitRenditionByPlayerDimensions: false,
           },
-          nativeVideoTracks: isMobile,
-          nativeAudioTracks: isMobile,
-          nativeTextTracks: isMobile
-        },
-        techOrder: ['html5']
+          nativeVideoTracks: false,
+          nativeAudioTracks: false,
+          nativeTextTracks: false
+        }
       });
       
       // Definir referência do player
@@ -144,30 +118,17 @@ const VideoPlayer = ({ playerUrl, posterUrl, title }: VideoPlayerProps) => {
           .then(() => console.log('Reprodução iniciada'))
           .catch(error => {
             console.error('Erro ao iniciar reprodução:', error);
-            // Política de autoplay pode bloquear, então adicionamos um botão para iniciar manualmente
-            toast.info('Clique no player para iniciar a reprodução');
+            toast.error('Erro ao iniciar reprodução. Tente novamente.');
           });
       });
 
       player.on('error', (e) => {
         const error = player.error();
         console.error('Erro no player:', error);
-        
-        // Tentar novamente com outro tipo de mídia se falhar
-        if (videoType === 'application/x-mpegURL' && !isMobile) {
-          console.log('Tentando reproduzir como MP4...');
-          player.src({
-            src: playerUrl,
-            type: 'video/mp4'
-          });
-          player.load();
-          player.play().catch(e => console.error('Erro ao reproduzir como MP4:', e));
-        } else {
-          toast.error('Erro ao carregar o vídeo. Tente novamente mais tarde.');
-          setIsPlaying(false);
-          setPlayerInicializado(false);
-          setIsLoading(false);
-        }
+        toast.error('Erro ao carregar o vídeo. Tente novamente mais tarde.');
+        setIsPlaying(false);
+        setPlayerInicializado(false);
+        setIsLoading(false);
       });
 
       player.on('playing', () => {
